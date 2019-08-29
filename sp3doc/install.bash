@@ -2,9 +2,8 @@ set -e
 
 cd ..
 
-SP3DIR=$(pwd)
-SP3PREFIX=$SP3DIR/sp3
-USERNAME=`whoami`
+SP3PREFIX=$(pwd)/..
+USERNAME=$(whoami)
 
 #
 # ubuntu 18.04 package manager prerequisites
@@ -29,9 +28,6 @@ source env/bin/activate
 #
 # sp3 packages
 #
-if [ ! -d $SP3DIR ] then
-   git clone https://gitlab.com/dvolk/sp3
-fi
 cd sp3
 pip3 install -r requirements.txt
 
@@ -59,6 +55,7 @@ sudo mkdir -p /data/references
 sudo mkdir -p /data/reports/resistance/data
 sudo mkdir -p /data/fetch
 sudo mkdir -p /data/inputs
+sudo mkdir -p /data/databases
 
 sudo chown $USERNAME -R /data/fetch
 sudo chown $USERNAME -R /data/inputs
@@ -114,6 +111,16 @@ Example configuration was created. You need to edit it:
     $SP3PREFIX/fetch-api/config.yaml
 
 You also need to copy $SP3PREFIX/sp3doc/nginx/sp3 to your nginx config and edit it
+
+To use SP3, you need nextflow pipelines, container images and references files
+These should go in
+
+    /data/pipelines
+    /data/images
+    /data/references (reference genomes)
+    /data/databases (other data files required by pipelines)
+
+respectively
 
 EOF
 
