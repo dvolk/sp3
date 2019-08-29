@@ -1,19 +1,10 @@
 set -e
 
-#
-# Get install directory from user
-#
-SP3DIR=$HOME
-echo -n "*** Where to install sp3? [Press return to use $SP3DIR] "
-read answer
-if [ "$answer" ]; then
-    SP3DIR=$answer
-fi
+cd ..
 
+SP3DIR=$(pwd)
 SP3PREFIX=$SP3DIR/sp3
 USERNAME=`whoami`
-cd $SP3DIR
-
 
 #
 # ubuntu 18.04 package manager prerequisites
@@ -38,7 +29,9 @@ source env/bin/activate
 #
 # sp3 packages
 #
-git clone https://gitlab.com/dvolk/sp3
+if [ ! -d $SP3DIR ] then
+   git clone https://gitlab.com/dvolk/sp3
+fi
 cd sp3
 pip3 install -r requirements.txt
 
@@ -57,6 +50,9 @@ python3 setup.py install --user
 sudo cp $SP3PREFIX/catgrid/tools/slurm_emu/* /usr/bin
 sudo chmod a+x /usr/bin/{sbatch,squeue,scancel}
 
+#
+# create directories under /data
+#
 sudo mkdir -p /data/images
 sudo mkdir -p /data/pipelines
 sudo mkdir -p /data/references
@@ -64,9 +60,12 @@ sudo mkdir -p /data/reports/resistance/data
 sudo mkdir -p /data/fetch
 sudo mkdir -p /data/inputs
 
-sudo chown $USERNAME /data/fetch
-sudo chown $USERNAME /data/inputs
+sudo chown $USERNAME -R /data/fetch
+sudo chown $USERNAME -R /data/inputs
 
+#
+# create directories under /work
+#
 sudo mkdir -p /work/runs
 sudo mkdir -p /work/output
 sudo mkdir -p /work/reports/catreport/reports
@@ -75,8 +74,25 @@ sudo mkdir -p /work/logs/reports/resistanceapi
 sudo mkdir -p /work/logs/fetchapi
 sudo mkdir -p /work/logs/catweb
 
+sudo chown $USERNAME -R /work/runs
+sudo chown $USERNAME -R /work/output
+sudo chown $USERNAME -R /work/reports/catreport/reports
+sudo chown $USERNAME -R /work/reports/resistanceapi/vcfs
+sudo chown $USERNAME -R /work/logs/reports/resistanceapi
+sudo chown $USERNAME -R /work/logs/fetchapi
+sudo chown $USERNAME -R /work/logs/catweb
+
+#
+# create database directory
+#
 sudo mkdir -p /db
-sudo chown $USERNAME /db
+sudo chown $USERNAME -R /db
+
+#
+# copy resistance data from repo
+#
+cp -r $SP3PREFIX/resistance/piezo/config/* /data/reports/resistance/data
+cp -r $SP3PREFIX/resistance/data/* /data/reports/resistance/data
 
 #
 # copy example configs to main configs
