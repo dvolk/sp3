@@ -1,0 +1,11 @@
+name: "lodestone+clockworkVC"
+display_name: "Lodestone + Clockwork"
+show: yes
+description: "Standard SP3 pipeline"
+contexts:
+  - name: local
+  - name: slurm
+subflows:
+  - 'lodestoneCR'
+  - 'lodestoneQC'
+  - 'Clockwork - variant call2'

@@ -1,0 +1,24 @@
+name: "CompassNext-maskref"
+display_name: "CompassNext Mask Reference"
+show: yes
+script: 'maskreference.nf'
+# relative if context has these dirs
+root_dir: 'CompassCompact/'
+prog_dir: 'CompassCompact/'
+output_dir: 'output/'
+description: "Mask reference from COMPASS pipeline"
+version: "1.0.2"
+contexts:
+  - name: local
+    arguments: "-profile standard -with-singularity /data/images/oxfordmmm_compasscompact_v1.0.2.img -executor slurm"
+param:
+  description:
+    - name: 'reference'
+      arg: "--ref"
+      type: switch
+      desc: 'Reference file'
+      globs:
+        - /data/references/clockwork/qc_vc/*/ref.fa
+
+output:
+    parameter: "--output_dir"

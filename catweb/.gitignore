@@ -1,0 +1,17 @@
+*#
+*~
+
+# Development
+__pycache__/*.*
+.vscode/*
+
+# Configuration
+configs/*
+config.yaml
+
+# Logging
+api.log
+ui.log
+logs
+output/logs/*
+db/*

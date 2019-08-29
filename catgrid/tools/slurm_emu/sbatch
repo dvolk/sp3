@@ -1,0 +1,52 @@
+#!/usr/bin/env python3.6
+
+import uuid
+import logging
+import pathlib
+import sys
+
+import requests
+
+# this script pretends to be slurm, but actually submits the job to
+# catgrid
+
+# job = Job(data['name'], data['script'], int(data['mem']), data['work_dir'])
+
+def main():
+    if len(sys.argv) <= 1:
+        logging.error("no script given")
+
+    script_filepath = sys.argv[1]
+
+    with open(script_filepath) as f:
+        job_script = f.read()
+
+#    print(job_script)
+
+    job_name = str(uuid.uuid4())
+    job_mem = 1024
+    job_work_dir = str(pathlib.Path.cwd())
+
+    for line in job_script.split('\n'):
+    #        print(line)
+        words = line.split(' ')
+        if len(words) >= 2 and words[0] == '#SBATCH':
+            if words[1] == '-D':
+                job_work_dir = words[2]
+            if words[1] == '-J':
+                job_name = words[2]
+            if words[1] == '--mem':
+                job_mem = words[2]
+
+    data = { 'name': job_name,
+             'script': job_script,
+             'mem': job_mem,
+             'work_dir': job_work_dir }
+
+    cg_uuid = requests.post('http://127.0.0.1:6000/submit', json=data).text
+
+    print(cg_uuid)
+
+
+if __name__ == '__main__':
+    main()

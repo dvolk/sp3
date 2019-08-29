@@ -1,0 +1,68 @@
+
+{% extends "base1.template" %}
+{% block content %}
+  <h4>Cluster status</h4>
+{% if embeds %}
+  {% for embed in embeds %}
+    {% if 'title' in embed %}<h5>{{ embed['title'] }}</h5>{% endif %}
+    {% if 'img' in embed %}<img style='margin-bottom: 20px;' src='{{ embed['img'] }}'>{% endif %}
+  {% endfor %}
+  </br>
+{% endif %}
+
+<h5>Disks</h5>
+
+<table class="table table-hover table-sm tablesorter tablesorter-default">
+   <thead>
+    <tr>
+      <th scope="col"><a href="#">Location</a></th>
+      <th scope="col"><a href="#">Use%</a></th>
+      <th scope="col"><a href="#">Used</a></th>
+      <th scope="col"><a href="#">Size</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for k,v in tbl_df.iterrows() %}
+    <tr>
+      <td scope="row">{{ v['Mounted'] }}</th>
+      <td scope="row">{{ v['Use%'] }}</td>
+      <td scope="row">{{ v['Used'] }}</td>
+      <td scope="row">{{ v['Size'] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h5>Catgrid nodes</h5>
+
+<table style="margin-top: 10px" class="table-striped table table-hover table-sm" style="border: none">
+  <thead>
+    <tr>
+      <th style="padding-right: 50px" scope="col">Node</th>
+      <th scope="col">Process</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for node_name, node in cluster_info.items() %}
+    <tr {#{% if loop.index0 % 2 == 0 %}style="background-color: #e0e0e0"{% endif %}#}>
+      <td scope="row">
+	<span style="font-family: monospace; font-weight: bold">
+	  {{ node_name }}</span>
+      </td>
+      <td>
+    {% for job_dict in node['jobs'] %}
+      {% for job_uuid, job in job_dict.items() %}
+      {% if 'h' in job['duration'] %}
+        <span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm btn-warning">{{ job['name'] }} ({{ job['duration'] }}) <a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a></span>
+      {% else %}
+	<span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm    btn-info">{{ job['name'] }} ({{ job['duration'] }}) <a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a></span>
+      {% endif %}
+      {% endfor %}
+    {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock content %}

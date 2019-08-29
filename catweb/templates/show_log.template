@@ -1,0 +1,9 @@
+{% extends "base1.template" %}
+{% block content %}
+    <h4>Log</h4>
+    <p>{{ uuid }}</p>
+    <hr/>
+    <pre>
+{{ content }}
+    </pre>
+{% endblock content %}

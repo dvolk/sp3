@@ -1,0 +1,42 @@
+{% extends "base1.template" %}
+{% block content %}
+<div class="list-group list-group-flush">
+  {% if metaflows %}
+    <h4>Meta flows</h4>
+    {% for metaflow in metaflows %}
+    <a href="/flow/{{ metaflow['name'] }}" class="list-group-item list-group-item-action flex-column align-items-start">
+      <div class="d-flex w-100 justify-content-between">
+	<h4 class="mb-1">{% if 'display_name' in metaflow %}{{ metaflow['display_name'] }}{% else %}{{ metaflow['name'] }}{% endif %}</h4>
+	<small></small>
+      </div>
+      <div class="d-flex w-100 justify-content-between">
+	<p class="mb-1">{{ metaflow['description'] }}</p>
+	<p class="mb-1">
+	  {#	    <span id="context" class="btn-sm btn-primary"></span> #}
+	</p>
+      </div>
+    </a>
+    {% endfor %}
+    <br/>
+    <h4>Flows</h4>
+  {% endif %}
+    {% for flow in flows %}
+    {% if flow['show'] %}
+    <a href="/flow/{{ flow['name'] }}" class="list-group-item list-group-item-action flex-column align-items-start">
+      <div class="d-flex w-100 justify-content-between">
+	<h4 class="mb-1">{% if 'display_name' in flow %}{{ flow['display_name'] }}{% else %}{{ flow['name'] }}{% endif %}</h4>
+	<small>{{ flow['version'] }}</small>
+      </div>
+      <div class="d-flex w-100 justify-content-between">
+	<p class="mb-1">{{ flow['description'] }}</p>
+	<p class="mb-1">
+	  {% for context in flow['contexts'] %}
+	  <span id="context" class="btn-sm btn-primary">{{ context['name'] }}</span>
+	  {% endfor %}
+	</p>
+      </div>
+    </a>
+    {% endif %}
+    {% endfor %}
+  </div>
+{% endblock content %}

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>SP3 Platform</title>
+  </head>
+  <body style="padding-top: 2%">
+    <div class='container'>
+        <img style="width: 160px; height: 85px; float: left;" src="/static/mmmlogo_small.png">
+        <h1 style="position: relative; top: 10px; left: 10px;">
+          <a href="/" style="text-decoration: none; color: black">Oxford SP<sup>3</sup> Portal</a>
+        </h1>
+        <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
+
+      <h1>Run details</h1>
+      <p><a href="/">main</a> /
+	<a href="/cluster_browse/{{ cluster_info['id'] }}">{{ cluster_info['name'] }}</a> / 
+	<a href="/cluster_run_details/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}">{{ run['output_name'] }}</a>
+      </p>
+
+      <h2>Info</h2>
+      <table class="table table-sm">
+	<tbody>
+	  <tr>
+	    <td>Name</td>
+	    <td>{{ run['output_name'] }}</td>
+	  </tr>
+	  <tr>
+	    <td>Pipeline</td>
+	    <td>{{ run['workflow'] }} {{ run_json_data['flow_git_version'] }}</td>
+	  </tr>
+	  <tr>
+	    <td>Started</td>
+	    <td>{{ run['date_time'] }}</td>
+	  </tr>
+	  <tr>
+	    <td>Run UUID</td>
+	    <td>{{ run['run_uuid'] }}</td>
+	  </tr>
+	  <tr>
+	    <td>Duration</td>
+	    <td>{{ run['duration'] }}</td>
+	  </tr>
+	  <tr>
+	    <td>Status</td>
+	    <td>{{ run['status'] }}</td>
+	  </tr>
+	  <tr>
+	    <td>User</td>
+	    <td>{{ run['user'] }}</td>
+	  </tr>
+	  <tr>
+	    <td>Catweb version</td>
+	    <td>{{ run_json_data['nfweb_git_version'] }}</td>
+	  </tr>
+	  <tr>
+	    <td>Command line</td>
+	    <td>{{ run['command_line'] }}</td>
+	  </tr>
+
+	</tbody>
+      </table>
+
+      <h2>Files</h2>
+      <hr>
+      <ul>
+	<li>
+	  {% if output_dir_exists %}
+	  <a href="https://persistent-files.mmmoxford.uk/files/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}">Browse output files</a>
+	  {% else %}
+	  <p>Output directory not found</p>
+	  {% endif %}
+	</li>
+      </ul>
+      <br>
+      <br>
+
+      <h2>Reports</h2>
+      <table class="table table-sm">
+	<thead>
+	  <tr>
+	    <th>Sample name</th>
+	    <th>Report type</th>
+	    <th>Date generated</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for report in reports %}
+	  <tr>
+	    <td>{{ report['sample_name'] }}</td>
+	    <td>{{ report['type'] }}</td>
+	    <td>{{ report['finished_time_str'] }}</td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+		
+      
+      <br>
+      <hr>
+      <footer>
+	<p>Version 0.1 - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a>, <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2019 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
+      </footer>
+
+    </div>
+  </body>
+</html>

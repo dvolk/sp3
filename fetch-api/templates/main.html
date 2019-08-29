@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<br>
+<div class="row">
+  <div class='col'>
+    <h2>1. New fetch</h2>
+    <form action='/ui/add' method='POST'>
+      <div class="input-group mb-1">
+	<div class="input-group-prepend">
+	  <span class="input-group-text" id="basic-addon1">Accession</span>
+	  <input name="new_accession" type=input-reqr class="form-control" aria-label="new_accession" aria-describedby="basic-addon1">
+	</div>
+      </div>
+      <div class="input-group mb-1">
+	<div class="input-group-prepend">
+	  <span class="input-group-text" id="basic-addon1">Range</span>
+	  <input name="new_fetch_range" type=input-reqr class="form-control" aria-label="new_fetch_range" aria-describedby="basic-addon1">
+	</div> 
+      </div>
+      <button id="submitButton" type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <h2>3. Existing fetches</h2>
+    <table>
+      <tr>
+	<th>Added on</th>
+	<th>kind</th>
+	<th>guid</th>
+	<th>name</th>
+	<th>status</th>
+	<th>progress</th>
+	<th>more</th>
+      </tr>
+      {% for row in fetch_table %}
+      <tr>
+	<td>{{ row[0] }}</td>
+	<td>{{ row[1] }}</td>
+	<td>{{ row[2] }}</td>
+	<td>{{ row[3] }}</td>
+	<td>{{ row[4] }}</td>
+	<td>{{ row[5] }} / {{ row[6] }}</td>
+	<td>
+	  <a href="/ui/details/{{ row[2] }}">details</a> /
+	  <a href="/ui/stop/{{ row[2] }}">stop</a> / 
+	  <a href="/ui/delete/{{ row[2] }}">delete</a>
+	</td>
+      </tr>
+      {% endfor %}
+
+{% endblock content %}

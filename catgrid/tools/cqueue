@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+
+import json
+
+import requests
+import tabulate
+
+r = requests.get('http://localhost:6000/status').json()
+
+nodes = r['nodes']
+running = [x['jobs'] for x in nodes.values()]
+queue = r['queue']
+
+tbl = list()
+
+for node_name, node in nodes.items():
+    for job in node['jobs']:
+        for k, v in job.items():
+            tbl.append([k, v['name'], node_name, 'running'])
+
+for job in queue:
+    for k, v in job.items():
+        tbl.append([k, v['name'], '', 'pending'])
+
+print(tabulate.tabulate(tbl, headers=['ID', 'Name', 'Node', 'Status'], tablefmt='psql'))

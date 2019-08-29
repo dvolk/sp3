@@ -1,0 +1,46 @@
+name: "CompassNext-testing"
+display_name: "CompassNext"
+show: yes
+script: 'main.nf'
+# relative if context has these dirs
+root_dir: 'CompassNext-testing/'
+prog_dir: 'CompassNext-testing/'
+output_dir: 'output/'
+description: "A cloud version of the COMPASS pipeline"
+version: "1.0.2"
+contexts:
+  - name: local
+    arguments: "-profile standard -with-singularity /mnt/disk1/images/oxfordfun_compassnext_v1.0.2-2018-12-20-b490d135328b.img"
+  - name: slurm
+    arguments: "-profile standard -process.executor slurm -with-singularity /mnt/disk1/images/oxfordfun_compassnext_v1.0.2-2018-12-20-b490d135328b.img"
+param:
+  description:
+    - name: 'indir'
+      arg: "--input_dir"
+      type: input-reqr
+      desc: 'Read Directory'
+    - name: 'readpat'
+      type: input-list
+      desc: 'Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz or *.bam)'
+      arg: '--pattern'
+    - name: 'isfastq'
+      type: switch
+      desc: 'File format'
+      arg: '--fastq'
+      options: { 'fastq.gz': 'true', 'bam': 'false' }
+    - name: 'ref'
+      arg: "--ref"
+      type: switch
+      desc: 'Reference in fasta format'
+      globs:
+        - /mnt/disk1/inputs/references/compass/fasta
+    - name: 'mask'
+      arg: "--mask_file"
+      type: switch
+      desc: 'Mask array file'
+      globs:
+        - /mnt/disk1/inputs/references/compass/mask
+output:
+    parameter: "--output_dir"
+count_tasks_per_sample: 5
+count_tasks_ignore: ['bwa_index']

@@ -1,0 +1,5 @@
+*.pyc
+docker/config
+docker/src
+docker/requirements.txt
+env

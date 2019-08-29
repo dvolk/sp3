@@ -1,0 +1,31 @@
+name: "Clockwork_VC"
+display_name: "Clockwork variant call"
+script: "vc.nf"
+show: yes
+root_dir: "clockworkcloud/"
+prog_dir: "clockworkcloud/"
+output_dir: "output/"
+version: "0.1"
+description: "Clockwork variant vall"
+contexts:
+  - name: local
+    arguments: "-with-singularity /data/images/clockwork_container-0.7.7.img -process.executor slurm"
+param:
+  description:
+    - name: 'ref_dir'
+      arg: "--ref_dir"
+      type: switch
+      desc: "Reference directory"
+      globs:
+        - /data/references/clockwork/qc_vc/*
+    - name: 'indir'
+      arg: '--input_dir'
+      type: input-reqr
+      desc: "Input directory"
+    - name: 'readpat'
+      arg: '--read_pattern'
+      type: input-reqr
+      desc: "Input file pattern"
+output:
+      parameter: "--output_dir"
+count_tasks_per_sample: 5

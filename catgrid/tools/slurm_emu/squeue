@@ -1,0 +1,19 @@
+#!/usr/bin/python3.6
+
+import json
+
+import requests
+
+r = requests.get('http://localhost:6000/status').json()
+
+nodes = r['nodes']
+running = [x['jobs'] for x in nodes.values()]
+queue = r['queue']
+
+for node_jobs in running:
+    for job in node_jobs:
+        for k, v in job.items():
+            print(f'{k} R')
+for job in queue:
+    for k, v in job.items():
+        print(f'{k} PD')

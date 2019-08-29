@@ -1,0 +1,660 @@
+#+TITLE: Scalable Pathogen Pipeline Platform
+#+AUTHOR: Denis Volk
+#+EMAIL: denis.volk@ndm.ox.ac.uk
+
+#+OPTIONS: toc:1
+#+LATEX: \setlength\parindent{0pt}
+#+LaTeX_CLASS: article
+#+latex_class_options: [12pt]
+#+LATEX_HEADER: \usepackage[margin=0.75in]{geometry}
+#+LATEX_HEADER: \usepackage[inline]{enumitem}
+#+ATTR_LATEX: :environment tabu
+
+* Overview
+The Scalable Pathogen Pipeline Platform (SP3) is solution for
+genomic analysis in the cloud.
+* User workflow
+#+BEGIN_SRC ditaa :file workflow.png :cmdline -r
+                                             +---------+
+                                    /------->| Monitor |
+                                    |        +---------+
+                                    |
+    +-------+     +--------+     +-----+     +-------------+    
+    | Login |---->| Fetch  |---->| Run |---->| View report |    
+    +-------+     +--------+     +-----+     +-------------+ 
+                                    | 
+                                    |        +----------+
+                                    \------->| Download |
+                                             +----------+
+#+END_SRC
+** Login
+The user selects which SP3 cloud instance to use and logs in.
+** Fetch
+#+BEGIN_SRC ditaa :file fetch.png :cmdline -r
+  +-----------------------------+          +---------------+
+  | European Nucleotide Archive |          | Other sources |
+  +-----------------------------+          +---------------+
+                            |                |
+                            v                v
+                          +--------------------+
+                          |         SP3        |
+                          +--------------------+
+#+END_SRC
+*** From ENA
+If the genomic data that the user wishes to analyze is hosted on
+the ENA, SP3 can fetch it directly. The user goes to the Dataset
+page, clicks New Fetch, inputs the project accession and the samples
+to fetch and clicks New Fetch. The data is fetched from the
+ENA in the background and the progress can be monitored on the 
+dataset page
+*** Other sources
+If they wish to fetch data that isn't hosted on the ENA, they use 
+the provided credentials to estalish a SFTP connection to the cloud 
+instance and upload their data. To register the data with SP3, they 
+go to the Dataset, click New Fetch, select local1 as the Data Source, 
+input the directory to which they have uploaded their data as the 
+Data Identifier and click Start Fetch.
+** Start an analysis run
+Once the dataset is fetched, the user can start a new analysis
+by going to the Datasets page, selecting a pipeline, and clicking
+Run on the dataset they wish to run the analysis on. This takes
+them to the New Run page where they select the settings specific
+to this analysis pipeline.
+
+Once they submit the run, they are taken to the pipeline status
+page where they can monitor the progress of the run.
+** Monitor analysis run progress
+On the pipeline status screen, the user can click the details link
+to go to the run details link. This allows the user to view the
+nextflow log, to stop the run, view the progress per-sample and
+view the commands run and their output for each nextflow task.
+
+When the run is finished, the user can view the Nextflow report,
+the timeline, repeat the run or fetch the output as a new dataset.
+
+The details of the cluster compute can also the viewed on the Compute
+page, providing information on the nodes that are active, disk space
+status, what tasks are running on which nodes and an activity graph
+covering the past 24 hours.
+** View reports
+If the pipeline has an associated report, it can be viewed at the
+run details page by clicking on the sample name.
+** Download output files
+The user can download the analysis output files by clicking View files
+on the run details page. Once there they are given a list of all the
+files, and a preformatted wget command that they can use to download
+the files. It is also possible to browse the files interactively by
+clicking the Download link. This brings the user to a directory
+listing where they can browse the output files and easily download
+individual files
+* Architecture
+** Cloud instance head node
+#+BEGIN_SRC ditaa :file architecture1.png :cmdline -E -S
+/----------------------------------------------------------------------\
+|                                    nfweb                             |
++-----------------------------+-------------------+--------------------+
+|   Fetch API, Download API   |    catreport      |     nextflow       |
++-----------------------------+-------------------+--------------------+
+|                             |  resistance API   |     catgrid        |
++-----------------------------+-------------------+--------------------+
+|                             |                   | catcloud, catstat  |
+\-----------------------------+-------------------+--------------------/
+#+END_SRC
+** Persistent store (WIP)
+#+BEGIN_SRC ditaa :file architecture2.png :cmdline -r
+   +------------------+   +------------------+   +------------------+
+   | Cloud instance 1 |   | Cloud instance 2 |   | Cloud instance 3 |
+   +------------------+   +------------------+   +------------------+
+             |                     |                   |
+             |                     v                   |         
+             |            +------------------+         |         
+             \----------->| Persistent store |<--------/         
+                          +------------------+                         
+#+END_SRC
+#+NAME: workflow
+#+CAPTION: caption
+see [[workflow]]
+
+The persistent store presents a landing page listing all SP3 cloud 
+instances. From there the user can choose one to run their analysis on 
+or view details of the runs or reports from any cloud instance or 
+download run output files.
+
+Each cloud instance has a instance configuration file containing its
+name, id and associated persistent store.
+
+Periodically cloud instances copy their databases, reports, output files
+to the persistent store.
+* Design
+** Scalable
+It automatically creates new nodes  based on demand and destroys them
+once the jobs are finished.
+** Modular
+SP3 uses =Nextflow= as the pipeline language.
+** Easy to deploy
+SP3 can be deployed with a single command (WIP)
+** Performant
+Special consideration was given to making sure the user interface is as
+responsive as possible.
+* Components
+** Catreport
+https://gitlab.com/MMMCloudPipeline/catreport
+
+Catreport is a service that takes report requests, queues them, runs them, stores
+results in files and serves the results to the user interface.
+** Catstat
+https://gitlab.com/MMMCloudPipeline/catstat
+
+Catstat is a service that queries the scheduler and draws a graph showing various
+scheduler statistics.
+** Catweb
+https://gitlab.com/MMMCloudPipeline/catweb
+
+Nfweb is the SP3 user interface. It provides a unified experience for fetching data,
+running pipeline, downloading outputs and viewing reports.
+
+** cattag
+https://gitlab.com/MMMCloudPipeline/cattag
+
+Cattag is the service that provides a web API for adding tags to SP3 runs and samples
+
+** Download API
+https://gitlab.com/MMMCloudPipeline/download-api
+
+The download API is a service providing location and authentication for downloading
+pipeline output files
+
+** Fetch API
+https://gitlab.com/MMMCloudPipeline/fetchapi
+
+The fetch API is a service which downloads and keeps a record of pipeline input
+data.
+
+Supported sources:
+#+ATTR_LATEX: :environment itemize*
+- ENA
+- local directory
+** Resistance API
+https://gitlab.com/MMMCloudPipeline/resistance
+
+Resistance is a collection of software that ultimately provides an API to generate
+the resistance report in JSON format.
+** Catgrid
+https://gitlab.com/MMMCloudPipeline/hypergrid
+
+Catgrid is configurationless, agentless grid scheduler with a web api. It
+emulates SLURM behaviour to make it compatible with Nextflow.
+** Catcloud
+https://gitlab.com/MMMCloudPipeline/catcloud
+
+Catcloud is a python application that creates and destroys virtual machines 
+based on cluster scheduler demand.
+
+Supported platforms:
+#+ATTR_LATEX: :environment itemize*
+- OpenStack
+- GCP
+- AWS
+- Azure
+* Directory Structure
+** SP3 software
+| directory/file             | contents                | owner |
+|----------------------------+-------------------------+-------|
+| ~/sp3/catcloud             | catcloud                | user  |
+| ~/sp3/catgrid              | catgrid                 | user  |
+| ~/sp3/catreport            | catreport               | user  |
+| ~/sp3/catstat              | catstat                 | user  |
+| ~/sp3/catweb               | catweb                  | user  |
+| ~/sp3/catweb/config.yaml.d | catweb pipeline configs | user  |
+| ~/sp3/cattag/              | cattag                  | user  |
+| ~/sp3/downloadapi          | downloadapi             | user  |
+| ~/sp3/fetchapi             | fetchapi                | user  |
+| ~/sp3/resistance           | resistance              | user  |
+** Static data
+|-----------------------------------------+-------------------------+---------------|
+| directory/file                          | contents                | owner         |
+|-----------------------------------------+-------------------------+---------------|
+| /data/images                            | container images        | root          |
+| /data/pipelines                         | nextflow pipelines      | root          |
+| /data/references                        | reference data          | root          |
+| /data/reports/resistance/data           | resistance data         | root          |
+| /data/fetch                             | fetch api data          | fetch api     |
+| /data/inputs                            | fetch api symlinks      | fetch api     |
+** Dynamic data
+|-----------------------------------------+-------------------------+---------------|
+| directory/file                          | contents                | owner         |
+|-----------------------------------------+-------------------------+---------------|
+| /work/runs                              | pipeline runs           | nextflow      |
+| /work/output                            | pipeline outputs        | nextflow      |
+|-----------------------------------------+-------------------------+---------------|
+| /work/reports/catreport/reports         | report files            | catreport     |
+| /work/reports/resistanceapi/vcfs        | resistanceapi temp      | resistanceapi |
+|-----------------------------------------+-------------------------+---------------|
+| /work/logs/reports/resistanceapi        | resistanceapi logs      | resistanceapi |
+| /work/logs/fetchapi*                    | fetchapi logs           | fetchapi      |
+| /work/logs/catweb*                      | catweb logs             | catweb        |
+** Databases
+|----------------------+-----------------+-----------|
+| directory/file       | contents        | owner     |
+|----------------------+-----------------+-----------|
+| /db/catweb.sqlite    | sqlite database | catweb    |
+| /db/catreport.sqlite |                 | catreport |
+| /db/fetch-api.sqlite |                 | fetch-api |
+| /db/cattag.sqlite    |                 | cattag    |
+** System Configuration
+*** nginx
+|-----------------------------------------+-------------------------+---------------|
+| directory/file                          | contents                | owner         |
+|-----------------------------------------+-------------------------+---------------|
+| /etc/nginx/sites-available/sp3          | sp3 nginx config        | root          |
+| /etc/letsencrypt/domain.cert.pem        | domain cert             | root          |
+| /etc/letsencrypt/domain.key.pem         | domain key              | root          |
+| /etc/letsencrypt/options-ssl-nginx.conf | nginx ssl options       | root          |
+| /etc/letsencrypt/ssl-dhparams.pem       | nginx ssl options       | root          |
+* Manual deployment
+** Cloud instance head node
+*** Provision head node
+Create an Ubuntu 18.04 virtual machine/container
+*** Install distribution software
+**** Update repository
+#+BEGIN_SRC
+sudo apt update
+#+END_SRC
+**** Install etckeeper
+#+BEGIN_SRC
+sudo apt install etckeeper
+#+END_SRC
+**** Install packages necessary for python deployment
+#+BEGIN_SRC
+sudo apt install build-essential python3-virtualenv virtualenv libpython3-all-dev
+#+END_SRC
+*** Install nextflow
+#+BEGIN_SRC
+sudo apt install openjdk-8-jre-headless
+cd
+wget https://github.com/nextflow-io/nextflow/releases/download/v18.10.1/nextflow-18.10.1-all -O nextflow
+sudo mv nextflow /usr/bin
+sudo chmod a+x /usr/bin/nextflow
+#+END_SRC
+*** Install openVPN
+#+BEGIN_SRC
+sudo apt install openvpn
+#+END_SRC
+*** Install SP3 software
+**** Create sp3 directory
+#+BEGIN_SRC
+cd
+mkdir ~/sp3
+#+END_SRC
+**** Install catgrid
+#+BEGIN_SRC
+cd ~/sp3
+git clone https://gitlab.com/MMMCloudPipeline/hypergrid catgrid
+cd catgrid
+virtualenv -p python3 env
+source env/bin/activate
+pip3 install -r requirements.txt
+#+END_SRC
+**** Copy =slurm_emu= files to /usr/bin
+#+BEGIN_SRC
+cd ~/sp3/catgrid/tools
+sudo cp slurm_emu/* /usr/bin
+sudo chmod a+x /usr/bin/{sbatch,squeue,scancel}
+#+END_SRC
+**** install catcloud
+#+BEGIN_SRC
+cd ~/sp3
+git clone https://gitlab.com/MMMCloudPipeline/catcloud catcloud
+cd catcloud
+virtualenv -p python3 env
+source env/bin/activate
+pip3 install -r requirements.txt
+cp config.yaml-example config.yaml
+#+END_SRC
+**** Install catweb
+#+BEGIN_SRC
+cd ~/sp3
+git clone https://gitlab.com/MMMCloudPipeline/catweb catweb
+cd catweb
+virtualenv -p python3 env
+source env/bin/activate
+pip3 install -r requirements
+cp config.yaml-example config.yaml
+#+END_SRC
+**** Install fetch-api
+#+BEGIN_SRC
+cd ~/sp3
+git clone https://gitlab.com/MMMCloudPipeline/fetchapi fetch-api
+cd fetch-api
+virtualenv -p python3 env
+source env/bin/activate
+pip3 install -r requirements.txt
+mkdir logs
+#+END_SRC
+**** Install download-api
+#+BEGIN_SRC
+cd ~/sp3
+git clone https://gitlab.com/MMMCloudPipeline/download-api
+cd download-api
+virtualenv -p python3 env
+source env/bin/activate
+pip3 install -r requirements.txt
+#+END_SRC
+**** Install resistance
+#+BEGIN_SRC
+cd ~/sp3
+git clone https://gitlab.com/MMMCloudPipeline/resistance
+cd resistance
+git submodule init
+git submodule update
+virtualenv -p python3 env
+source env/bin/activate
+export PYTHONPATH=~/.local/lib/python3.6/site-packages/
+cd gemucator
+python3 setup.py install --user
+cd ..
+cd piezo
+pip3 install datreant tqdm pandas pyvcf
+python3 setup.py install --user
+cd ..
+cd resistanceapi
+pip3 install -r requirements.txt
+#+END_SRC
+*** Install catreport
+#+BEGIN_SRC
+cd ~/sp3
+git clone https://gitlab.com/MMMCloudPipeline/catreport.git
+cd catreport
+virtualenv -p python3 env
+source env/bin/activate
+pip3 install -r requirements.txt
+#+END_SRC
+*** Install and configure nginx
+#+BEGIN_SRC
+sudo apt install nginx
+#+END_SRC
+*** Copy sp3 nginx config
+#+BEGIN_SRC
+cd /etc/nginx/sites-available
+sudo wget 'https://files.mmmoxford.uk/f/7b7bd07669b5417e8998/?dl=1' -O sp3
+cd /etc/nginx/sites-enabled
+sudo ln -s /etc/nginx/sites-available/sp3
+#+END_SRC
+*** Copy domain keys to =/etc/letsencrypt/=
+#+BEGIN_SRC
+sudo mkdir /etc/letsencrypt/
+#+END_SRC
+Copy =domain.cert.pem= and =domain.key.pem= to =/etc/letsencrypt/=
+
+Copy =/etc/letsencrypt/options-ssl-nginx.conf= and =/etc/letsencrypt/ssl-dhparams.pem= to =/etc/letsencrypt/=
+*** Edit nginx config
+edit =/etc/nginx/sites-available/sp3=
+*** Restart nginx
+#+BEGIN_SRC
+sudo systemctl restart nginx
+#+END_SRC
+*** Install pipelines
+*** Create directories
+#+BEGIN_SRC
+sudo mkdir -p /data /work
+sudo chown ubuntu:ubuntu /data /work
+sudo mkdir -p /db
+sudo chown ubuntu:ubuntu /db
+#+END_SRC
+*** Move data into correct folders
+The =/data= directory is mounted read-only on the compute nodes
+
+Files that don't change should be owned by root and
+not writable by other users
+** Persistent store
+*** Install persistence
+#+BEGIN_SRC
+cd ~/sp3
+git clone https://gitlab.com/MMMCloudPipeline/persistence
+cd persistence
+pip3 install flask pyyaml requests
+#+END_SRC
+* Configuration
+** Catweb main configuration
+*** Example configuration
+#+begin_example
+contexts:
+  - name: local
+    prog_dirs:   '/data/pipelines'
+    root_dirs:   '/work'
+    output_dirs: '/work/output'
+    images_dir:  '/data/images'
+
+canonical_prog_dir: '/data/pipelines'
+log_dir: '/home/ubuntu/sp3/catweb/logs'
+db_target: '/db/catweb.sqlite'
+download_url: 'https://download-cats.oxfordfun.com/files/'
+
+nextflows:
+  - !include config.yaml.d/clockwork/variant_call.yaml
+
+nfweb_api: { host: '127.0.0.1', port: '7100' }
+fetch_api: { host: '127.0.0.1', port: '7200' }
+
+authentication: ldap
+
+ldap:
+  - name: 'ndm.local'
+    host: '192.168.7.16'
+    admins: ['denisv@ndm.local', 'fan@ndm.local']
+
+users:
+  - name: compass
+
+cluster_view:
+  disk_filter: "home|sda|sdb|sdc"
+  embeds:
+    - title: 'Statistics'
+    - img: 'https://stat-cats.oxfordfun.com/draw'
+#+end_example
+*** Notes
+~Contexts~ is a legacy field. You should only have the ~local~ context.
+*** Explanation of fields
+|-----------------------------+------------------------------------------------------------------------------|
+| Name                        | Explanation                                                                  |
+|-----------------------------+------------------------------------------------------------------------------|
+| =contexts=                  | list of contexts                                                             |
+| =contexts.name=             | name of context                                                              |
+| =contexts.prog_dirs=        | directory containing nextflow pipelines (will be ={prog_dirs}/{flow_name}=)  |
+| =contexts.root_dirs=        | directory containing nextflow run files (will be ={root_dirs}/runs/{uuid}/=) |
+| =contexts.output_dirs=      | directory containing nextflow outputs (will be ={output_dirs}/{uuid}=)       |
+|-----------------------------+------------------------------------------------------------------------------|
+| =canonical_prog_dir=        | ~prog_dir~ that is used by catweb to get nextflow pipeline versions from git |
+| =log_dir=                   | directory to put catweb configuration files into                             |
+| =db_target=                 | sqlite database filepath                                                     |
+| =download_url=              | prefix for nginx file downloads (url will be ={download_url}/{uuid}=)        |
+|-----------------------------+------------------------------------------------------------------------------|
+| =nextflows=                 | list of flows                                                                |
+| =nextflows.!include=        | flows to include                                                             |
+|-----------------------------+------------------------------------------------------------------------------|
+| =nfweb_api=                 |                                                                              |
+| =nfweb_api.host=            | hostname of nfweb api                                                        |
+| =nfweb_api.port=            | port of nfweb api                                                            |
+| =fetch_api=                 |                                                                              |
+| =fetch_api.host=            | hostname of fetch api                                                        |
+| =fetch_api.port=            | port of fetch api                                                            |
+|-----------------------------+------------------------------------------------------------------------------|
+| =ldap=                      | list of ldap                                                                 |
+| =ldap.name=                 | name of ldap configuration                                                   |
+| =ldap.host=                 | hostname of ldap server                                                      |
+| =ldap.admins=               | list of ldap admins                                                          |
+|-----------------------------+------------------------------------------------------------------------------|
+| =users=                     | List of built-in users (deprecated)                                          |
+| =users.name=                |                                                                              |
+|-----------------------------+------------------------------------------------------------------------------|
+| =cluster_view=              | Catweb cluster view configuration                                            |
+| =cluster_view.disk_filter=  | Regular expression identifying which disks to display                        |
+| =cluster_view.embeds=       | List of embeds                                                               |
+| =cluster_view.embeds.title= | Title of embed                                                               |
+| =cluster_view.embeds.img=   | Link of embed                                                                |
+** Catweb flow configuration
+*** Example configuration
+#+begin_example
+name: "Clockwork_VC"
+display_name: "Clockwork variant call"
+script: "vc.nf"
+show: yes
+root_dir: "clockworkcloud/"
+prog_dir: "clockworkcloud/"
+output_dir: "output/"
+version: "0.1"
+description: "Clockwork variant vall"
+contexts:
+  - name: local
+    arguments: "-process.executor slurm"
+param:
+  description:
+    - name: 'ref_dir'
+      arg: "--ref_dir"
+      type: switch
+      desc: "Reference directory"
+      globs:
+        - /data/references/clockwork/qc_vc/*
+    - name: 'indir'
+      arg: '--input_dir'
+      type: input-reqr
+      desc: "Input directory"
+    - name: 'readpat'
+      arg: '--read_pattern'
+      type: input-reqr
+      desc: "Input file pattern"
+output:
+      parameter: "--output_dir"
+count_tasks_per_sample: 5
+#+end_example
+*** Explanation of fields
+|--------------------------+--------------------------------------------------------------------|
+| Field name               | Field description                                                  |
+|--------------------------+--------------------------------------------------------------------|
+| =name=                   | Name of pipeline                                                   |
+| =display_name=           | Name to display in catweb                                          |
+| =script=                 | Nextflow script filename                                           |
+| =show=                   | Toggle showing this script in catweb (=yes=/=no=)                  |
+| =root_dir=               | Not used                                                           |
+| =prog_dir=               | Directory of nextflow pipeline relative to the context =prog_dirs= |
+| =description=            | Description of pipeline                                            |
+| =contexts=               | List of contexts                                                   |
+| =contexts.name=          | Name of context                                                    |
+| =contexts.arguments=     | Arguments specific to this context                                 |
+| =param=                  | List of params                                                     |
+| =param.description=      |                                                                    |
+| =param.description.name= | Name of parameter                                                  |
+| =param.description.arg=  | Nextflow command-line key for parameter                            |
+| =param.description.type= | =switch= or =input-reqr=                                           |
+| =param.description.desc= | Description of parameter                                           |
+| =param.output=           |                                                                    |
+| =param.output.parameter= | Nextflow command-line key that determines the output directory     |
+| =count_tasks_per_sample= | How many nextflow tasks (processes) there are per input sample     |
+
+** Deployment
+*** Tmux
+Tmux can be used to organise each running process. Create a new pane for each process described below
+Use "ctrl-b c" to create a new pane and "ctrl-b ," to  rename the pane to a more understandable name
+
+*** Catgrid
+#+BEGIN_SRC
+cd ~/sp3
+cd Catgrid
+source env/bin/activate
+python3 hypergrid.py
+#+END_SRC
+
+*** Catcloud
+#+BEGIN_SRC
+cd ~/spc/catcloud
+source env/bin/activate
+python3 main.py --profile <profile name>
+#+END_SRC
+
+*** Fetch
+#+BEGIN_SRC
+cd ~/sp3/fetchapi
+source env/bin/activate
+python3 api.py
+#+END_SRC
+
+*** Download
+#+BEGIN_SRC
+cd ~/sp3/download-api
+source env/bin/activate
+python3 api.py
+#END_SRC
+
+*** Catstat
+#+BEGIN_SRC
+cd ~/sp3/catstat
+source env/bin/activate
+python3 main.py
+#+END_SRC
+
+*** Catweb API
+#+BEGIN_SRC
+cd ~/sp3/catweb
+source env/bin/activate
+python3 api.py
+#+END_SRC
+
+*** Catweb UI
+#+BEGIN_SRC
+cd ~/sp3/catweb
+source end/bin/activate
+python3 ui.py
+#+END_SRC
+
+*** OpenVPN
+Replace <vpn config file> with the name/path of your config file
+#+BEGIN_SRC
+cd ~/sp3
+sudo openvpn --config <vpn config file>
+#+END_SRC
+
+*** Resistance API
+#+BEGIN_SRC
+cd ~/sp3/resistance
+source env/bin/activate
+cd resistanceapi
+python3 src/main.py
+#+END_SRC
+
+*** Report
+#+BEGIN_SRC
+cd ~/sp3/catreport
+source env/bin/activate
+python3 main.py
+#+END_SRC
+
+*** Deploying pipelines
+1. Clone pipeline code to /data/pipelines/bug-flow
+2. Create/copy config file ~/sp3/catweb/config.yaml
+3. Add one line to ~/sp3/catweb/config.yaml
+   Under the "nextflows:" add
+   "- !include config.yaml.d/davideyre/bug-flow.yaml"
+4. Copy singularity files to /data/images
+5. Restart catweb api and ui
+
+** Persistent store configuration
+*** Example configuration
+#+begin_example
+name: Cats
+id: 44444444-4444-4444-4444-444444444444
+store: 131.251.130.111
+url: https://cats.oxfordfun.com
+contact: denis.volk@ndm.ox.ac.uk
+description: SP3 instance in CLIMB Cardiff
+#+end_example
+*** Explanation of fields
+|---------------+----------------------------------|
+| Field name    | Field description                |
+|---------------+----------------------------------|
+| =name=        | Name of cluster instance         |
+| =id=          | UUIDv4 of instance               |
+| =store=       | persistent store host address    |
+| =url=         | URL of catweb for this instance  |
+| =contact=     | Contact email for instance admin |
+| =description= | Instance description             |
+

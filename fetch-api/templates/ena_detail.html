@@ -1,0 +1,44 @@
+
+{% block content %}
+
+<h2 id='details'>
+  <a href='#details'>1. Details</a>
+</h2>
+<p>Fetch UUID: {{ guid }}</p>
+<p>Accession: {{ name }}</p>
+<p>Fetch range: {{ fetch_range }}</p>
+<p>Status: {{ status }}</p>
+<p>Progress: {{ progress }} / {{ total }}</p>
+<p>Pipeline input dir: {{ input_dir }}</p>
+</div>
+
+<h2 id="files">
+  <a href="#files">2. Files</a>
+</h2>
+<table>
+  <tr>
+    <th>File</th>
+    <th>MD5</th>
+  </tr>
+  {% for row in file_table %}
+  {% if loop.index0 < progress %}
+  <tr style='background-color: #ADFF2F'>
+  {% else %}
+  <tr>
+  {% endif %}
+    <td>{{ row[0] }}</td>
+    <td>{{ row[1] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2 id='log'><a href='#log'>3. Log</a></h2>
+<pre style='font-family: monospace;'>{{ log }}</pre>
+
+<h2 id='metadata'>
+  <a href='#metadata'>4. ENA metadata table</a>
+</h2>
+
+{{ ena_table|safe }}
+
+{% endblock content %}

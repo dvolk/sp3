@@ -1,0 +1,77 @@
+{% extends "base1.template" %}
+{% block content %}
+
+<h4>Create a new run for <span class="text-info"> {{ flow_cfg['name'] }}</span></h4>
+<p id="header-workdir"></p>
+<form action='/flow/{{ flow_cfg['name'] }}/new' method='POST'>
+  <input type="hidden" name="ref_uuid" id="ref_uuid" value="{{ ref_uuid }}">
+  {# ==============Project Name ================ #}
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Run Name</span>
+    </div>
+    <input name="run_name" id="run_name" type=text class="form-control" aria-label="Run Name"
+	   value="{{ flow_cfg['name'] }}-{{ now }}"  aria-describedby="basic-addon1" >
+  </div>
+  {# ==============Execution Context ================ #}
+  <div class="input-group mb-3" hidden>
+    <div class="input-group-prepend">
+      <label class="input-group-text" for="context">Execution context</label>
+    </div>
+    <select class="custom-select" id="context" name="context">
+      {% for context in flow_cfg['contexts'] %}
+      <option value="{{ context['name'] }}">{{ context['name'] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  {# ==============User Parameter Key-Value ================ #}
+  {% for param in flow_cfg['param']['description'] %}
+  <div class="input-group mb-3"
+       >
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">{{ param['desc'] }}</span>
+    </div>
+    {% if param['type'] == 'switch' %}
+    <select class="custom-select" name="{{ param['name'] }}-and-{{ param['arg'] }}" id="text-outProj">
+      {% for k,v in param['options'].items() %}
+      {% set is_selected = param['arg'] in user_param_dict and user_param_dict[param['arg']] == v %}
+      <option value="{{ v }}"{% if is_selected %} selected{% endif %}>{{ k }}</option>
+      {% endfor %}
+    </select>
+    {% else %}
+    <input name="{{ param['name'] }}-and-{{ param['arg'] }}"
+	   id="text-outProj" type="text"
+	   class="form-control"
+	   aria-describedby="basic-addon1"
+	   {% if param['arg'] in user_param_dict %}
+	   value="{{ user_param_dict[param['arg']] }}"
+	   {% elif given_input and param['name'] == 'indir' %}
+	   value="{{ given_input }}"
+	   {% elif param['name'] == 'readpat' %}
+	   {% if guessed_filename_format %}
+	   value="{{ guessed_filename_format }}"
+	   {% else %}value="Couldn't guess format" style="background-color: pink"{% endif %}
+	   {% endif %}
+	   {% set is_req = not param['optional'] %}
+	   {% if is_req %} required {% endif %}
+           {% if (param['name'] == 'readpat' and guessed_filename_format) or
+           (param['name'] == 'indir' and given_input) %} readonly {% endif %}
+           />
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <button id="submitButton" type="submit" class="btn btn-primary">Submit run</button>
+</form>
+
+{% if sample_names and references and 'refmap' in flow_cfg %}
+<form action='/map_samples' method='POST'>
+  <input type="hidden" name="references" id="references" value="{{ references }}">
+  <input type="hidden" name="sample_names" id="sample_names" value="{{ sample_names }}">
+  <input type="hidden" name="flow_name" id="flow_name" value="{{ flow_cfg['name'] }}">
+  <input type="hidden" name="fetch_given_input_b" id="fetch_given_input_b" value="{{ fetch_given_input_b }}">
+  <button style="margin-top: 5px;" id="submitButton" type="submit" class="btn btn-primary">Map individual samples</button>
+</form>
+{% endif %}
+
+{% endblock content %}

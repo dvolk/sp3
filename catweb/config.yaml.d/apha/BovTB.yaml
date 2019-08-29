@@ -1,0 +1,57 @@
+name: "apha-btb"
+display_name: "APHA BTB"
+show: yes
+script: 'btb-docker.nf'
+# relative if context has these dirs
+root_dir: 'BovTB-nf-docker/'
+prog_dir: 'BovTB-nf-docker/'
+output_dir: 'output/'
+description: "APHA Bovine TB pipeline"
+version: "1.0.2"
+contexts:
+  - name: local
+    arguments: "-c /data/pipelines/BovTB-nf-docker/nextflow-docker.config -with-singularity /data/images/apha-btb-v0.5.4.img -process.executor slurm"
+param:
+  description:
+    - name: 'indir'
+      arg: "--input_dir"
+      type: input-reqr
+      desc: 'Read Directory'
+    - name: 'readpat'
+      type: input-list
+      desc: 'Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz or *.bam)'
+      arg: '--reads'
+    - name: 'ref'
+      desc: 'Bovine reference file'
+      arg: '--ref'
+      type: switch
+      globs:
+        - /data/references/apha-btb/*.fas
+    - name: 'refgbk'
+      arg: "--refgbk"
+      desc: 'Reference genebank file'
+      type: switch
+      globs:
+        - /data/references/apha-btb/*.gb
+    - name: 'stage1pat'
+      arg: "--stage1pat"
+      desc: 'Stage 1 pattern directory'
+      type: switch
+      globs:
+        - /data/references/apha-btb/Stage1*
+    - name: 'stage1pat'
+      arg: "--stage2pat"
+      desc: 'Stage 2 pattern directory'
+      type: switch
+      globs:
+        - /data/references/apha-btb/Stage2*
+    - name: 'kraken2db'
+      arg: "--kraken2db"
+      desc: 'Kraken 2 database'
+      type: switch
+      globs:
+        - /data/databases/BovTB-nf-docker/kraken/*
+output:
+    parameter: "--output_dir"
+count_tasks_per_sample: 9
+count_tasks_ignore: ['BWAIndex', 'MaskRef']

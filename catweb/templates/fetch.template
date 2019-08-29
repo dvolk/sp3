@@ -1,0 +1,38 @@
+{% extends "base1.template" %}
+{% block content %}
+<h4>Datasets</h4>
+  <a href="/fetch_data"><button type="button" class="btn btn-primary">New Fetch</button></a>
+<table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top: 10px">
+  <thead>
+    <tr>
+      <th scope="col"><a href="#">Submit time</a></th>
+      <th scope="col"><a href="#">Kind</a></th>
+      <th scope="col"><a href="#">Name</a></th>
+      <th scope="col"><a href="#">Progress</a></th>
+      <th scope="col"><a href="#">Status</a></th>
+      <th scope="col" class='text-right'>Action</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for k,v in fetches.items() %}
+    <tr>
+      <td scope="row">{{ v['started']|lower }}</td>
+      <td scope="row">{{ v['kind'] }}</td>
+      <td scope="row">{{ v['name'] }}</td>
+      <td scope="row">{{ v['progress'] }} / {{ v['total'] }}</td>
+      <td scope="row">
+	    <span href="#" style="padding: 3px; background-color: {% if v['status'] == "failure" %}#FF6347{% else %}#F0F8FF{% endif %}">
+	    {{ v['status'] }}</span></td>
+      <td scope="row" class='text-right'>
+        <a class='text-primary' href="/select_flow/{{ k }}">select</a> /
+        <a class='text-info' href="/fetch_details/{{ k }}">details</a> / 
+        <a class='text-danger text-muted' href="/fetch_stop/{{ k }}">stop</a> / 
+        <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > delete
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock content %}
+

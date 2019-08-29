@@ -1,0 +1,36 @@
+{% extends 'base1.template' %}
+
+{% block content %}
+<div class="row">
+  <div class="container">
+    <h4>Login Required</h4>
+    <hr />
+  </div>
+  <br>
+  <div class="col-md-6">
+    <form action="login" class="form-horizontal" method="post" role="form">
+      <input name="" type="hidden" value="" />
+      <div class="form-group">
+        <div class="col-md-10">
+	  <label class="control-label" for="Email">Username (i.e. you@ndm.local)</label>
+          <input class="form-control" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="username" type="text" value="" />
+          <span class="field-validation-valid text-danger" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-10">
+          <label class="control-label" for="Password">Password</label>
+          <input class="form-control" data-val="true" data-val-required="The Password field is required." id="password" name="password" type="password" />
+          <span class="field-validation-valid text-danger" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+          <input type="submit" value="Log in" class="btn btn-primary" />
+        </div>
+      </div>
+    </form>
+    <div class="col-md-6"></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+contexts:
+  - name: local
+    prog_dirs:   '/data/pipelines'
+    root_dirs:   '/work'
+    output_dirs: '/work/output'
+    images_dir:  '/data/images'
+
+canonical_prog_dir: '/data/pipelines'
+log_dir: '/home/ubuntu/sp3/catweb/logs'
+db_target: '/db/catweb.sqlite'
+download_url: 'https://download-cats.oxfordfun.com/files/'
+head_node_ip: '192.168.9.9'
+
+nextflows:
+  - !include config.yaml.d/clockwork/combined.yaml
+  - !include config.yaml.d/clockwork/variant_call.yaml
+  - !include config.yaml.d/clockwork/qc.yaml
+  - !include config.yaml.d/compass/compasscompact-bwa.yaml
+  - !include config.yaml.d/lodestone/lodestone-cr.yaml
+  - !include config.yaml.d/lodestone/lodestone-qc.yaml
+  - !include config.yaml.d/apha/BovTB.yaml
+  - !include config.yaml.d/davideyre/bug-flow.yaml
+
+nfweb_api: { host: '127.0.0.1', port: '7100' }
+fetch_api: { host: '127.0.0.1', port: '7200' }
+cattag_api: { host: '192.168.9.9', port: '12000' }
+
+authentication: ldap
+
+ldap:
+  - name: 'ndm.local'
+    host: '192.168.7.16'
+    admins: ['denisv@ndm.local', 'fan@ndm.local']
+
+users:
+  - name: compass
+
+cluster_view:
+  disk_filter: "home|sda|sdb|sdc"
+  embeds:
+    - title: 'Statistics'
+    - img: 'https://stat-cats.oxfordfun.com/draw'

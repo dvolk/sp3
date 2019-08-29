@@ -1,0 +1,27 @@
+name: "lodestoneQC"
+display_name: "Lodestone Quality Control"
+show: no
+script: 'lodestone_qc.nf'
+# relative if context has these dirs
+root_dir: 'lodestoneQc/'
+prog_dir: 'lodestoneQc/'
+output_dir: 'output/'
+description: "SP3 Quality Control pipeline"
+version: "1.0.1"
+contexts:
+  - name: local
+    arguments: "-with-singularity /data/images/lodestone-qc-1.0.img -process.executor slurm"
+param:
+  description:
+    - name: 'indir'
+      arg: "--in_dir"
+      type: input-reqr
+      desc: 'Read Directory'
+    - name: 'readpat'
+      type: input-list
+      desc: 'Input file pattern'
+      arg: '--read_pattern'   
+output:
+    parameter: "--out_dir"
+    fetch_subdir: "trimmomatic"
+    fetch_readpat: "*.{forward_paired,reverse_paired}.fq.gz"

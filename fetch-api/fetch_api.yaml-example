@@ -1,0 +1,9 @@
+# queue sqlite db (created if it doesn't exist)
+queue_sqlite_target: "/db/fetch-api.sqlite"
+
+# where to download files to
+ena_download_dir: "/data/fetch/ena/"
+
+# where to flatten the files to
+ena_flatten_dir: "/data/inputs/ena/"
+local_flatten_dir: "/data/inputs/local/"

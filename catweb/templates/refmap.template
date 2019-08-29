@@ -1,0 +1,29 @@
+{% extends "base1.template" %}
+{% block content %}
+
+<h2>Select references</h2>
+
+<p>Select reference per sample</p>
+<p>Note: this overrides the run reference selected on the previous page</p>
+
+<form action='/map_samples' method='POST'>
+
+  <input type="hidden" id="fetch_given_input_b" name="fetch_given_input_b" value='{{ fetch_given_input_b }}'>
+  <input type="hidden" id="flow_name" name="flow_name" value='{{ flow_name }}'>
+  
+  {% for sample_name in sample_names %}
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">{{ sample_name }}</span>
+    </div>
+    <select class="custom-select" name="_ref_{{ sample_name }}" id="_ref_{{ sample_name }}">
+      {% for reference in references %}<option value="{{ reference }}">{{ reference }}</option>{% endfor %}
+    </select>
+  </div>
+  {% endfor %}
+
+  <button id="submitButton" type="submit" name="submit" class="btn btn-primary">Confirm</button>
+  <button id="submitButton" type="submit" name="cancel" class="btn btn-warning">Cancel</button>
+
+</form>
+{% endblock content %}

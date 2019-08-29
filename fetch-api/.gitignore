@@ -1,0 +1,7 @@
+downloads
+logs
+*.pyc
+fetch_api.yaml
+.vscode/*
+*.json
+

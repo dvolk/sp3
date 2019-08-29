@@ -1,0 +1,45 @@
+{% extends "base1.template" %}
+{% block content %}
+  <h4>New Fetch</h4>
+  <form action="/fetch_new" method="get">
+  <div class="form-group" style="margin-bottom:0px">
+      <div class="input-group" >
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="basic-addon1">Data Source</span>
+            </div>
+            <select name="fetch_kind" class="form-control">
+	    {% for k in sources %}
+                <option {% if data_kind and data_kind == k %}selected{% endif %}>{{ k }}</option>
+	    {% endfor %}
+            </select>
+          </div>
+      </div>
+      <p>Supported data sources:<br>
+      {% for k,v in sources.items() %}
+        {{ k }} - {{ v['description'] }}</br>
+      {% endfor %}
+      </p>
+
+      <div class="input-group ">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="basic-addon1">Data Identifier</span>
+            </div>
+            <input name="fetch_name" type=text class="form-control" {% if data_identifier %}value='{{ data_identifier }}'{% endif %} required>
+      </div>
+      <p>Example: PRJEB25968</p>
+
+      <div class="input-group ">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="basic-addon1">Data Filter</span>
+            </div>
+            <input name="fetch_range" type=text class="form-control">
+      </div>
+      <p>Syntax example: 0,2,10-20</p>
+
+      <div class="input-group ">
+          <button type="Submit" class="btn btn-primary">Start Fetch</button>
+      </div>
+  </div>
+  </form>
+
+{% endblock content %}

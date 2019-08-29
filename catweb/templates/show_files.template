@@ -1,0 +1,13 @@
+{% extends "base1.template" %}
+{% block content %}
+  <h4>Output Files</h4>
+  <p>Run uuid: {{ uuid }}</p>
+  <p><a href="{{ download_url }}{{ uuid }}/"><b>Download link</b></a></p>
+  <p>Download files with wget command:</p>
+<pre>wget -m -nH --cut-dirs=1 -np -R 'index.*' {{ download_url }}{{ uuid }}/</pre>
+<p>You can selectively download files using the -A flag. For example, to download only vcf files, add: <pre>-A '*.vcf'</pre> to the above command.</p>
+  <hr/>
+  <pre>
+{{ content }}
+  </pre>
+{% endblock content %}

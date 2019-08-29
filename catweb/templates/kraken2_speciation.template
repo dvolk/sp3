@@ -1,0 +1,45 @@
+<p>Report generated on: <strong>{{ kraken2_speciation['finished_epochtime'] }}</strong></p>
+
+<div class='row'>
+  <div class="col-md-8">
+    <table class="table table-sm table-bordered">
+      <thead>
+	<th>Type</th>
+	<th>Identified</th>
+	<th>Coverage</th>
+	<th>Fragments</th>
+      </thead>
+      <tbody>
+	{% set types = ['family', 'genus', 'species'] %}
+	{% for type in types %}
+	{% if not kraken2_speciation[type].empty %}
+	<tr>
+	  <td>{{ type|capitalize }}</td>
+	  <td>{{ kraken2_speciation[type].Name.max() }}</td>
+	  <td>{{ kraken2_speciation[type]['RootFragments%'].max() }}%</td>
+	  <td>{{ kraken2_speciation[type]['RootFragments'].max() }}</td>
+	</tr>
+	{% endif %}
+	{% endfor %}
+
+	{# additional species that we want to look for #}
+	{% set specials = [['species','human'], ['family','mycobacteriaceae']] %}
+	{% for special_tax, special_name in specials %}
+	{% if not kraken2_speciation[special_name].empty and
+	      ( special_tax in kraken2_speciation and
+   	        kraken2_speciation[special_name].Name.max() != kraken2_speciation[special_tax].Name.max()
+	      )
+        %}
+	<tr>
+	  <td>{{ special_tax|capitalize }}</td>
+	  <td>{{ kraken2_speciation[special_name].Name.max() }}</td>
+	  <td>{{ kraken2_speciation[special_name]['RootFragments%'].max() }}%</td>
+	  <td>{{ kraken2_speciation[special_name]['RootFragments'].max() }}</td>
+	</tr>
+	{% endif %}
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+

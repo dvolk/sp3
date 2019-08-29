@@ -1,0 +1,79 @@
+{% extends "base1.template" %}
+{% block content %}
+  <h4>{{ stuff['display_name'] }}</h4>
+  {% if subflow_display_names %}
+    <p>Composed of:</p>
+    {% for subflow_display_name in subflow_display_names %}
+    {% if loop.index0 == 0 %}
+    <h5 style="display: inline">{{ subflow_display_name }}</h5>
+    {% else %}
+    <h5 style="display: inline"> ➔ {{ subflow_display_name }}</h5>
+    {% endif %}
+    {% endfor %}
+    <br/><br/>
+  {% endif %}
+  <a href="/flow/{{ stuff['flow_name'] }}/new"><button type="button" class="btn btn-primary">New Run</button></a>
+  <a href="/edit_flow_config/{{ stuff['flow_name'] }}"><button type="button" class="btn btn-info">Edit Config</button></a>
+  {% if not subflow_display_names %}
+  <a href="/flow/{{ stuff['flow_name'] }}/nf_script"><button type="button" class="btn btn-info">View Script</button></a>
+  {% endif %}
+  <br/>
+<table class="table table-hover table-sm" style="margin-top:10px">
+  <thead>
+    <tr>
+      <th scope="col">Started On</th>
+      <th scope="col">User</th>
+      <th scope="col">Name</th>
+      <th scope="col">Duration</th>
+      <th scope="col">Samples</th>
+      <th scope="col">Status</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for entry in data %}
+    <tr>
+      <th scope="row">{{ entry[0] }}</th>
+      <td>{{ entry[7] }}</td>
+      <td>{{ entry[19] }}</td>
+      <td>{{ entry[1] }}</td>
+      <td>{% if entry[21] == -1 %}{% else %}{{ entry[21] }}{% endif %}</td>
+      <td>
+	<span href="#" style="padding: 3px; background-color: {% if entry[3] == "ERR" or entry[3] == "FAIL" %}#FF6347{% elif entry[3] == "OK" %}#F0F8FF{% else %}#00BFFF{% endif %}">
+	  {% if entry[3] == "-" %}
+	  RUNNING
+	  {% else %}
+	  {{ entry[3] }}
+	  {% endif %}
+	  <span>
+      </td>
+      {% if entry[3] != "STARTING" %}
+      <td><a href="/flow/{{ stuff['flow_name'] }}/{% if entry[3] == "FAIL" %}go_details{% else %}details{% endif %}/{{ entry[14] }}">Details</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock content %}
+
+{#
+CREATE TABLE nfruns (date_time, duration, code_name, status, hash, uuid, command_line, user, sample_group, workflow, context, root_dir, run_uuid primary key not null, start_epochtime, pid, ppid, end_epochtime);
+
+ 1 date_time
+ 2 duration
+ 3 code_name
+ 4 status
+ 5 hash
+ 6 uuid
+ 7 command_line
+ 8 user
+ 9 sample_group
+10 workflow
+11 context
+12 root_dir
+13 run_uuid primary key not null
+14 start_epochtime
+15 pid
+16 ppid
+17 end_epochtime
+#}

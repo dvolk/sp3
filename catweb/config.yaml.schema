@@ -1,0 +1,95 @@
+{
+    'contexts': {
+        'type': 'list',
+        'schema': {
+            'type': 'dict',
+            'schema': {
+                'name': { },
+                'prog_dirs': { },
+                'root_dirs': { },
+                'output_dirs': { }
+            }
+        }
+    },
+
+    'canonical_prog_dir': { },
+
+    'nextflows': {
+        'type': 'list',
+        'schema': { }
+    },
+
+    'log_dir': { },
+    'db_target': { },
+    'authentication': { },
+
+    'cluster_view': {
+        'type': 'dict',
+        'schema': {
+            'disk_filter': { },
+            'sinfo': {
+                'type': 'dict',
+                'schema': {
+                    'cols': {
+			'type': 'list',
+                        'schema': { }
+                    },
+                    'sort_by': { }
+                }
+            },
+            'squeue': {
+                'type': 'dict',
+                'schema': {
+                    'cols': {
+                        'type': 'list',
+                        'schema': { }
+                    },
+                    'sort_by': { }
+                }
+            },
+            'embeds': {
+                'type': 'list',
+                'schema': {
+                    'type': 'dict',
+                    'schema': {
+                        'title': { },
+                        'img': { }
+                    }
+                }
+            }
+        }
+    },
+    
+    'ldap': {
+        'type': 'list',
+        'schema': {
+	    'type': 'dict',
+	    'schema': {
+	        'name': { },
+                'host': { },
+                'admins': {
+                    'type': 'list',
+                    'schema': { }
+                }
+            }
+        }
+    },
+
+    'nfweb_api': { },
+    'fetch_api': { },
+
+    'users': {
+        'type': 'list',
+        'schema': {
+            'type': 'dict',
+            'schema': {
+                'name': { },
+                'password': { },
+                'capabilities': {
+                    'type': 'list',
+                    'schema': { }
+                }
+            }
+        }
+    }
+}

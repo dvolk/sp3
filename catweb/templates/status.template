@@ -1,0 +1,78 @@
+{% extends "base1.template" %}
+{% block content %}
+
+<h4>Last 5 OK</h4>
+<table class="table table-hover table-sm tablesorter tablesorter-default">
+  <thead style="background-color: #90EE90">
+    <tr>
+      <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
+      <th scope="col" style="width: 17%"><a href="#">User</a></th>
+      <th scope="col" style="width: 20%"><a href="#">Workflow</a></th>
+      <th scope="col" style="width: 40%"><a href="#">Name</a></th>
+      <th scope="col" style="width: 8%"><a href="#">Action</a></th>
+    </tr>
+  </thead> 
+  <tbody>
+    {% for entry in recent %}
+    <tr>
+      <td scope="row">{{ entry[0] }}</td>
+      <td>{{ entry[7] }}</td>
+      <td>{{ entry[9] }}</td>
+      <td>{{ entry[19] }}</td>
+      <td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<!--
+CREATE TABLE nfruns (date_time, duration, code_name, status, hash, uuid, command_line, user, sample_group, workflow, context, run_uuid primary key not null, start_epochtime, pid, ppid, end_epochtime);
+-->
+{% if running %}
+<h4>Running</h4>
+<table class="table table-hover table-sm tablesorter tablesorter-default">
+  <thead style="background-color: #FFEC8B">
+    <tr>
+      <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
+      <th scope="col" style="width: 17%"><a href="#">User</a></th>
+      <th scope="col" style="width: 20%"><a href="#">Workflow</a></th>
+      <th scope="col" style="width: 40%"><a href="#">Name</a></th>
+      <th scope="col" style="width: 8%"><a href="#">Action</a></th>
+    </tr>
+  </thead> 
+  <tbody>
+    {% for entry in running %}
+    <tr>
+      <td scope="row">{{ entry[0] }}</td>
+      <td>{{ entry[7] }}</td>
+      <td>{{ entry[9] }}</td>
+      <td>{{ entry[19] }}</td>
+      <td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+<h4>Last 5 Failed</h4>
+<table class="table table-hover table-sm tablesorter tablesorter-default">
+  <thead style="background-color: #FFAEB9">
+    <tr>
+      <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
+      <th scope="col" style="width: 17%"><a href="#">User</a></th>
+      <th scope="col" style="width: 20%"><a href="#">Workflow</a></th>
+      <th scope="col" style="width: 40%"><a href="#">Name</a></th>
+      <th scope="col" style="width: 8%"><a href="#">Action</a></th>
+    </tr>
+  </thead> 
+  <tbody>
+    {% for entry in failed %}
+    <tr>
+      <td scope="row">{{ entry[0] }}</td>
+      <td>{{ entry[7] }}</td>
+      <td>{{ entry[9] }}</td>
+      <td>{{ entry[19] }}</td>
+      <td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

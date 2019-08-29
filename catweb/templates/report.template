@@ -1,0 +1,47 @@
+{% extends "base1.template" %}
+
+{% block content %}
+
+<h2>SP<sup>3</sup> Report</h2>
+
+{% if main %}
+  <p>Sample name: <strong>{{ main['sample_name'] }}</strong></p>
+  <p>Pipeline run uuid: <strong>{{ main['pipeline_run_uuid'] }}</strong></p>
+  <hr/>
+{% endif %}
+
+{% if kraken2_speciation %}
+  <h3>Kraken2</h3>
+
+  {% include 'kraken2_speciation.template' %}
+{% endif %}
+
+{% if mykrobe_speciation %}
+  <h3>Mykrobe speciation</h3>
+
+  {% include 'mykrobe_speciation.template' %}
+{% endif %}
+
+{% if pick_reference %}
+  {% include 'pick_reference.template' %}
+{% endif %}
+
+{% if samtools_qc %}
+  <h3>Samtools QC</h3>
+
+  {% include 'samtools_qc.template' %}
+{% endif %}
+
+{% if resistance %}
+  <h3>Resistance</h3>
+
+  {% include 'resistance.template' %}
+{% endif %}
+
+{% if relatedness %}
+  <h3>Relatedness</h3>
+
+  {{ relatedness }}
+{% endif %}
+
+{% endblock content %}

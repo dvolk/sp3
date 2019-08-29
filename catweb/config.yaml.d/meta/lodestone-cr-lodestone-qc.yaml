@@ -1,0 +1,10 @@
+name: "lodestoneCR+lodestoneQC"
+display_name: "Lodestone"
+show: yes
+description: "Standard SP3 QC pipeline"
+contexts:
+  - name: local
+  - name: slurm
+subflows:
+  - 'lodestoneCR'
+  - 'lodestoneQC'

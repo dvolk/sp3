@@ -1,0 +1,9 @@
+[submodule "piezo"]
+	path = piezo
+	url = https://github.com/philipwfowler/piezo
+[submodule "gemucator"]
+	path = gemucator
+	url = https://github.com/philipwfowler/gemucator.git
+[submodule "resistanceapi"]
+	path = resistanceapi
+	url = https://gitlab.com/MMMCloudPipeline/resistanceapi.git

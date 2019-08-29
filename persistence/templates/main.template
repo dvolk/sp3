@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>SP3 Platform</title>
+  </head>
+  <body style="padding-top: 2%">
+    <div class='container'>
+     <img style="width: 160px; height: 85px; float: left;" src="/static/mmmlogo_small.png">
+        <h1 style="position: relative; top: 10px; left: 10px;">
+          <a href="/" style="text-decoration: none; color: black">Oxford SP<sup>3</sup> Portal</a>
+        </h1>
+        <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
+
+       <h2>Sites</h2>
+      <div class="row">
+	{% for instance in instances %}
+	<div class="col-sm-6">
+	  <div class="card">
+	    <div class="card-body">
+	      <h5 class="card-title">{{ instance['name'] }}{# <span class="badge badge-secondary">{{ instance['updated'] }}#}</span></h5>
+              <p class="card-text">{{ instance['description'] }}</p>
+              <p class="card-text">Owner: {{ instance['contact'] }}</p>
+	      <p class="card-text">Updated: {{ instance['updated'] }}</p>
+	      <a href="{{ instance['url'] }}" class="btn btn-primary">Open</a>
+	      <a href="/cluster_browse/{{ instance['id'] }}" class="btn btn-info">Browse</a>
+	    </div>
+	  </div>
+	</div>
+	{% endfor %}
+      </div>
+      <br>
+      <hr>
+      <footer>
+	<p>Version 0.1 - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a>, <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2019 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
+      </footer>
+
+    </div>
+  </body>
+</html>

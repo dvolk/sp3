@@ -1,0 +1,44 @@
+name: "lodestoneCR"
+display_name: "Lodestone Contam Remove"
+show: no
+script: 'lodestone_cr.nf'
+# relative if context has these dirs
+root_dir: 'lodestoneCr/'
+prog_dir: 'lodestoneCr/'
+output_dir: 'output/'
+description: "SP3 Contam Remove pipeline"
+version: "1.0.1"
+contexts:
+  - name: local
+    arguments: "-with-singularity /data/images/lodestone-cr-1.0.img -process.executor slurm"
+param:
+  description:
+    - name: 'indir'
+      arg: "--in_dir"
+      type: input-reqr
+      desc: 'Read Directory'
+    - name: 'readpat'
+      type: input-list
+      desc: 'Input file pattern'
+      arg: '--read_pattern'  
+    - name: 'centrifugedb'
+      type: switch
+      desc: 'Centrifuge DB location'
+      arg: '--centrifuge_db_path'
+      globs:
+        - '/data/databases/lodestone-cr/*'
+    - name: 'sereads'
+      type: 'switch'
+      desc: 'Use Single Ended Reads'
+      arg: '--use_se'
+      options: { 'true': 'true', 'false': 'false' }
+      optional: true
+    - name: 'sereads'
+      type: 'input-opt'
+      desc: 'Single Ended pattern'
+      arg: '--se_pattern'
+      optional: true
+output:
+    parameter: "--out_dir"
+    fetch_subdir: "contam_removal"
+    fetch_readpat: "*_{1,2}_excl_contam.fastq.gz"

@@ -1,0 +1,50 @@
+name: "Respipe"
+show: yes
+script: 'ResPipe.nf'
+# relative if context has these dirs
+root_dir: 'ResPipe/'
+prog_dir: 'ResPipe/'
+output_dir: 'output/'
+description: "Taxonomic and Functional Respipe pipeline"
+version: "1.0"
+contexts:
+  - name: local
+    arguments: "-profile local --kraken_preload"
+  - name: slurm
+    arguments: "-profile slurm --kraken_preload"
+param:
+  description:
+    - name: 'indir'
+      arg: "--in"
+      type: input-reqr
+      desc: 'Read Directory'
+    - name: 'listfile'
+      arg: "--listfile"
+      type: input-reqr
+      desc: 'Sample list file'
+    - name: 'thermusSpike27'
+      arg: "--thermus HB27"
+      type: switch
+      desc: 'Thermus 27 spikein'
+    - name: 'thermusSpike8'
+      arg: "--thermus HB8"
+      type: switch
+      desc: 'Thermus 8 spikein'
+    - name: 'taxoOnly'
+      arg: "--taxoOnly"
+      type: switch
+      desc: 'Taxanomic pipeline only'
+    - name: 'funcOnly'
+      arg: "--funcOnly"
+      type: switch
+      desc: 'Functional pipeline only'
+    - name: 'krakenOnly'
+      arg: "--krakenOnly"
+      type: switch
+      desc: 'Only run Kraken in the taxanomic pipeline'
+    - name: 'centrifugeOnly'
+      arg: "--centrifugeOnly"
+      type: switch
+      desc: 'Only run centrifuge in the taxanomic pipeline'
+output:
+    parameter: "--out"

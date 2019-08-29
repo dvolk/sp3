@@ -1,0 +1,33 @@
+name: "bug-flow"
+display_name: "Bug Flow"
+show: yes
+script: 'bug-flow.nf'
+# relative if context has these dirs
+root_dir: 'bug-flow/'
+prog_dir: 'bug-flow/'
+output_dir: 'output/'
+description: "David Eyre's Bug Flow pipeline"
+version: "1.0.2"
+contexts:
+  - name: local
+    arguments: "-profile sp3 --input_type_is_csv false -with-singularity /data/images/bug-flow.img -process.executor slurm"
+param:
+  description:
+    - name: 'indir'
+      arg: "--indir"
+      type: input-reqr
+      desc: 'Read Directory'
+    - name: 'readpat'
+      arg: '--readpat'
+      type: input-list
+      desc: 'Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz or *.bam)'
+    - name: 'ref'
+      desc: 'Reference file'
+      arg: '--refFile'
+      type: switch
+      globs:
+        - /data/references/clockwork/qc_vc/*/ref.fa
+output:
+    parameter: "--outputPath"
+count_tasks_per_sample: 10
+count_tasks_ignore: ['indexReference']
