@@ -18,11 +18,12 @@
         </h1>
         <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
 
-       <h2>Sites</h2>
+	<br/>
+       <h2>Instances</h2>
       <div class="row">
 	{% for instance in instances %}
 	<div class="col-sm-6">
-	  <div class="card">
+	  <div class="card" style="margin-bottom: 15px; margin-top: 15px;">
 	    <div class="card-body">
 	      <h5 class="card-title">{{ instance['name'] }}{# <span class="badge badge-secondary">{{ instance['updated'] }}#}</span></h5>
               <p class="card-text">{{ instance['description'] }}</p>
@@ -35,7 +36,15 @@
 	</div>
 	{% endfor %}
       </div>
+	{% if labkey_url %}
+	<h2>Labkey</h2>
+	<a href="{{ labkey_url }}">Open labkey</a> to view the SP3 database.
+	{% endif %}
       <br>
+	<br>
+	<h2>Publication</h2>
+	<p>Yang-Turner F. et al., An Open-source Azure Solution for Scalable Genomics Workflows, 2018 IEEE World Congress on Services <a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8495785">PDF</a></p>
+	<p>Yang-Turner F. et al., Scalable Pathogen Pipeline Platform (SP<sup>3</sup>), 2019 IEEE 12th International Conference on Cloud Computing (CLOUD) </p> 
       <hr>
       <footer>
 	<p>Version 0.1 - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a>, <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2019 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>

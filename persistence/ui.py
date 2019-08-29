@@ -32,7 +32,10 @@ def get_instance(persistence_dir, instance_uuid):
 
 @app.route('/')
 def root():
-    return render_template('main.template', instances=get_instances('/work/persistence'))
+    labkey_url = 'http://labkey.oxfordfun.com'
+    return render_template('main.template',
+                           instances=get_instances('/work/persistence'),
+                           labkey_url=labkey_url)
 
 @app.route('/cluster_browse/<cluster_id>')
 def browse(cluster_id):
