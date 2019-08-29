@@ -2,7 +2,7 @@ set -e
 
 cd ..
 
-SP3PREFIX=$(pwd)/..
+SP3PREFIX=$(pwd)
 USERNAME=$(whoami)
 
 #
@@ -22,19 +22,20 @@ sudo chmod a+x /usr/bin/nextflow
 #
 # python virtualenv
 #
+cd ..
 virtualenv -p python3 env
 source env/bin/activate
+cd sp3
 
 #
 # sp3 packages
 #
-cd sp3
 pip3 install -r requirements.txt
 
 #
 # resistance packages
 #
-export PYTHONPATH=~/.local/lib/python3.6/site-packages/
+export PYTHONPATH=~/env/lib/python3.6/site-packages/
 cd $SP3PREFIX/resistance/gemucator
 python3 setup.py install --user
 cd $SP3PREFIX/resistance/piezo
@@ -88,8 +89,8 @@ sudo chown $USERNAME -R /db
 #
 # copy resistance data from repo
 #
-cp -r $SP3PREFIX/resistance/piezo/config/* /data/reports/resistance/data
-cp -r $SP3PREFIX/resistance/data/* /data/reports/resistance/data
+sudo cp -r $SP3PREFIX/resistance/piezo/config/* /data/reports/resistance/data
+sudo cp -r $SP3PREFIX/resistance/data/* /data/reports/resistance/data
 
 #
 # copy example configs to main configs
