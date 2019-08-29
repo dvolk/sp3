@@ -35,11 +35,11 @@ pip3 install -r requirements.txt
 #
 # resistance packages
 #
-export PYTHONPATH=~/env/lib/python3.6/site-packages/
 cd $SP3PREFIX/resistance/gemucator
-python3 setup.py install --user
+pip3 install .
 cd $SP3PREFIX/resistance/piezo
-python3 setup.py install --user
+pip3 install .
+
 
 #
 # copy slurm emu files to /usr/bin
