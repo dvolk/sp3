@@ -1,0 +1,27 @@
+name: "funvcf"
+display_name: "Fun VCF"
+script: 
+show: yes
+script: 'vcf-slimmer.nf'
+root_dir: "FunVCF/"
+prog_dir: "FunVCF/"
+output_dir: "output/"
+version: "0.1.0"
+description: "Fun VCF tools"
+contexts:
+  - name: local
+    arguments: "-profile standard -process.executor slurm -with-singularity /data/images/funvcf-v0.1.0.img"
+param:
+  description:
+    - name: 'indir'
+      arg: "--input"
+      type: input-reqr
+      desc: "input vcf files directory"
+    - name: 'readpat'
+      arg: '--pattern'
+      type: switch
+      options: {'*.vcf.gz': '*.vcf.gz', "*.vcf": "*.vcf"}
+      desc: 'Input file pattern (vcf or vcf.gz)' 
+output:
+      parameter: "--output"
+count_tasks_per_sample: 1
