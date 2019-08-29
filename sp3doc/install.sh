@@ -20,8 +20,7 @@ cd $SP3DIR
 #
 sudo apt update
 sudo apt install etckeeper
-sudo apt install build-essential python3-virtualenv virtualenv openjdk-8-jre-headless openvpn
-# libpython3-all-dev ??
+sudo apt install build-essential python3-virtualenv virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev
 
 #
 # nextflow
@@ -42,6 +41,15 @@ source env/bin/activate
 git clone https://gitlab.com/dvolk/sp3
 cd sp3
 pip3 install -r requirements.txt
+
+#
+# resistance packages
+#
+export PYTHONPATH=~/.local/lib/python3.6/site-packages/
+cd $SP3PREFIX/resistance/gemucator
+python3 setup.py install --user
+cd $SP3PREFIX/resistance/piezo
+python3 setup.py install --user
 
 #
 # copy slurm emu files to /usr/bin
