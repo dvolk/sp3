@@ -1060,7 +1060,7 @@ def get_report(run_uuid : str, dataset_id: str):
         resistance = resp['resistance']
         pick_reference = resp['pick_reference']
         resistance_effects = collections.defaultdict(list)
-        res_rev_index = collections.defaultdict(list)
+        res_rev_index = collections.defaultdict(list) # gene_mutation -> item
 
         if samtools_qc:
             samtools_qc['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M",
