@@ -1,4 +1,14 @@
+#!/bin/bash
+
 set -e
+
+#
+# Check if we're running the right OS
+#
+if [ "$(cat /etc/issue | head -c 12)" != "Ubuntu 18.04" ]; then
+    echo "*** This installation script requires Ubuntu 18.04."
+    exit 1
+fi
 
 cd ..
 
@@ -120,8 +130,6 @@ These should go in
     /data/images
     /data/references (reference genomes)
     /data/databases (other data files required by pipelines)
-
-respectively
 
 EOF
 
