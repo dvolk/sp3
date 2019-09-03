@@ -5,10 +5,22 @@ Helper functions for resistance
 import functools
 import fnmatch
 
-@functools.lru_cache()
+def get_phylosnp_blacklist():
+    phylosnp_blacklist_file = '/data/reports/resistance/data/phylosnp_blacklist.txt'
+    phylosnp_blacklist = [x.strip() for x in open(phylosnp_blacklist_file).readlines()]
+    return phylosnp_blacklist
+
+phylosnp_blacklist = get_phylosnp_blacklist()
+
 def get_catalog():
     catalog_file = '/data/reports/resistance/data/catalog.txt'
     catalog = [x.strip().split('\t') for x in open(catalog_file).readlines() if x[0] != '#']
+    '''
+    add source to phylosnps and mark them sensitive
+    '''
+    for x in catalog:
+        if x[1] in phylosnp_blacklist:
+            x[0] = 'phylosnp'
     return catalog
 
 catalog = get_catalog()
