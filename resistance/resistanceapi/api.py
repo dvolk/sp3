@@ -12,7 +12,7 @@ resistanceConfig = { 'genbank_file': "/data/reports/resistance/data/H37rV_v3.gbk
                      'resistance_log':  "/logs/piezo-" }
 
 @app.route('/api/v1/resistances/piezo/<vcf_id>')
-def piezo_resistance(vcf_id):
+def get_resistance_for_tb_sample(vcf_id):
     vcf_filename = f"/work/reports/resistanceapi/vcfs/{vcf_id}.vcf"
 
     rs = piezo_resistance.get_resistance_for_tb_sample(resistanceConfig['genbank_file'],
