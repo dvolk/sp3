@@ -1,0 +1,8 @@
+*~
+*#
+*.ovpn
+instance.yaml
+config.yaml
+stats.txt
+__pycache__
+*.pyc
