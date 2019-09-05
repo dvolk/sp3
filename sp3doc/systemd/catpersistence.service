@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Catpersistence API
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/persistence
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/persistence/ui.py

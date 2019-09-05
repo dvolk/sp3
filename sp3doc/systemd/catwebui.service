@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Catweb UI
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/catweb
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/ui.py

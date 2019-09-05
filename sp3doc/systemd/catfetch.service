@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Catfetch API
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/fetch-api
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/fetch-api/api.py

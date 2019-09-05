@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Catgrid API
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/catgrid
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catgrid/hypergrid.py

@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Catreport API
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/catreport
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catreport/main.py

@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Catweb API
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/catweb
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/api.py

@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Download API
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/download-api
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/download-api/api.py
