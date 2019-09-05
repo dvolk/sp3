@@ -142,6 +142,10 @@ sudo rm /data/inputs/uploads/spectest4.tar
 
 sudo rm /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz
 
+sudo mkdir -p ~/.config/systemd/user
+cp $SP3PREFIX/sp3doc/systemd/*.service ~/.config/systemd/user
+systemctl --user daemon-reload
+
 cat<<EOF
 
 You need to create (sub)domains for
