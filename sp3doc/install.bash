@@ -20,7 +20,7 @@ USERNAME=$(whoami)
 #
 sudo apt update
 sudo apt install etckeeper
-sudo apt install build-essential python3-virtualenv virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev
+sudo apt install build-essential python3-virtualenv virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig
 
 #
 # nextflow
@@ -63,10 +63,14 @@ sudo chmod a+x /usr/bin/{sbatch,squeue,scancel}
 sudo mkdir -p /data/images
 sudo mkdir -p /data/pipelines
 sudo mkdir -p /data/references
+sudo mkdir -p /data/references/clockwork
 sudo mkdir -p /data/reports/resistance/data
 sudo mkdir -p /data/fetch
 sudo mkdir -p /data/inputs
+sudo mkdir -p /data/inputs/uploads
 sudo mkdir -p /data/databases
+sudo mkdir -p /data/databases/clockworkcloud
+sudo mkdir -p /data/databases/clockworkcloud/kraken2
 
 sudo chown $USERNAME -R /data/fetch
 sudo chown $USERNAME -R /data/inputs
@@ -111,7 +115,44 @@ cp $SP3PREFIX/catcloud/config.yaml-example $SP3PREFIX/catcloud/config.yaml
 cp $SP3PREFIX/download-api/config.yaml-example $SP3PREFIX/download-api/config.yaml
 cp $SP3PREFIX/fetch-api/fetch_api.yaml-example $SP3PREFIX/fetch-api/fetch_api.yaml
 
+#
+# copy sp3 nginx config to ...
+#
+sudo cp $SP3PREFIX/sp3doc/nginx/sp3 /etc/nginx/sites-available/
+sudo ln -s /etc/nginx/sites-available/sp3 /etc/nginx/sites-enabled/sp3
+
+#
+# Download clockworkcloud pipeline
+#
+sudo git clone https://gitlab.com/MMMCloudPipeline/clockworkcloud /data/pipelines/clockworkcloud
+
+sudo wget 'https://files.mmmoxford.uk/d/7b5b9a512e8644ce8e75/files/?p=/clockwork_container-0.7.7.img&dl=1' -O /data/images/clockwork_container-0.7.7.img
+sudo wget 'https://files.mmmoxford.uk/d/7b5b9a512e8644ce8e75/files/?p=/fatos-1.7.img&dl=1' -O /data/images/fatos-1.7.img
+sudo wget 'https://files.mmmoxford.uk/d/7b5b9a512e8644ce8e75/files/?p=/qc_vc.tar&dl=1' -O /data/references/clockwork/qc_vc.tar
+sudo wget 'https://files.mmmoxford.uk/d/7b5b9a512e8644ce8e75/files/?p=/spectest4.tar&dl=1' -O /data/inputs/uploads/spectest4.tar
+
+sudo wget 'ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/minikraken2_v2_8GB_201904_UPDATE.tgz' -O /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz
+sudo tar xf /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz -C /data/databases/clockworkcloud/kraken2
+
+sudo tar xf /data/references/clockwork/qc_vc.tar -C /data/references/clockwork
+sudo tar xf /data/inputs/uploads/spectest4.tar -C /data/inputs/uploads
+
+sudo rm /data/references/clockwork/qc_vc.tar
+sudo rm /data/inputs/uploads/spectest4.tar
+
+sudo rm /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz
+
 cat<<EOF
+
+You need to create (sub)domains for
+- Main instance interface (e.g.: cats.oxfordfun.com)
+- File server (e.g.: download-cats.oxfordfun.com)
+- Stats image (e.g.: stat-cats.oxfordfun.com)
+- optional: Persistent store (e.g.: persistence.mmmoxford.uk)
+- optional: Persistence file server (e.g.: persistent-files.mmmoxford.uk)
+- optional: Labkey (e.g.: labkey.oxfordfun.com)
+
+You need to edit /etc/nginx/sites-enabled/sp3 and change it to your domains
 
 Example configuration was created. You need to edit it:
 
@@ -120,8 +161,6 @@ Example configuration was created. You need to edit it:
     $SP3PREFIX/catcloud/config.yaml
     $SP3PREFIX/download-api/config.yaml
     $SP3PREFIX/fetch-api/config.yaml
-
-You also need to copy $SP3PREFIX/sp3doc/nginx/sp3 to your nginx config and edit it
 
 To use SP3, you need nextflow pipelines, container images and references files
 These should go in
@@ -132,4 +171,3 @@ These should go in
     /data/databases (other data files required by pipelines)
 
 EOF
-
