@@ -29,7 +29,9 @@
               <p class="card-text">{{ instance['description'] }}</p>
               <p class="card-text">Owner: {{ instance['contact'] }}</p>
 	      <p class="card-text">Updated: {{ instance['updated'] }}</p>
+	      {% if not instance['status'] or instance['status'] != 'down' %}
 	      <a href="{{ instance['url'] }}" class="btn btn-primary">Open</a>
+	      {% endif %}
 	      <a href="/cluster_browse/{{ instance['id'] }}" class="btn btn-info">Browse</a>
 	    </div>
 	  </div>

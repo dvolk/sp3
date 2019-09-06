@@ -5,6 +5,7 @@ import sqlite3
 import pathlib
 import os
 import threading
+import logging
 
 import requests
 import flask
@@ -33,8 +34,9 @@ def get_instance(persistence_dir, instance_uuid):
 @app.route('/')
 def root():
     labkey_url = 'http://labkey.oxfordfun.com'
+    instances = get_instances('/work/persistence')
     return render_template('main.template',
-                           instances=get_instances('/work/persistence'),
+                           instances=instances,
                            labkey_url=labkey_url)
 
 @app.route('/cluster_browse/<cluster_id>')
