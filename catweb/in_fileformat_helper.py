@@ -67,13 +67,35 @@ class APHA_FilenameFormat:
     def get_pattern(self):
         return f"*_R{{1,2}}_{self.m2}.fastq.gz"
 
+class PHE_FLU_FilenameFormat:
+    '''
+    e.g.:
+    AF-12-00335-19_S78_R1_001.fastq.gz
+    AF-12-00335-19_S78_R2_001.fastq.gz
+    '''
+    def is_match(self, files):
+        p = re.compile('([a-z,0-9]+_[A-z,0-9]+)_OM_H(\d+)-(\d+).FLU-generic.ngsservice.R[1,2].fastq.gz')
+        sample_names = []
+        for f in files:
+            m = p.match(f)
+            if not m:
+                return False, None
+            self.m1 = m[2]
+            self.m2 = m[3]
+            sample_names.append(m[1])
+        return True, sample_names
+
+    def get_pattern(self):
+        return f"*_OM_H{self.m1}-{self.m2}.FLU-generic.ngsservice.R{{1,2}}.fastq.gz"
+
 formats = [ENA_FilenameFormat(),
            PHE_FilenameFormat(),
-           APHA_FilenameFormat()]
+           APHA_FilenameFormat(),
+           PHE_FLU_FilenameFormat()]
 
 def guess_format(files):
     if not files:
-        return ""
+        return None, None
 
     for f in formats:
 
