@@ -126,10 +126,10 @@ sudo ln -s /etc/nginx/sites-available/sp3 /etc/nginx/sites-enabled/sp3
 #
 sudo git clone https://gitlab.com/MMMCloudPipeline/clockworkcloud /data/pipelines/clockworkcloud
 
-sudo wget 'https://files.mmmoxford.uk/d/7b5b9a512e8644ce8e75/files/?p=/clockwork_container-0.7.7.img&dl=1' -O /data/images/clockwork_container-0.7.7.img
-sudo wget 'https://files.mmmoxford.uk/d/7b5b9a512e8644ce8e75/files/?p=/fatos-1.7.img&dl=1' -O /data/images/fatos-1.7.img
-sudo wget 'https://files.mmmoxford.uk/d/7b5b9a512e8644ce8e75/files/?p=/qc_vc.tar&dl=1' -O /data/references/clockwork/qc_vc.tar
-sudo wget 'https://files.mmmoxford.uk/d/7b5b9a512e8644ce8e75/files/?p=/spectest4.tar&dl=1' -O /data/inputs/uploads/spectest4.tar
+sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/clockwork_container-0.7.7.img&dl=1' -O /data/images/clockwork_container-0.7.7.img
+sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/fatos-1.7.img&dl=1' -O /data/images/fatos-1.7.img
+sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/qc_vc.tar&dl=1' -O /data/references/clockwork/qc_vc.tar
+sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/spectest4.tar&dl=1' -O /data/inputs/uploads/spectest4.tar
 
 sudo wget 'ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/minikraken2_v2_8GB_201904_UPDATE.tgz' -O /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz
 sudo tar xf /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz -C /data/databases/clockworkcloud/kraken2
