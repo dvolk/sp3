@@ -9,6 +9,7 @@ import signal
 import re
 import collections
 import threading
+import time
 
 from flask import Flask, url_for, jsonify, request, abort
 import requests
@@ -416,7 +417,16 @@ def get_output_files(flow_name, run_uuid):
         return make_api_response('failure', details={'command_failed': 'du'})
 
     logger.debug("tree command: {0}".format(tree_cmd))
-    tree_p = subprocess.check_output(tree_cmd, stderr=subprocess.PIPE, universal_newlines=True)
+    try:
+        result = dict()
+        def try_tree(result):
+            result['result'] = subprocess.check_output(tree_cmd, stderr=subprocess.PIPE, universal_newlines=True)
+        t = threading.Thread(target=try_tree, args=(result,))
+        t.start()
+        t.join(timeout=3)
+        tree_p = result['result']
+    except KeyError:
+        tree_p = "\n\ntree command failed with timeout\n\n"
 
     # Format directory on top, then total size, then the file tree
     size_str = du_p.strip()
