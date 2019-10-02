@@ -32,7 +32,7 @@
 	      {% if not instance['status'] or instance['status'] != 'down' %}
 	      <a href="{{ instance['url'] }}" class="btn btn-primary">Open</a>
 	      {% endif %}
-	      <a href="" class="btn btn-info">Browse</a>
+	      <a href="/cluster_browse/{{ instance['id'] }}" class="btn btn-info">Browse</a>
 	    </div>
 	  </div>
 	</div>
