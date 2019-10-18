@@ -20,7 +20,7 @@ USERNAME=$(whoami)
 #
 sudo apt update
 sudo apt install etckeeper
-sudo apt install build-essential python3-virtualenv virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig
+sudo apt install build-essential python3-virtualenv python3-pip virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig 
 
 #
 # nextflow
@@ -28,6 +28,12 @@ sudo apt install build-essential python3-virtualenv virtualenv openjdk-8-jre-hea
 wget https://github.com/nextflow-io/nextflow/releases/download/v18.10.1/nextflow-18.10.1-all -O nextflow
 sudo mv nextflow /usr/bin
 sudo chmod a+x /usr/bin/nextflow
+
+#
+# Install psutil and cerberus globally
+#
+pip3 install psutil
+pip3 install cerberus
 
 #
 # python virtualenv
@@ -104,7 +110,7 @@ sudo chown $USERNAME -R /db
 # copy resistance data from repo
 #
 sudo cp -r $SP3PREFIX/resistance/piezo/config/* /data/reports/resistance/data
-sudo cp -r $SP3PREFIX/resistance/data/* /data/reports/resistance/data
+sudo cp -r $SP3PREFIX/resistance/resistanceapi/data/* /data/reports/resistance/data
 
 #
 # copy example configs to main configs
@@ -120,6 +126,7 @@ cp $SP3PREFIX/fetch-api/fetch_api.yaml-example $SP3PREFIX/fetch-api/fetch_api.ya
 #
 sudo cp $SP3PREFIX/sp3doc/nginx/sp3 /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/sp3 /etc/nginx/sites-enabled/sp3
+sudo rm /etc/nginx/sites-enabled/default
 
 #
 # Download clockworkcloud pipeline
@@ -142,7 +149,7 @@ sudo rm /data/inputs/uploads/spectest4.tar
 
 sudo rm /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz
 
-sudo mkdir -p ~/.config/systemd/user
+mkdir -p ~/.config/systemd/user
 cp $SP3PREFIX/sp3doc/systemd/*.service ~/.config/systemd/user
 systemctl --user daemon-reload
 
@@ -164,7 +171,7 @@ Example configuration was created. You need to edit it:
     $SP3PREFIX/catweb/config.yaml
     $SP3PREFIX/catcloud/config.yaml
     $SP3PREFIX/download-api/config.yaml
-    $SP3PREFIX/fetch-api/config.yaml
+    $SP3PREFIX/fetch-api/fetch_api.yaml
 
 To use SP3, you need nextflow pipelines, container images and references files
 These should go in
