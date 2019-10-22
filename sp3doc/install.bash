@@ -120,6 +120,7 @@ cp $SP3PREFIX/catweb/config.yaml-example $SP3PREFIX/catweb/config.yaml
 cp $SP3PREFIX/catcloud/config.yaml-example $SP3PREFIX/catcloud/config.yaml
 cp $SP3PREFIX/download-api/config.yaml-example $SP3PREFIX/download-api/config.yaml
 cp $SP3PREFIX/fetch-api/fetch_api.yaml-example $SP3PREFIX/fetch-api/fetch_api.yaml
+cp $SP3PREFIX/cattag/config.yaml-example $SP3PREFIX/cattag/config.yaml
 
 #
 # copy sp3 nginx config to ...
@@ -172,6 +173,7 @@ Example configuration was created. You need to edit it:
     $SP3PREFIX/catcloud/config.yaml
     $SP3PREFIX/download-api/config.yaml
     $SP3PREFIX/fetch-api/fetch_api.yaml
+    $SP3PREFIX/cattag/config.yaml
 
 To use SP3, you need nextflow pipelines, container images and references files
 These should go in
