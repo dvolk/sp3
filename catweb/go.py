@@ -341,5 +341,6 @@ os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_kraken2_speciation_submit.
 os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_mykrobe_speciation_submit.py {shlex.quote(json.dumps(data))}')
 os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_pick_reference_submit.py {shlex.quote(json.dumps(data))}')
 os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_resistance_submit.py {shlex.quote(json.dumps(data))}')
+os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_qc_submit.py {shlex.quote(json.dumps(data))}')
 
 logger.info("go.py: done")

@@ -1,0 +1,12 @@
+<p>Report generated on: <strong>{{ nfnvm_nanostats_qc['finished_epochtime'] }}</strong></p>
+
+<h4>General Summary</h4>
+<ul>
+<li>Mean read length: {{ nfnvm_nanostats_qc['general']['Mean read length'] }}</li>
+<li>Mean read quality: {{ nfnvm_nanostats_qc['general']['Mean read quality'] }}</li>
+<li>Median read length: {{ nfnvm_nanostats_qc['general']['Median read length'] }}</li>
+<li>Median read quality: {{ nfnvm_nanostats_qc['general']['Median read quality'] }}</li>
+<li>Number of reads: {{ nfnvm_nanostats_qc['general']['Number of reads'] }}</li>
+<li>Read length N50: {{ nfnvm_nanostats_qc['general']['Read length N50'] }}</li>
+<li>Total bases: {{ nfnvm_nanostats_qc['general']['Total bases'] }}</li>
+</ul>

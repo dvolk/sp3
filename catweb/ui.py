@@ -1059,6 +1059,7 @@ def get_report(run_uuid : str, dataset_id: str):
         kraken2_speciation = resp['kraken2_speciation']
         resistance = resp['resistance']
         pick_reference = resp['pick_reference']
+        nfnvm_nanostats_qc = resp['nfnvm_nanostats_qc']
         resistance_effects = collections.defaultdict(list)
         res_rev_index = collections.defaultdict(list) # gene_mutation -> item
 
@@ -1069,6 +1070,14 @@ def get_report(run_uuid : str, dataset_id: str):
                 elems = line.split('\t')
                 if elems[0] == 'SN':
                     samtools_qc[elems[1]] = elems[2]
+
+        if nfnvm_nanostats_qc:
+            nfnvm_nanostats_qc['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M",
+                                                                     time.localtime(nfnvm_nanostats_qc['finished_epochtime']))
+            nfnvm_nanostats_qc['general'] = dict()
+            for line in nfnvm_nanostats_qc['txt'].split('\n')[1:8]:
+                elems = line.split(':')
+                nfnvm_nanostats_qc['general'][elems[0].strip()] = elems[1].strip()
 
         if resistance:
             # check if it is synonymous mutation (first  amino-acid is same as last amino-acid) or invalid mutation (contain z or Z)
@@ -1192,6 +1201,7 @@ def get_report(run_uuid : str, dataset_id: str):
 
     return render_template('report.template',
                            main=main,
+                           nfnvm_nanostats_qc=nfnvm_nanostats_qc,
                            samtools_qc=samtools_qc,
                            kraken2_speciation=kraken2_speciation,
                            mykrobe_speciation=mykrobe_speciation,

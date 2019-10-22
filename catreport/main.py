@@ -202,9 +202,39 @@ def kraken2_speciation_thread(con):
 
         time.sleep(5)
 
+def nfnvm_nanostats_qc_thread(con):
+    '''
+    Process that monitors the queue for nfnvm nano stats qc requests
+    '''
+    while True:
+        with sql_lock, con:
+            rows = con.execute("select * from q where status = 'queued' and type = 'nfnvm_nanostats_qc' order by added_epochtime asc limit 1").fetchall()
+        if rows:
+            row = rows[0]
+            report_uuid = row[0]
+            sample_filepath = row[8]
+
+            report_started_epochtime = epochtime()
+            print(f"pick_reference_thread: working on {report_uuid} ({sample_filepath})")
+            report_filename = make_nfnvm_nanostats_qc_report(report_uuid, sample_filepath)
+            print(f"pick_reference_thread: finished with {report_uuid}")
+            report_status = 'done'
+            report_finished_epochtime = epochtime()
+
+            with sql_lock, con:
+                con.execute("update q set report_filename = ?, started_epochtime = ?, finished_epochtime = ?, status = ? where uuid = ?",
+                            (report_filename,
+                             report_started_epochtime,
+                             report_finished_epochtime,
+                             report_status,
+                             report_uuid
+                            ))
+
+        time.sleep(5)
+
 def samtools_qc_thread(con):
     '''
-    Process that monitors the queue for resistance api requests
+    Process that monitors the queue for samtools qc requests
     '''
     while True:
         with sql_lock, con:
@@ -231,7 +261,7 @@ def samtools_qc_thread(con):
                             ))
 
         time.sleep(5)
-
+        
 def make_resistance_report(report_uuid, sample_filepath):
     '''
     1. symlink sample file path to /work/reports/resistanceapi/vcfs/{report_uuid}.vcf
@@ -266,6 +296,11 @@ def make_pick_reference_report(report_uuid, sample_filepath):
     return out_filepath
 
 def make_samtools_qc_report(report_uuid, sample_filepath):
+    out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
+    os.system(f'cp {sample_filepath} {out_filepath}')
+    return out_filepath
+
+def make_nfnvm_nanostats_qc_report(report_uuid, sample_filepath):
     out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
     os.system(f'cp {sample_filepath} {out_filepath}')
     return out_filepath
@@ -374,6 +409,25 @@ def get_report(pipeline_run_uuid, sample_name):
     end samtools qc report
     '''
 
+    '''
+    begin nfnvm nanostats qc report
+    '''
+    r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_nanostats_qc')
+    print(r)
+    report_nfnvm_nanostats_qc_data = dict()
+    if r:
+        report_nfnvm_nanostats_qc_guid = r[0]
+        report_nfnvm_nanostats_qc_filepath = f"/work/reports/catreport/reports/{report_nfnvm_nanostats_qc_guid}.json"
+        logging.warning(report_nfnvm_nanostats_qc_filepath)
+
+        with open(report_nfnvm_nanostats_qc_filepath) as f:
+            report_nfnvm_nanostats_qc_data['txt'] = f.read()
+        report_nfnvm_nanostats_qc_data['finished_epochtime'] = int(r[5])
+    '''
+    end nfnvm nanostats qc report
+    '''
+    print(report_nfnvm_nanostats_qc_data)
+    
     return json.dumps({ 'main': { 'sample_name': sample_name,
                                   'pipeline_run_uuid': pipeline_run_uuid, },
                         'samtools_qc': report_samtools_qc_data,
@@ -381,7 +435,8 @@ def get_report(pipeline_run_uuid, sample_name):
                         'mykrobe_speciation': report_mykrobe_speciation_data,
                         'pick_reference': report_pick_reference_data,
                         'resistance': report_resistance_data,
-                        'relatedness': dict()
+                        'relatedness': dict(),
+                        'nfnvm_nanostats_qc': report_nfnvm_nanostats_qc_data
     })
 
 def main():
@@ -390,6 +445,7 @@ def main():
     threading.Thread(target=kraken2_speciation_thread, args=(con,)).start()
     threading.Thread(target=pick_reference_thread, args=(con,)).start()
     threading.Thread(target=samtools_qc_thread, args=(con,)).start()
+    threading.Thread(target=nfnvm_nanostats_qc_thread, args=(con,)).start()
 
     app.run(port=10000)
 

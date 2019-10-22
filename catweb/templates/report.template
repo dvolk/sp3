@@ -32,6 +32,12 @@
   {% include 'samtools_qc.template' %}
 {% endif %}
 
+{% if nfnvm_nanostats_qc %}
+  <h3>Nanostats QC</h3>
+
+  {% include 'nfnvm_nanostats_qc.template' %}
+{% endif %}
+
 {% if resistance %}
   <h3>Resistance</h3>
 
