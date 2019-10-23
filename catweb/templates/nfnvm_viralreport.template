@@ -1,0 +1,25 @@
+<p>Report generated on: <strong>{{ nfnvm_nanostats_qc['finished_epochtime'] }}</strong></p>
+
+<table class="table table-sm table-bordered" >
+  <thead>
+    <th>Barcode</th>
+    <th>Acc</th>
+    <th>Pathogen</th>
+    <th>Subtype</th>
+    <th>aveCov</th>
+    <th>cov1Rate</th>
+    <th>cov10Rate</th>
+    <th>readsMapped</th>
+    <th>supplementaryReads</th>
+    <th>baseTotal</th>
+    <th>baseMapped</th>
+  </thead>
+  <tbody>
+    {% for row in nfnvm_viralreport['table'] %}
+    <tr>
+      {% for elem in row %}<td>{{ elem }}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+      

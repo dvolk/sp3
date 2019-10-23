@@ -38,6 +38,18 @@
   {% include 'nfnvm_nanostats_qc.template' %}
 {% endif %}
 
+{% if nfnvm_flureport %}
+  <h3>Flu report</h3>
+
+  {% include 'nfnvm_flureport.template' %}
+{% endif %}
+
+{% if nfnvm_viralreport %}
+  <h3>Viral report</h3>
+
+  {% include 'nfnvm_viralreport.template' %}
+{% endif %}
+
 {% if resistance %}
   <h3>Resistance</h3>
 

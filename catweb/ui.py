@@ -1060,6 +1060,8 @@ def get_report(run_uuid : str, dataset_id: str):
         resistance = resp['resistance']
         pick_reference = resp['pick_reference']
         nfnvm_nanostats_qc = resp['nfnvm_nanostats_qc']
+        nfnvm_flureport = resp['nfnvm_flureport']
+        nfnvm_viralreport = resp['nfnvm_viralreport']
         resistance_effects = collections.defaultdict(list)
         res_rev_index = collections.defaultdict(list) # gene_mutation -> item
 
@@ -1078,6 +1080,24 @@ def get_report(run_uuid : str, dataset_id: str):
             for line in nfnvm_nanostats_qc['txt'].split('\n')[1:8]:
                 elems = line.split(':')
                 nfnvm_nanostats_qc['general'][elems[0].strip()] = elems[1].strip()
+
+        if nfnvm_flureport:
+            nfnvm_flureport['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M",
+                                                                     time.localtime(nfnvm_flureport['finished_epochtime']))
+            nfnvm_flureport['table'] = dict()
+            [line1, line2, _] = nfnvm_flureport['txt'].split('\n')
+            line1 = line1.split('\t')
+            line2 = line2.split('\t')
+            for i in range(0, 9):
+                nfnvm_flureport['table'][line1[i]] = line2[i]
+
+        if nfnvm_viralreport:
+            nfnvm_viralreport['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M",
+                                                                     time.localtime(nfnvm_viralreport['finished_epochtime']))
+            nfnvm_viralreport['table'] = list()
+            for line in nfnvm_viralreport['txt'].split('\n')[1:]:
+                elems = line.split('\t')
+                nfnvm_viralreport['table'].append(elems)
 
         if resistance:
             # check if it is synonymous mutation (first  amino-acid is same as last amino-acid) or invalid mutation (contain z or Z)
@@ -1202,6 +1222,8 @@ def get_report(run_uuid : str, dataset_id: str):
     return render_template('report.template',
                            main=main,
                            nfnvm_nanostats_qc=nfnvm_nanostats_qc,
+                           nfnvm_flureport=nfnvm_flureport,
+                           nfnvm_viralreport=nfnvm_viralreport,
                            samtools_qc=samtools_qc,
                            kraken2_speciation=kraken2_speciation,
                            mykrobe_speciation=mykrobe_speciation,

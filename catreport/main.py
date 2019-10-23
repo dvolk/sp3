@@ -232,6 +232,66 @@ def nfnvm_nanostats_qc_thread(con):
 
         time.sleep(5)
 
+def nfnvm_flureport_thread(con):
+    '''
+    Process that monitors the queue for nfnvm nano stats qc requests
+    '''
+    while True:
+        with sql_lock, con:
+            rows = con.execute("select * from q where status = 'queued' and type = 'nfnvm_flureport' order by added_epochtime asc limit 1").fetchall()
+        if rows:
+            row = rows[0]
+            report_uuid = row[0]
+            sample_filepath = row[8]
+
+            report_started_epochtime = epochtime()
+            print(f"pick_reference_thread: working on {report_uuid} ({sample_filepath})")
+            report_filename = make_nfnvm_flureport_report(report_uuid, sample_filepath)
+            print(f"pick_reference_thread: finished with {report_uuid}")
+            report_status = 'done'
+            report_finished_epochtime = epochtime()
+
+            with sql_lock, con:
+                con.execute("update q set report_filename = ?, started_epochtime = ?, finished_epochtime = ?, status = ? where uuid = ?",
+                            (report_filename,
+                             report_started_epochtime,
+                             report_finished_epochtime,
+                             report_status,
+                             report_uuid
+                            ))
+
+        time.sleep(5)
+
+def nfnvm_viralreport_thread(con):
+    '''
+    Process that monitors the queue for nfnvm nano stats qc requests
+    '''
+    while True:
+        with sql_lock, con:
+            rows = con.execute("select * from q where status = 'queued' and type = 'nfnvm_viralreport' order by added_epochtime asc limit 1").fetchall()
+        if rows:
+            row = rows[0]
+            report_uuid = row[0]
+            sample_filepath = row[8]
+
+            report_started_epochtime = epochtime()
+            print(f"pick_reference_thread: working on {report_uuid} ({sample_filepath})")
+            report_filename = make_nfnvm_viralreport_report(report_uuid, sample_filepath)
+            print(f"pick_reference_thread: finished with {report_uuid}")
+            report_status = 'done'
+            report_finished_epochtime = epochtime()
+
+            with sql_lock, con:
+                con.execute("update q set report_filename = ?, started_epochtime = ?, finished_epochtime = ?, status = ? where uuid = ?",
+                            (report_filename,
+                             report_started_epochtime,
+                             report_finished_epochtime,
+                             report_status,
+                             report_uuid
+                            ))
+
+        time.sleep(5)
+
 def samtools_qc_thread(con):
     '''
     Process that monitors the queue for samtools qc requests
@@ -301,6 +361,16 @@ def make_samtools_qc_report(report_uuid, sample_filepath):
     return out_filepath
 
 def make_nfnvm_nanostats_qc_report(report_uuid, sample_filepath):
+    out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
+    os.system(f'cp {sample_filepath} {out_filepath}')
+    return out_filepath
+
+def make_nfnvm_flureport_report(report_uuid, sample_filepath):
+    out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
+    os.system(f'cp {sample_filepath} {out_filepath}')
+    return out_filepath
+
+def make_nfnvm_viralreport_report(report_uuid, sample_filepath):
     out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
     os.system(f'cp {sample_filepath} {out_filepath}')
     return out_filepath
@@ -426,6 +496,43 @@ def get_report(pipeline_run_uuid, sample_name):
     '''
     end nfnvm nanostats qc report
     '''
+
+    '''
+    begin nfnvm flureport report
+    '''
+    r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_flureport')
+    print(r)
+    report_nfnvm_flureport_data = dict()
+    if r:
+        report_nfnvm_flureport_guid = r[0]
+        report_nfnvm_flureport_filepath = f"/work/reports/catreport/reports/{report_nfnvm_flureport_guid}.json"
+        logging.warning(report_nfnvm_flureport_filepath)
+
+        with open(report_nfnvm_flureport_filepath) as f:
+            report_nfnvm_flureport_data['txt'] = f.read()
+        report_nfnvm_flureport_data['finished_epochtime'] = int(r[5])
+    '''
+    end nfnvm flureport report
+    '''
+
+    '''
+    begin nfnvm viralreport report
+    '''
+    r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_viralreport')
+    print(r)
+    report_nfnvm_viralreport_data = dict()
+    if r:
+        report_nfnvm_viralreport_guid = r[0]
+        report_nfnvm_viralreport_filepath = f"/work/reports/catreport/reports/{report_nfnvm_viralreport_guid}.json"
+        logging.warning(report_nfnvm_viralreport_filepath)
+
+        with open(report_nfnvm_viralreport_filepath) as f:
+            report_nfnvm_viralreport_data['txt'] = f.read()
+        report_nfnvm_viralreport_data['finished_epochtime'] = int(r[5])
+    '''
+    end nfnvm viralreport report
+    '''
+
     print(report_nfnvm_nanostats_qc_data)
     
     return json.dumps({ 'main': { 'sample_name': sample_name,
@@ -436,7 +543,9 @@ def get_report(pipeline_run_uuid, sample_name):
                         'pick_reference': report_pick_reference_data,
                         'resistance': report_resistance_data,
                         'relatedness': dict(),
-                        'nfnvm_nanostats_qc': report_nfnvm_nanostats_qc_data
+                        'nfnvm_nanostats_qc': report_nfnvm_nanostats_qc_data,
+                        'nfnvm_flureport': report_nfnvm_flureport_data,
+                        'nfnvm_viralreport': report_nfnvm_viralreport_data
     })
 
 def main():
@@ -446,6 +555,8 @@ def main():
     threading.Thread(target=pick_reference_thread, args=(con,)).start()
     threading.Thread(target=samtools_qc_thread, args=(con,)).start()
     threading.Thread(target=nfnvm_nanostats_qc_thread, args=(con,)).start()
+    threading.Thread(target=nfnvm_flureport_thread, args=(con,)).start()
+    threading.Thread(target=nfnvm_viralreport_thread, args=(con,)).start()
 
     app.run(port=10000)
 
