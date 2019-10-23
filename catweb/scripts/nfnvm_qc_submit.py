@@ -11,11 +11,11 @@ data = json.loads(sys.argv[1])
 pipeline_run_uuid = data['run_uuid']
 pipeline_output_dir = data['output_dir']
 
-files = pathlib.Path(pipeline_output_dir).glob('QC_Out/*.fastq_fq_NanoStats.txt')
+files = pathlib.Path(pipeline_output_dir).glob('QC_Out/*_NanoStats.txt')
 
 for sample_filepath in files:
     try:
-        sample_name = str(sample_filepath.name).replace(".fastq_fq_NanoStats.txt", "") + '.fastq'
+        sample_name = str(sample_filepath.name).replace("_NanoStats.txt", "")
         
         p = { 'pipeline_run_uuid': pipeline_run_uuid,
               'sample_name': sample_name,
