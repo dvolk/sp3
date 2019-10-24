@@ -20,7 +20,7 @@ USERNAME=$(whoami)
 #
 sudo apt update
 sudo apt install etckeeper
-sudo apt install build-essential python3-virtualenv python3-pip virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig 
+sudo apt install build-essential python3-virtualenv python3-pip virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig sqlite3
 
 #
 # nextflow
