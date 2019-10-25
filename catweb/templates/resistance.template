@@ -1,5 +1,5 @@
-<p>Report generated on: <strong>{{ resistance['finished_epochtime'] }}</strong></p>
-<p>Species: <strong>{{resistance['metadata']['SNPIT_SPECIES']}}</strong></p>
+<p>Report generated on: <strong>{{ report['resistance']['finished_epochtime'] }}</strong></p>
+
 <div class='row'>
   <div class='col-md-12'>
     <h5>Drugs</h5>
@@ -20,7 +20,7 @@
 	} %}
 
 	{% for drug in pred_drug_names %}
-        {% set prediction = resistance['prediction_ex'][drug] %}
+        {% set prediction = report['resistance']['data']['prediction_ex'][drug] %}
         <td style="width: 12.5%">
           <strong class='{{ prediction_class_map[prediction] }}'>{{ prediction }}</strong>
         </td>
@@ -29,8 +29,8 @@
       <tr>
 	{% for pred_drug_name in pred_drug_names %}
 	<td>
-	  {% for item in resistance[pred_drug_name] %}
-	  {% if (resistance['prediction_ex'][pred_drug_name] == 'F' and item['prediction'] == 'R') or item['mutation_name'][-1] not in ['z', 'Z'] and item['mutation_name'][0] != item['mutation_name'][-1] %}
+	  {% for item in report['resistance']['data'][pred_drug_name] %}
+	  {% if (report['resistance']['data']['prediction_ex'][pred_drug_name] == 'F' and item['prediction'] == 'R') or item['mutation_name'][-1] not in ['z', 'Z'] and item['mutation_name'][0] != item['mutation_name'][-1] %}
 	  {{ item['gene_name'] + '_' + item['mutation_name'] }} - <strong>{{ item['prediction'] }}</strong>
 	  {% endif %}
 	{% endfor %}
@@ -55,10 +55,10 @@
 	<th>Drug</th>
 	<th>Support</th>
       </tr>
-      {% for item in resistance['mutations'] %}
+      {% for item in report['resistance']['data']['mutations'] %}
 
       {% if item['mutation_name'][-1] not in ['z', 'Z'] and item['mutation_name'][0] != item['mutation_name'][-1] %}
-      {% for d in res_rev_index[item['gene_name'] + '_' + item['mutation_name']] %}
+      {% for d in report['resistance']['data']['res_rev_index'][item['gene_name'] + '_' + item['mutation_name']] %}
       {% if d['drug_name'] in pred_drug_names %}
       <tr>
         <td>{{ item['gene_name'] }}_{{ item['mutation_name'] }}</td>
