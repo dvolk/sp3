@@ -1,5 +1,40 @@
 import hashlib
 from functools import partial
+import subprocess
+import urllib
+import threading
+import pathlib
+import shlex
+import time
+
+class FTPDownloadThread(threading.Thread):
+    def __init__(self, url, out_dir):
+        threading.Thread.__init__(self)
+        self.download_process = None
+        self.url = url
+        self.out_dir = out_dir
+
+    def run(self):
+        url = urllib.parse.urlparse(self.url)
+        assert url.scheme == 'ftp'
+
+        host = url.netloc
+        path = pathlib.Path(url.path)
+        directory = path.parent
+        filename = path.name
+
+        time.sleep(100)
+
+        cmd = f"lftp {host} -e 'cd {directory}; set xfer:clobber yes; get {filename} -o {self.out_dir}; exit'"
+        self.download_process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        self.stdout, self.stderr = self.download_process.communicate()
+        self.returncode = self.download_process.returncode
+
+    def stop(self):
+        if not self.download_process:
+            return
+        self.download_process.kill()
 
 def make_api_response(status, details=None, data=None):
     return { 'status': status, 'details': details, 'data': data }

@@ -131,6 +131,8 @@ def ena_delete(in_guid):
 
     return json.dumps(util.make_api_response('success', data={ 'deleted': deleted, 'not_found': not_found }))
 
+t = None
+
 def ena1_api_start():
     glogger = logging.getLogger("fetch_logger")
     glogger.info("ena_api_start()")
@@ -138,3 +140,7 @@ def ena1_api_start():
     for i in range(0, number_of_threads):
         t = ena1.fetcher.ENA_Fetcher(i, queue, glogger)
         t.start()
+
+def stop_download():
+    if t:
+        t.stop_download()

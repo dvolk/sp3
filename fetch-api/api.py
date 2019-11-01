@@ -48,7 +48,11 @@ app = Flask(__name__)
 def stop(in_guid):
     glogger = logging.getLogger('fetch_logger')
     if queue.get_val(in_guid, "status") not in ["queued", "running"]:
-        return json.dumps(util.make_api_response('success'), data={'state': 'not in valid configuration'})
+        return json.dumps(util.make_api_response('success', data={'state': 'not in valid configuration'}))
+    t = queue.get_val(in_guid, "kind")
+
+    if t == 'ena1':
+        ena1.api.stop_download()
 
     def mark_stop(s):
         j = json.loads(s)

@@ -27,6 +27,7 @@ class ENA_Fetcher(threading.Thread):
         self.glogger = glogger
         # local logger, per-download output to file
         self.tlogger = None
+        self.download_thread = None
 
     def run(self):
         '''
@@ -170,9 +171,15 @@ class ENA_Fetcher(threading.Thread):
         # download
         self.tlogger.info("downloading {0}".format(ftp_url))
 
-        with ftplib.FTP('ftp.sra.ebi.ac.uk') as ftp:
-            ftp.login()
-            ftp.retrbinary('RETR {0}'.format(ftp_url), open(out_filepath, 'wb').write)
+        self.download_thread = util.FTPDownloadThread(f"ftp://ftp.sra.ebi.ac.uk{ftp_url}",
+                                                      str(pathlib.Path(out_filepath).parent))
+        self.download_thread.start()
+        self.download_thread.join()
+        self.download_thread = None
+
+        #with ftplib.FTP('ftp.sra.ebi.ac.uk') as ftp:
+        #    ftp.login()
+        #    ftp.retrbinary('RETR {0}'.format(ftp_url), open(out_filepath, 'wb').write)
 
         # validate md5
         self.tlogger.debug("ftp md5: {0}".format(ftp_md5))
@@ -249,6 +256,11 @@ class ENA_Fetcher(threading.Thread):
                                                 'failed_download_files': failed_download_files,
                                                 'ok_download_files': ok_download_files })
 
+    def stop_download(self):
+        if self.download_thread:
+            self.tlogger.debug("terminating download thread")
+            self.download_thread.stop()
+    
     def setup_tlogger(self, guid):
         '''
         Setup the thread-local logger. A new logger is created for each

@@ -28,10 +28,10 @@ def setup_logging():
     f_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     logger.addHandler(f_handler)
     logger.addHandler(c_handler)
+    logger.debug("Logging initialized")
+    return  logging.getLogger('api')
 
-setup_logging()
-logger = logging.getLogger('api')
-logger.debug("Logging initialized")
+logger = setup_logging()
 
 app = Flask(__name__)
 
@@ -115,7 +115,6 @@ def get_flow_config_string(flow_name):
 
     with open(flows[flow_name]['filepath'], 'r') as f:
         content = f.read()
-
     return make_api_response('success', data={'config_content': content})
 
 @app.route('/terminate_job', methods=['POST'])
@@ -187,7 +186,7 @@ def delete_run(run_uuid):
     return make_api_response('success')
 
 @app.route('/status', methods = ['GET'])
-def get_status():
+def get_status(db=db):
     running, recent, failed = db.get_status()
     return make_api_response('success', data={'running': running,
                                               'recent': recent,
