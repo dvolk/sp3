@@ -327,14 +327,10 @@ def admin():
 @flask_login.login_required
 def list_flows():
     flows = list()
-    metaflows = list()
     for flow in cfg.get('nextflows'):
-        if 'subflows' in flow:
-            metaflows.append(flow)
-        else:
-            flows.append(flow)
+        flows.append(flow)
 
-    return render_template('list_flows.template', metaflows=metaflows, flows=flows)
+    return render_template('list_flows.template', flows=flows)
 
 def get_user_params_dict(flow_name, run_uuid):
     ret = dict()
@@ -348,50 +344,6 @@ def get_user_params_dict(flow_name, run_uuid):
         except json.decoder.JSONDecodeError as e:
             logger.warning("couldn't decode user_param_dict: {0}".format(run[0][20]))
     return ret
-
-def new_run2(flow_name, flow_cfg, form, subflows):
-    run_uuid = str(uuid.uuid4())
-
-    run_name = form['run_name']
-    context = form['context']
-
-    current_user = users[flask_login.current_user.id]
-
-    # user parameters, grabbed from run from
-    user_param_dict = dict()
-
-    indir = ""
-    readpat = ""
-
-    for form_key, form_value in form.items():
-        if '-and-' in form_key:
-            index, name, arg = form_key.split('-and-')
-
-            if form_value != "":
-                user_param_dict[arg] = form_value
-
-            if name == 'indir':
-                indir = form_value
-            elif name == 'readpat':
-                readpat = form_value
-
-    data = {
-        'run_uuid': run_uuid,
-        'run_name': run_name,
-        'context': context,
-        'flow_cfg': flow_cfg,
-        'contexts': contexts,
-        'user_param_dict' : user_param_dict,
-        'user_name': flask_login.current_user.id,
-        'indir': indir,
-        'readpat': readpat,
-        'subflows': subflows,
-        'form': form
-    }
-
-    cmd = "python3 metago.py {0} &".format(shlex.quote(json.dumps(data)))
-    logger.debug(cmd)
-    os.system(cmd)
 
 def new_run1(flow_name, flow_cfg, form):
     logger.debug('flow_cfg: {0}'.format(flow_cfg))
@@ -1047,159 +999,186 @@ def fetch_details(guid):
 @flask_login.login_required
 def get_report(run_uuid : str, dataset_id: str):
     # TODO add API config
-    api_request = 'http://127.0.0.1:10000/report/{0}/{1}'.format(run_uuid, dataset_id)
-    r = requests.get(api_request)
-    if not r:
-        abort(404, description="Report API error")
-    else:
-        resp = r.json()
-        main = resp['main']
-        samtools_qc = resp['samtools_qc']
-        mykrobe_speciation = resp['mykrobe_speciation']
-        kraken2_speciation = resp['kraken2_speciation']
-        resistance = resp['resistance']
-        pick_reference = resp['pick_reference']
-        resistance_effects = collections.defaultdict(list)
-        res_rev_index = collections.defaultdict(list) # gene_mutation -> item
+    resp = api_get_request('report_api', f'/report/{run_uuid}/{dataset_id}')
 
-        if samtools_qc:
-            samtools_qc['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M",
-                                                                     time.localtime(samtools_qc['finished_epochtime']))
-            for line in samtools_qc['tsv'].split('\n'):
-                elems = line.split('\t')
-                if elems[0] == 'SN':
-                    samtools_qc[elems[1]] = elems[2]
+    report_data = resp['report_data'] # data in from catreport
+    template_report_data = dict() # data out to template
 
-        if resistance:
-            # check if it is synonymous mutation (first  amino-acid is same as last amino-acid) or invalid mutation (contain z or Z)
-            def is_ok_mutation(eff):
-                '''
-                Mutations where the mutation does nothing or ends in a z are 'not ok' cf Tim Peto
-                '''
-                if eff['mutation_name'][0] == eff['mutation_name'][-1] or eff['mutation_name'][-1] in ['z', 'Z']:
-                    return False
-                else:
-                    return True
+    if report_data['samtools_qc']:
+        template_report_data['samtools_qc'] = dict()
+        template_report_data['samtools_qc']['data'] = dict()
+        for line in report_data['samtools_qc']['data'].split('\n'):
+            elems = line.split('\t')
+            if elems[0] == 'SN':
+                template_report_data['samtools_qc']['data'][elems[1]] = elems[2]
+        template_report_data['samtools_qc']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['samtools_qc']['finished_epochtime']))
 
-            def drug_prediction(effects, drug_name):
-                '''
-                this returns the resistance prediction for drug
+    if report_data['nfnvm_nanostats_qc']:
+        template_report_data['nfnvm_nanostats_qc'] = dict()
+        template_report_data['nfnvm_nanostats_qc']['data'] = dict()
+        for line in report_data['nfnvm_nanostats_qc']['data'].split('\n')[1:8]:
+            elems = line.split(':')
+            template_report_data['nfnvm_nanostats_qc']['data'][elems[0].strip()] = elems[1].strip()
+        template_report_data['nfnvm_nanostats_qc']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_nanostats_qc']['finished_epochtime']))
 
-                Although the piezo resistance prediction already includes a prediction, we include
-                some extra logic to add the F (failed) prediction.
-                '''
-                drug_effects = [x for x in effects if drug_name == x['drug_name']]
-                '''
-                Also, group the effects under drug name
-                '''
-                resistance[drug_name] = drug_effects
+    if report_data['nfnvm_flureport']:
+        template_report_data['nfnvm_flureport'] = dict()
+        template_report_data['nfnvm_flureport']['data'] = dict()
+        [line1, line2, _] = report_data['nfnvm_flureport']['data'].split('\n')
+        line1 = line1.split('\t')
+        line2 = line2.split('\t')
+        for i in range(0, 9):
+            template_report_data['nfnvm_flureport']['data'][line1[i]] = line2[i]
+        template_report_data['nfnvm_flureport']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_flureport']['finished_epochtime']))
 
-                '''
-                No effects = S
-                '''
-                if not drug_effects:
-                    return 'S'
+    if report_data['nfnvm_viralreport']:
+        template_report_data['nfnvm_viralreport'] = dict()
+        template_report_data['nfnvm_viralreport']['data'] = list()
+        for line in report_data['nfnvm_viralreport']['data'].split('\n')[1:]:
+            elems = line.split('\t')
+            template_report_data['nfnvm_viralreport']['data'].append(elems)
+        template_report_data['nfnvm_viralreport']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_flureport']['finished_epochtime']))
 
-                '''
-                All effects are S = S
-                '''
-                all_S = True
-                for eff in drug_effects:
-                    if eff['prediction'] != 'S':
-                        all_S = False
-                        break
-                if all_S:
-                    return 'S'
+    if report_data['pick_reference']:
+        template_report_data['pick_reference'] = dict()
+        template_report_data['pick_reference']['data'] = report_data['pick_reference']['data']
+        template_report_data['pick_reference']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['pick_reference']['finished_epochtime']))
 
-                '''
-                At least one R that is an ok mutation = R
-                '''
-                one_ok_R = False
-                for eff in drug_effects:
-                    if eff['prediction'] == 'R' and is_ok_mutation(eff):
-                        one_ok_R = True
-                        break
-                if one_ok_R:
-                    return 'R'
+    if report_data['resistance']:
+        logger.debug(f"*** FROM CATREPORT {report_data['resistance']}")
+        # check if it is synonymous mutation (first  amino-acid is same as last amino-acid) or invalid mutation (contain z or Z)
+        def is_ok_mutation(eff):
+            '''
+            Mutations where the mutation does nothing or ends in a z are 'not ok' cf Tim Peto
+            '''
+            if eff['mutation_name'][0] == eff['mutation_name'][-1] or eff['mutation_name'][-1] in ['z', 'Z']:
+                return False
+            else:
+                return True
 
-                '''
-                At least one R that is not an ok mutation = F
-                '''
-                one_bad_R = False
-                for eff in drug_effects:
-                    if eff['prediction'] == 'R' and not is_ok_mutation(eff):
-                        one_bad_R = True
-                        break
-                if one_bad_R:
-                    return 'F'
+        def drug_prediction(effects, drug_name):
+            '''
+            this returns the resistance prediction for drug
 
-                '''
-                No Rs and all U are bad mutations = S
-                '''
-                all_bad_U = True
-                for eff in drug_effects:
-                    if eff['prediction'] == 'U' and is_ok_mutation(eff):
-                        all_bad_U = False
-                if all_bad_U:
-                    return 'S'
+            Although the piezo resistance prediction already includes a prediction, we include
+            some extra logic to add the F (failed) prediction.
+            '''
+            drug_effects = [x for x in effects if drug_name == x['drug_name']]
+            '''
+            Also, group the effects under drug name
+            '''
+            # TODO
+            template_report_data['resistance']['data'][drug_name] = drug_effects
 
-                '''
-                All other cases = U
-                '''
-                return 'U'
+            '''
+            No effects = S
+            '''
+            if not drug_effects:
+                return 'S'
 
-            resistance['prediction_ex'] = {
-              x: drug_prediction(resistance['effects'], x) for x in ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM']
-            }
+            '''
+            All effects are S = S
+            '''
+            all_S = True
+            for eff in drug_effects:
+                if eff['prediction'] != 'S':
+                    all_S = False
+                    break
+            if all_S:
+                return 'S'
 
-            logger.warning(resistance['prediction_ex'])
+            '''
+            At least one R that is an ok mutation = R
+            '''
+            one_ok_R = False
+            for eff in drug_effects:
+                if eff['prediction'] == 'R' and is_ok_mutation(eff):
+                    one_ok_R = True
+                    break
+            if one_ok_R:
+                return 'R'
 
-            for item in resistance['effects']:
-                if is_ok_mutation(item):
-                    resistance_effects[item['drug_name']].append(item)
-                    res_rev_index[item['gene_name'] + '_' + item['mutation_name']].append(item)
+            '''
+            At least one R that is not an ok mutation = F
+            '''
+            one_bad_R = False
+            for eff in drug_effects:
+                if eff['prediction'] == 'R' and not is_ok_mutation(eff):
+                    one_bad_R = True
+                    break
+            if one_bad_R:
+                return 'F'
 
-            resistance['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M",
-                                                             time.localtime(resistance['finished_epochtime']))
-        if mykrobe_speciation:
-            mykrobe_speciation['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M",
-                                                                     time.localtime(mykrobe_speciation['finished_epochtime']))
-        if kraken2_speciation:
-            # read kraken2 tsv
-            tbl = pandas.read_csv(StringIO(kraken2_speciation['tsv']),
-                                  sep='\t',
-                                  header=None,
-                                  names=['RootFragments%',
-                                         'RootFragments',
-                                         'DirectFragments',
-                                         'Rank',
-                                         'NCBI_Taxonomic_ID',
-                                         'Name'])
+            '''
+            No Rs and all U are bad mutations = S
+            '''
+            all_bad_U = True
+            for eff in drug_effects:
+                if eff['prediction'] == 'U' and is_ok_mutation(eff):
+                    all_bad_U = False
+            if all_bad_U:
+                return 'S'
 
-            # remove leading spaces from name
-            tbl['Name'] = tbl['Name'].apply(lambda x: x.strip())
-            # format report time
-            kraken2_speciation['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M",
-                                                                     time.localtime(kraken2_speciation['finished_epochtime']))
-            # get family, genus and species
-            kraken2_speciation['family'] = tbl.query('Rank == "F"').head(n=1)
-            kraken2_speciation['genus'] = tbl.query('Rank == "G"').head(n=1)
-            kraken2_speciation['species'] = tbl.query('Rank == "S"').head(n=1)
-            kraken2_speciation['human'] = tbl.query('Name == "Homo sapiens"').head(n=1)
-            kraken2_speciation['mycobacteriaceae'] = tbl.query('Name == "Mycobacteriaceae"').head(n=1)
+            '''
+            All other cases = U
+            '''
+            return 'U'
 
-        relatedness = resp['relatedness']
+        template_report_data['resistance'] = dict()
+        template_report_data['resistance']['data'] = dict()
+        template_report_data['resistance']['data']['resistance_effects'] = collections.defaultdict(list)
+        template_report_data['resistance']['data']['res_rev_index'] = collections.defaultdict(list) # gene_mutation -> item
+
+        template_report_data['resistance']['data']['effects'] = report_data['resistance']['data']['effects']
+        template_report_data['resistance']['data']['mutations'] = report_data['resistance']['data']['mutations']
+
+        template_report_data['resistance']['data']['prediction_ex'] = dict()
+        for drug_name in ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM']:
+            template_report_data['resistance']['data']['prediction_ex'][drug_name] = drug_prediction(report_data['resistance']['data']['effects'], drug_name)
+
+        logger.debug(f"prediction_ex: {template_report_data['resistance']['data']['prediction_ex']}")
+
+        for item in report_data['resistance']['data']['effects']:
+            if is_ok_mutation(item):
+                full_name = item['gene_name'] + '_' + item['mutation_name']
+                drug_name = item['drug_name']
+                template_report_data['resistance']['data']['resistance_effects'][drug_name].append(item)
+                template_report_data['resistance']['data']['res_rev_index'][full_name].append(item)
+
+        logger.debug(f"resistance_effects: {template_report_data['resistance']['data']['resistance_effects']}")
+        logger.debug(f"res_rev_index: {template_report_data['resistance']['data']['res_rev_index']}")
+
+        template_report_data['resistance']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['resistance']['finished_epochtime']))
+        logger.debug(f"*** TO TEMPLATE {template_report_data['resistance']}")
+
+    if report_data['mykrobe_speciation']:
+        template_report_data['mykrobe_speciation'] = dict()
+        template_report_data['mykrobe_speciation']['data'] = report_data['mykrobe_speciation']['data']
+        template_report_data['mykrobe_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['mykrobe_speciation']['finished_epochtime']))
+
+    if report_data['kraken2_speciation']:
+        # read kraken2 tsv
+        tbl = pandas.read_csv(StringIO(report_data['kraken2_speciation']['data']),
+                              sep='\t', header=None,
+                              names=['RootFragments%', 'RootFragments', 'DirectFragments', 'Rank', 'NCBI_Taxonomic_ID', 'Name'])
+
+        # remove leading spaces from name
+        tbl['Name'] = tbl['Name'].apply(lambda x: x.strip())
+        # get family, genus and species
+        template_report_data['kraken2_speciation'] = dict()
+        template_report_data['kraken2_speciation']['data'] = dict()
+        template_report_data['kraken2_speciation']['data']['family'] = tbl.query('Rank == "F"').head(n=1)
+        template_report_data['kraken2_speciation']['data']['genus'] = tbl.query('Rank == "G"').head(n=1)
+        template_report_data['kraken2_speciation']['data']['species'] = tbl.query('Rank == "S"').head(n=1)
+        template_report_data['kraken2_speciation']['data']['human'] = tbl.query('Name == "Homo sapiens"').head(n=1)
+        template_report_data['kraken2_speciation']['data']['mycobacteriaceae'] = tbl.query('Name == "Mycobacteriaceae"').head(n=1)
+        # format report time
+        template_report_data['kraken2_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['kraken2_speciation']['finished_epochtime']))
 
     return render_template('report.template',
-                           main=main,
-                           samtools_qc=samtools_qc,
-                           kraken2_speciation=kraken2_speciation,
-                           mykrobe_speciation=mykrobe_speciation,
-                           pick_reference=pick_reference,
-                           resistance=resistance,
-                           resistance_effects=resistance_effects,
-                           relatedness=relatedness,
-                           res_rev_index=res_rev_index)
+                           pipeline_run_uuid=run_uuid,
+                           dataset_id=dataset_id,
+                           report=template_report_data)
 def main():
     app.run(port=7000)
 

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
 	  crossorigin="anonymous">
     <script type="text/css" src="css/site.css"></script>
-    <title>Oxford Scalable Pathogen Pipeline Platform</title>
+    <title>Oxford SP3</title>
     <style>
       body {
       font-size: 0.9em;
@@ -32,6 +32,11 @@
 	      <a href="/" style="text-decoration: none; color: black">Oxford SP<sup>3</sup></a>
 	    </h1>
             <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav">
               <li class="nav-item" style="margin-right: 20px">
 		<a class="nav-link" href="/" style="font-size: 24px; padding-left: 0; ">Dashboard</a>
@@ -49,6 +54,7 @@
 		<a class="nav-link" href="/admin" style="font-size: 24px">Admin</a>
               </li>
             </ul>
+            </div>
           </span>
           <p>
             {% if current_user.is_authenticated %}

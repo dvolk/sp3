@@ -1,0 +1,2 @@
+# this should be your cluster IP, i.e. an IP your compute nodes can access
+bind_host: 10.218.117.11

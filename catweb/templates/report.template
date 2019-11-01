@@ -4,44 +4,59 @@
 
 <h2>SP<sup>3</sup> Report</h2>
 
-{% if main %}
-  <p>Sample name: <strong>{{ main['sample_name'] }}</strong></p>
-  <p>Pipeline run uuid: <strong>{{ main['pipeline_run_uuid'] }}</strong></p>
-  <hr/>
-{% endif %}
+<p>Sample name: <strong>{{ dataset_id  }}</strong></p>
+<p>Pipeline run uuid: <strong>{{ pipeline_run_uuid }}</strong></p>
+<hr/>
 
-{% if kraken2_speciation %}
+{% if report['kraken2_speciation'] %}
   <h3>Kraken2</h3>
-
   {% include 'kraken2_speciation.template' %}
 {% endif %}
 
-{% if mykrobe_speciation %}
+{% if report['mykrobe_speciation'] %}
   <h3>Mykrobe speciation</h3>
-
   {% include 'mykrobe_speciation.template' %}
 {% endif %}
 
-{% if pick_reference %}
+{% if report['pick_reference'] %}
+  <h3>Reference</h3>
   {% include 'pick_reference.template' %}
 {% endif %}
 
-{% if samtools_qc %}
+{% if report['samtools_qc'] %}
   <h3>Samtools QC</h3>
 
   {% include 'samtools_qc.template' %}
 {% endif %}
 
-{% if resistance %}
+{% if report['resistance'] %}
   <h3>Resistance</h3>
 
   {% include 'resistance.template' %}
 {% endif %}
 
-{% if relatedness %}
+{% if report['relatedness'] %}
   <h3>Relatedness</h3>
 
   {{ relatedness }}
+{% endif %}
+
+{% if report['nfnvm_nanostats_qc'] %}
+  <h3>Nanostats QC</h3>
+
+  {% include 'nfnvm_nanostats_qc.template' %}
+{% endif %}
+
+{% if report['nfnvm_flureport'] %}
+  <h3>Flu report</h3>
+
+  {% include 'nfnvm_flureport.template' %}
+{% endif %}
+
+{% if report['nfnvm_viralreport'] %}
+  <h3>Viral report</h3>
+
+  {% include 'nfnvm_viralreport.template' %}
 {% endif %}
 
 {% endblock content %}

@@ -1,2 +1,1 @@
-<h3>Reference</h3>
-<p>Reference: {{ pick_reference['pick_taxid'] }}</p>
+<p>Reference: {{ report['pick_reference']['data']['pick_taxid'] }}</p>

@@ -131,6 +131,8 @@ def local1_delete(in_guid):
 def main():
     setup_logging()
 
+    pathlib.Path('logs').mkdir(exist_ok=True)
+
     glogger = logging.getLogger('fetch_logger')
     glogger.info("starting")
 

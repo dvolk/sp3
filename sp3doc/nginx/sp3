@@ -2,25 +2,20 @@
 # main site
 #
 server {
-        server_name cats.oxfordfun.com;
+        server_name sp3.dev.local;
 
         location / {
                 proxy_pass http://localhost:7000/;
         }
 
-        listen 443 ssl;
-        ssl_certificate /etc/letsencrypt/oxfordfun.com.cert.pem;
-        ssl_certificate_key /etc/letsencrypt/oxfordfun.com.key.pem;
-
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+        listen 80;
 }
 
 #
 # file download site
 #
 server {
-        server_name download-cats.oxfordfun.com;
+        server_name download.sp3.dev.local;
 
 	location /files {
                 alias /work/output;
@@ -37,99 +32,90 @@ server {
                 proxy_set_header X-Original-URI $request_uri;
         }
 
-        listen 443 ssl;
-        ssl_certificate /etc/letsencrypt/oxfordfun.com.cert.pem;
-        ssl_certificate_key /etc/letsencrypt/oxfordfun.com.key.pem;
-
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+        listen 80;
 }
 
 #
 # cluster stats image download site
 #
 server {
-        server_name stat-cats.oxfordfun.com;
+        server_name stat.sp3.dev.local;
 
         location / {
                 proxy_pass http://localhost:8000/;
         }
 
-        listen 443 ssl;
-        ssl_certificate /etc/letsencrypt/oxfordfun.com.cert.pem;
-        ssl_certificate_key /etc/letsencrypt/oxfordfun.com.key.pem;
-
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+        listen 80;
 }
 
+##
+## persistence site (optional)
+##
+#server {
+#        server_name persistence.mmmoxford.uk;
 #
-# persistence site (optional)
+#        location / {
+#                proxy_pass http://localhost:11000/;
+#        }
 #
-server {
-        server_name persistence.mmmoxford.uk;
-
-        location / {
-                proxy_pass http://localhost:11000/;
-        }
-
-        listen 443 ssl;
-        ssl_certificate /etc/letsencrypt/mmmoxford.uk.cert.pem;
-        ssl_certificate_key /etc/letsencrypt/mmmoxford.uk.key.pem;
-
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-}
-
+#        listen 443 ssl;
+#        ssl_certificate /etc/letsencrypt/mmmoxford.uk.cert.pem;
+#        ssl_certificate_key /etc/letsencrypt/mmmoxford.uk.key.pem;
 #
-# persistence file server (optional)
+#        include /etc/letsencrypt/options-ssl-nginx.conf;
+#        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+#}
 #
-server {
-        server_name persistent-files.mmmoxford.uk;
-
-        location /files/e03386bb-f867-420f-8650-f8f58c64ca54 {
-		 autoindex on;
-		 alias /work/persistence/e03386bb-f867-420f-8650-f8f58c64ca54/work/output/;
-        }
-        location /files/aace3028-c84f-4067-9ec6-211a302d21ea {
-		 autoindex on;
-		 alias /work/persistence/aace3028-c84f-4067-9ec6-211a302d21ea/work/output/;
-        }
-        location /files/a2c44551-c52c-4231-916c-eb3663b2333d {
-		 autoindex on;
-		 alias /work/persistence/a2c44551-c52c-4231-916c-eb3663b2333d/work/output/;
-        }
-        location /files/b13d7dc2-2136-416c-aa75-230620519870 {
-		 autoindex on;
-		 alias /work/persistence/b13d7dc2-2136-416c-aa75-230620519870/work/output/;
-        }
-
-	listen 443 ssl;
-        ssl_certificate /etc/letsencrypt/mmmoxford.uk.cert.pem;
-        ssl_certificate_key /etc/letsencrypt/mmmoxford.uk.key.pem;
-
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-}
-
+##
+## persistence file server (optional)
+##
+#server {
+#        server_name persistent-files.mmmoxford.uk;
 #
-# labkey (optional)
+#        location /files/e03386bb-f867-420f-8650-f8f58c64ca54 {
+#		 autoindex on;
+#		 alias /work/persistence/e03386bb-f867-420f-8650-f8f58c64ca54/work/output/;
+#        }
+#        location /files/aace3028-c84f-4067-9ec6-211a302d21ea {
+#		 autoindex on;
+#		 alias /work/persistence/aace3028-c84f-4067-9ec6-211a302d21ea/work/output/;
+#        }
+#        location /files/a2c44551-c52c-4231-916c-eb3663b2333d {
+#		 autoindex on;
+#		 alias /work/persistence/a2c44551-c52c-4231-916c-eb3663b2333d/work/output/;
+#        }
+#        location /files/b13d7dc2-2136-416c-aa75-230620519870 {
+#		 autoindex on;
+#		 alias /work/persistence/b13d7dc2-2136-416c-aa75-230620519870/work/output/;
+#        }
 #
-server {
-        server_name labkey.oxfordfun.com;
-
-	location / {
-		return 302 http://labkey.oxfordfun.com/labkey;
-	}
-
-        location /labkey {
-                proxy_pass http://10.151.229.209:8080/labkey;
-        }
-
-        listen 443 ssl;
-        ssl_certificate /etc/letsencrypt/oxfordfun.com.cert.pem;
-        ssl_certificate_key /etc/letsencrypt/oxfordfun.com.key.pem;
-
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-}
+#	listen 443 ssl;
+#        ssl_certificate /etc/letsencrypt/mmmoxford.uk.cert.pem;
+#        ssl_certificate_key /etc/letsencrypt/mmmoxford.uk.key.pem;
+#
+#        include /etc/letsencrypt/options-ssl-nginx.conf;
+#        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+#}
+#
+##
+## labkey (optional)
+##
+#server {
+#        server_name labkey.oxfordfun.com;
+#
+#	location / {
+#		return 302 http://labkey.oxfordfun.com/labkey;
+#	}
+#
+#        location /labkey {
+#                proxy_pass http://10.151.229.209:8080/labkey;
+#        }
+#
+#        listen 443 ssl;
+#        ssl_certificate /etc/letsencrypt/oxfordfun.com.cert.pem;
+#        ssl_certificate_key /etc/letsencrypt/oxfordfun.com.key.pem;
+#
+#        include /etc/letsencrypt/options-ssl-nginx.conf;
+#        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+#}
+#

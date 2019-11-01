@@ -1,7 +1,11 @@
 import sqlite3
 import json
+import yaml
 
 from flask import Flask, request
+
+with open('config.yaml') as f:
+    config = yaml.load(f.read())
 
 con = sqlite3.connect('/db/cattag.db', check_same_thread=False)
 
@@ -53,4 +57,4 @@ def get_sample_tags(run_uuid, sample_name):
                              data = data)
 
 if __name__ == '__main__':
-    app.run(host='192.168.9.9', port=12000)
+    app.run(config["bind_host"], port=12000)
