@@ -269,10 +269,10 @@ def get_report(pipeline_run_uuid, sample_name):
     report_data['nfnvm_kronareport'] = dict()
     if r: 
         report_nfnvm_krona_html = r[0]
-        report_nfnvm_krona_html_path = f"/work/reports/catreport/reports/{report_nfnvm_krona_html}.html"
-        logging.warning(report_nfnvm_krona_html_path)
+        report_nfnvm_krona_downloadpath = f"{pipeline_run_uuid}/selRef_Out/{sample_name}_classkrona.html"
+        logging.warning(report_nfnvm_krona_downloadpath)
 
-        report_data['nfnvm_kronareport']['data'] = report_nfnvm_krona_html_path
+        report_data['nfnvm_kronareport']['path'] = report_nfnvm_krona_downloadpath
         report_data['nfnvm_kronareport']['finished_epochtime'] = int(r[5])
     '''
     end nfnvm krona report

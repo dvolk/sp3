@@ -1023,7 +1023,7 @@ def get_report(run_uuid : str, dataset_id: str):
 
     if report_data['nfnvm_kronareport']:
         template_report_data['nfnvm_kronareport'] = dict()
-        template_report_data['nfnvm_kronareport']['data'] = report_data['nfnvm_kronareport']['data'] 
+        template_report_data['nfnvm_kronareport']['download_url'] = cfg.get('download_url') +  report_data['nfnvm_kronareport']['path']
         template_report_data['nfnvm_kronareport']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_kronareport']['finished_epochtime']))
 
     if report_data['nfnvm_flureport']:
