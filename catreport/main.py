@@ -265,7 +265,7 @@ def get_report(pipeline_run_uuid, sample_name):
     '''
     begin nfnvm krona report
     '''
-    r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_krona')
+    r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_kronareport')
     report_data['nfnvm_kronareport'] = dict()
     if r: 
         report_nfnvm_krona_html = r[0]
