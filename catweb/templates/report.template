@@ -47,6 +47,12 @@
   {% include 'nfnvm_nanostats_qc.template' %}
 {% endif %}
 
+{% if report['nfnvm_kronareport'] %}
+  <h3>Krona Report</h3>
+
+  {% include 'nfnvm_krona.template' %}
+{% endif %}
+
 {% if report['nfnvm_flureport'] %}
   <h3>Flu report</h3>
 
