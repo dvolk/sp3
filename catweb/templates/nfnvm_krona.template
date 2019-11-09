@@ -1,0 +1,1 @@
+<p>Report generated on: <strong>{{ report['nfnvm_kronareport']['finished_epochtime'] }}</strong></p>

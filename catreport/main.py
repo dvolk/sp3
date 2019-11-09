@@ -134,6 +134,11 @@ def make_trivial_copy_report(report_uuid, sample_filepath):
     os.system(f'cp {sample_filepath} {out_filepath}')
     return out_filepath
 
+def make_file_copy_report(report_file_path, sample_filepath):
+    out_filepath = f'/work/reports/catreport/reports/{report_file_path}'
+    os.system(f'cp {sample_filepath} {out_filepath}')
+    return out_filepath    
+
 @app.route('/report/<pipeline_run_uuid>/<sample_name>')
 def get_report(pipeline_run_uuid, sample_name):
     '''
@@ -258,6 +263,22 @@ def get_report(pipeline_run_uuid, sample_name):
     '''
 
     '''
+    begin nfnvm krona report
+    '''
+    r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_krona')
+    report_data['nfnvm_kronareport'] = dict()
+    if r: 
+        report_nfnvm_krona_html = r[0]
+        report_nfnvm_krona_html_path = f"/work/reports/catreport/reports/{report_nfnvm_krona_html}.html"
+        logging.warning(report_nfnvm_krona_html_path)
+
+        report_data['nfnvm_kronareport']['data'] = report_nfnvm_krona_html_path
+        report_data['nfnvm_kronareport']['finished_epochtime'] = int(r[5])
+    '''
+    end nfnvm krona report
+    '''
+
+    '''
     begin nfnvm flureport report
     '''
     r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_flureport')
@@ -293,15 +314,18 @@ def get_report(pipeline_run_uuid, sample_name):
     return json.dumps({ 'status': 'success', 'details': None, 'data': { 'report_data': report_data }})
 
 def main():
+    
     threading.Thread(target=report_thread_factory, args=(con, "resistance", make_resistance_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "mykrobe_speciation", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "kraken2_speciation", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "pick_reference", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "samtools_qc", make_trivial_copy_report)).start()
+
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_nanostats_qc", make_trivial_copy_report)).start()
+    threading.Thread(target=report_thread_factory, args=(con, "nfnvm_kronareport", make_file_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_flureport", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_viralreport", make_trivial_copy_report)).start()
-
+    
     app.run(port=10000)
 
 if __name__ == '__main__':
