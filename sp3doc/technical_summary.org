@@ -14,32 +14,48 @@
 The Scalable Pathogen Pipeline Platform (SP3) is solution for
 genomic analysis in the cloud.
 * User workflow
-#+BEGIN_SRC ditaa :file workflow.png :cmdline -r
-                                             +---------+
-                                    /------->| Monitor |
-                                    |        +---------+
-                                    |
-    +-------+     +--------+     +-----+     +-------------+    
-    | Login |---->| Fetch  |---->| Run |---->| View report |    
-    +-------+     +--------+     +-----+     +-------------+ 
-                                    | 
-                                    |        +----------+
-                                    \------->| Download |
-                                             +----------+
+#+BEGIN_SRC dot :file user_workflow.png :cmdline -Kdot -Tpng
+  digraph {
+  // graph from left to right
+  rankdir=LR;
+  splines=true;
+  node [shape=box];
+
+  login [label="Login"]
+  fetch [label="Fetch"]
+  run [label="Run"]
+  monitor [label="Monitor"]
+  view_report [label="View Report"]
+  download [label="Download"]
+
+  login -> fetch
+  fetch -> run
+  run -> monitor
+  run -> view_report
+  run -> download
+  }
 #+END_SRC
+#+RESULTS:
+[[file:user_workflow.png]]
 ** Login
 The user selects which SP3 cloud instance to use and logs in.
 ** Fetch
-#+BEGIN_SRC ditaa :file fetch.png :cmdline -r
-  +-----------------------------+          +---------------+
-  | European Nucleotide Archive |          | Other sources |
-  +-----------------------------+          +---------------+
-                            |                |
-                            v                v
-                          +--------------------+
-                          |         SP3        |
-                          +--------------------+
+#+BEGIN_SRC dot :file fetch.png :cmdline -Kdot -Tpng
+  digraph {
+  // graph from left to right
+  splines=true;
+  node [shape=box];
+
+  ena [label="European Nucleotide Archive"]
+  other [label="Other sources"]
+  sp3 [label="SP3"]
+  
+  ena -> sp3
+  other -> sp3
+  }
 #+END_SRC
+#+RESULTS:
+[[file:fetch.png]]
 *** From ENA
 If the genomic data that the user wishes to analyze is hosted on
 the ENA, SP3 can fetch it directly. The user goes to the Dataset
@@ -89,31 +105,36 @@ listing where they can browse the output files and easily download
 individual files
 * Architecture
 ** Cloud instance head node
-#+BEGIN_SRC ditaa :file architecture1.png :cmdline -E -S
-/----------------------------------------------------------------------\
-|                                    nfweb                             |
-+-----------------------------+-------------------+--------------------+
-|   Fetch API, Download API   |    catreport      |     nextflow       |
-+-----------------------------+-------------------+--------------------+
-|                             |  resistance API   |     catgrid        |
-+-----------------------------+-------------------+--------------------+
-|                             |                   | catcloud, catstat  |
-\-----------------------------+-------------------+--------------------/
+#+BEGIN_SRC dot :file arch.png :cmdline -Kdot -Tpng
+  digraph {
+  // graph from left to right
+  node [shape=record];
+  s0 [label="catweb | { Fetch API, Download API | catreport | nextflow } | { | resistance API | catgrid } | { | | catcloud, catstat }"]
+
+
+  }
 #+END_SRC
-** Persistent store (WIP)
-#+BEGIN_SRC ditaa :file architecture2.png :cmdline -r
-   +------------------+   +------------------+   +------------------+
-   | Cloud instance 1 |   | Cloud instance 2 |   | Cloud instance 3 |
-   +------------------+   +------------------+   +------------------+
-             |                     |                   |
-             |                     v                   |         
-             |            +------------------+         |         
-             \----------->| Persistent store |<--------/         
-                          +------------------+                         
+#+RESULTS:
+[[file:arch.png]]
+** Persistent store
+#+BEGIN_SRC dot :file persistent_store.png :cmdline -Kdot -Tpng
+  digraph {
+  // graph from left to right
+  node [shape=box];
+  
+  cloud1 [label="Cloud instance 1"]
+  cloud2 [label="Cloud instance 2"]
+  cloud3 [label="Cloud instance 3"]
+  store [label="Persistent store"]
+
+  cloud1 -> store
+  cloud2 -> store
+  cloud3 -> store
+  }
 #+END_SRC
-#+NAME: workflow
-#+CAPTION: caption
-see [[workflow]]
+#+RESULTS:
+[[file:persistent_store.png]]
+
 
 The persistent store presents a landing page listing all SP3 cloud 
 instances. From there the user can choose one to run their analysis on 
