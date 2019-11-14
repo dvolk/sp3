@@ -10,7 +10,7 @@ version: "0.1.0"
 description: "Nanopore Virus Metagenomics"
 contexts:
   - name: local
-    arguments: "-profile cloud -process.executor slurm --Cent true --BLASTdraft true --selRef CENTRIFUGE --mapper minimap2 --mapping2 true --QCmode true --mapping true --report true "
+    arguments: "-profile cloud -process.executor slurm --Porchop false --Cent true --selRef true --BLASTdraft true --mapper true --mapping2 true --QCmode true --mapping true --report true --prepAssembly true --assembly true"
 param:
   description:
     - name: 'indir'
@@ -21,11 +21,6 @@ param:
       arg: '--readpat'
       type: input-list
       desc: 'Input file pattern (*fastq.gz)' 
-    - name: 'Porechop'
-      type: switch
-      desc: 'Remove adapters with Porechop'
-      arg: '--Porechop'
-      options: {'true':'true', 'false':'false'}
 
 output:
       parameter: "--dataDir"
