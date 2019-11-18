@@ -11,7 +11,7 @@ data = json.loads(sys.argv[1])
 pipeline_run_uuid = data['run_uuid']
 pipeline_output_dir = data['output_dir']
 
-files = pathlib.Path(pipeline_output_dir).glob('QC_Out/*_NanoStats.txt')
+files = pathlib.Path(pipeline_output_dir).glob('qualityControl_Out/*_NanoStats.txt')
 
 for sample_filepath in files:
     try:
