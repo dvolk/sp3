@@ -43,6 +43,18 @@ def db_get_report_for_type(pipeline_run_uuid, sample_name, report_type):
     else:
         return None
 
+def get_samples_cov_names(pipeline_run_uuid, sample_name, report_type):
+    
+    sample_like = sample_name + '%'
+
+    with sql_lock, con:
+        r = con.execute('select * from q where status = "done" and pipeline_run_uuid = ? and sample_name like ? and type = ? order by added_epochtime desc', 
+                         (pipeline_run_uuid, sample_like, report_type)).fetchall()
+    if r:
+        return r[0]
+    else:
+        return None
+
 def db_get_queue(con, report_type):
     with sql_lock, con:
         rows = con.execute("select * from q where status = 'queued' and type = ? order by added_epochtime asc limit 1", (report_type,)).fetchall()
@@ -279,6 +291,28 @@ def get_report(pipeline_run_uuid, sample_name):
     '''
 
     '''
+    begin nfnvm map2coverage report
+    '''
+    report_data['nfnvm_map2coveragereport'] = dict()
+    samples_cov_names = get_samples_cov_names(pipeline_run_uuid, sample_name, 'nfnvm_map2coveragereport')
+
+    for sample_cov_name in samples_cov_names:
+        r = get_report_for_type(pipeline_run_uuid, sample_cov_name, 'nfnvm_map2coveragereport')
+
+        report_data['nfnvm_map2coveragereport'][sample_cov_name] = dict()
+        if r: 
+            report_nfnvm_cov_downloadpath = f"{pipeline_run_uuid}/mapping2_Out/{samsample_cov_name}_cov.png"
+            logging.warning(report_nfnvm_cov_downloadpath)
+
+            report_data['nfnvm_map2coveragereport'][sample_cov_name]['path'] = report_nfnvm_krona_downloadpath
+            report_data['nfnvm_map2coveragereport']sample_cov_name]['finished_epochtime'] = int(r[5])
+            report_data['nfnvm_map2coveragereport']['finished_epochtime'] =  int(r[5])
+       
+    '''
+    end nfnvm map2coverage report
+    '''
+
+    '''
     begin nfnvm flureport report
     '''
     r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_flureport')
@@ -325,6 +359,7 @@ def main():
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_kronareport", make_file_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_flureport", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_viralreport", make_trivial_copy_report)).start()
+    threading.Thread(target=report_thread_factory, args=(con, "nfnvm_map2coveragereportreport", make_file_copy_report)).start()
     
     app.run(port=10000)
 
