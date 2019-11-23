@@ -1,1 +1,1 @@
-<p>Report generated on: <strong>{{ report['nfnvm_map2coveragereport']['finished_epochtime'] }}</strong></p>
+<p>Report generated on: <strong>{{ report['nfnvm_map2coverage_report']['finished_epochtime'] }}</strong></p>

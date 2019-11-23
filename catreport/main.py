@@ -301,17 +301,22 @@ def get_report(pipeline_run_uuid, sample_name):
 
     samples_cov_names = get_samples_cov_names(pipeline_run_uuid, sample_name, 'nfnvm_map2coverage_report')
 
+    report_data['nfnvm_map2coverage_report']['data'] = []
+
     for sample_cov_name in samples_cov_names:
+                
         r = get_report_for_type(pipeline_run_uuid, sample_cov_name, 'nfnvm_map2coverage_report')
 
-        report_data['nfnvm_map2coverage_report'][sample_cov_name] = dict()
+        sample_ref_files = dict()
+                
         if r: 
             report_nfnvm_cov_downloadpath = f"{pipeline_run_uuid}/mapping2_Out/{sample_cov_name}_cov.png"
             logging.warning(report_nfnvm_cov_downloadpath)
-
-            report_data['nfnvm_map2coverage_report'][sample_cov_name]['path'] = report_nfnvm_krona_downloadpath
-            report_data['nfnvm_map2coverage_report'][sample_cov_name]['finished_epochtime'] = int(r[5])
+            sample_ref_files['name'] = sample_cov_name
+            sample_ref_files['path'] = report_nfnvm_cov_downloadpath
             report_data['nfnvm_map2coverage_report']['finished_epochtime'] =  int(r[5])
+            report_data['nfnvm_map2coverage_report']['data'].append(sample_ref_files)
+            logging.warning(report_data['nfnvm_map2coverage_report']['data'])
        
     '''
     end nfnvm map2coverage report

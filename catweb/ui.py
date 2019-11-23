@@ -1026,6 +1026,11 @@ def get_report(run_uuid : str, dataset_id: str):
         template_report_data['nfnvm_kronareport']['download_url'] = cfg.get('download_url') +  report_data['nfnvm_kronareport']['path']
         template_report_data['nfnvm_kronareport']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_kronareport']['finished_epochtime']))
 
+    if report_data['nfnvm_map2coverage_report']:
+        template_report_data['nfnvm_map2coverage_report'] = dict()
+        template_report_data['nfnvm_map2coverage_report']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_map2coverage_report']['finished_epochtime']))
+        
+
     if report_data['nfnvm_flureport']:
         template_report_data['nfnvm_flureport'] = dict()
         template_report_data['nfnvm_flureport']['data'] = dict()

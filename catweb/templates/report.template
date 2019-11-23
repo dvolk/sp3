@@ -65,7 +65,7 @@
   {% include 'nfnvm_viralreport.template' %}
 {% endif %}
 
-{% if report['nfnvm_map2coveragereport'] %}
+{% if report['nfnvm_map2coverage_report'] %}
   <h3>Mapping Coverage Report</h3>
 
   {% include 'nfnvm_map2coveragereport.template' %}
