@@ -1013,7 +1013,7 @@ def get_report(run_uuid : str, dataset_id: str):
                 template_report_data['samtools_qc']['data'][elems[1]] = elems[2]
         template_report_data['samtools_qc']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['samtools_qc']['finished_epochtime']))
 
-    if report_data['nfnvm_nanostats_qc']:
+    if 'nfnvm_nanostats_qc' in report_data.keys():
         template_report_data['nfnvm_nanostats_qc'] = dict()
         template_report_data['nfnvm_nanostats_qc']['data'] = dict()
         for line in report_data['nfnvm_nanostats_qc']['data'].split('\n')[1:8]:
@@ -1021,17 +1021,19 @@ def get_report(run_uuid : str, dataset_id: str):
             template_report_data['nfnvm_nanostats_qc']['data'][elems[0].strip()] = elems[1].strip()
         template_report_data['nfnvm_nanostats_qc']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_nanostats_qc']['finished_epochtime']))
 
-    if report_data['nfnvm_kronareport']:
+    if 'nfnvm_kronareport' in report_data.keys():
         template_report_data['nfnvm_kronareport'] = dict()
         template_report_data['nfnvm_kronareport']['download_url'] = cfg.get('download_url') +  report_data['nfnvm_kronareport']['path']
         template_report_data['nfnvm_kronareport']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_kronareport']['finished_epochtime']))
 
-    if report_data['nfnvm_map2coverage_report']:
+    if 'nfnvm_map2coverage_report' in report_data.keys():
         template_report_data['nfnvm_map2coverage_report'] = dict()
+        template_report_data['nfnvm_map2coverage_report']['data'] = report_data['nfnvm_map2coverage_report']['data']
+        template_report_data['nfnvm_map2coverage_report']['download_url'] = cfg.get('download_url')
         template_report_data['nfnvm_map2coverage_report']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_map2coverage_report']['finished_epochtime']))
         
 
-    if report_data['nfnvm_flureport']:
+    if 'nfnvm_flureport' in report_data.keys():
         template_report_data['nfnvm_flureport'] = dict()
         template_report_data['nfnvm_flureport']['data'] = dict()
         [line1, line2, _] = report_data['nfnvm_flureport']['data'].split('\n')
@@ -1041,7 +1043,7 @@ def get_report(run_uuid : str, dataset_id: str):
             template_report_data['nfnvm_flureport']['data'][line1[i]] = line2[i]
         template_report_data['nfnvm_flureport']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_flureport']['finished_epochtime']))
 
-    if report_data['nfnvm_viralreport']:
+    if 'nfnvm_viralreport' in report_data.keys():
         template_report_data['nfnvm_viralreport'] = dict()
         template_report_data['nfnvm_viralreport']['data'] = list()
         for line in report_data['nfnvm_viralreport']['data'].split('\n')[1:]:
