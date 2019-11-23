@@ -345,6 +345,7 @@ os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_qc_submit.py {shlex.quote(json
 os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_flu_report_submit.py {shlex.quote(json.dumps(data))}')
 os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_viral_report_submit.py {shlex.quote(json.dumps(data))}')
 os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_krona_report_submit.py {shlex.quote(json.dumps(data))}')
+os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_map2coverage_report_submit.py {shlex.quote(json.dumps(data))}')
 
 
 logger.info("go.py: done")

@@ -43,6 +43,22 @@ def db_get_report_for_type(pipeline_run_uuid, sample_name, report_type):
     else:
         return None
 
+def get_samples_cov_names(pipeline_run_uuid, sample_name, report_type):
+    
+    sample_like = sample_name + '%'
+
+    sql = f'select sample_name from q where status = "done" and pipeline_run_uuid = "{pipeline_run_uuid}" and sample_name like "{sample_like}" and type = "{report_type}" order by added_epochtime desc'
+
+    logging.warning(sql)
+
+    with sql_lock, con:
+        r = con.execute(sql).fetchall()
+    if r:
+        logging.warning(r)
+        return r
+    else:
+        return None
+
 def db_get_queue(con, report_type):
     with sql_lock, con:
         rows = con.execute("select * from q where status = 'queued' and type = ? order by added_epochtime asc limit 1", (report_type,)).fetchall()
@@ -249,8 +265,8 @@ def get_report(pipeline_run_uuid, sample_name):
     begin nfnvm nanostats qc report
     '''
     r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_nanostats_qc')
-    report_data['nfnvm_nanostats_qc'] = dict()
     if r:
+        report_data['nfnvm_nanostats_qc'] = dict()
         report_nfnvm_nanostats_qc_guid = r[0]
         report_nfnvm_nanostats_qc_filepath = f"/work/reports/catreport/reports/{report_nfnvm_nanostats_qc_guid}.json"
         logging.warning(report_nfnvm_nanostats_qc_filepath)
@@ -266,8 +282,9 @@ def get_report(pipeline_run_uuid, sample_name):
     begin nfnvm krona report
     '''
     r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_kronareport')
-    report_data['nfnvm_kronareport'] = dict()
-    if r: 
+
+    if r:
+        report_data['nfnvm_kronareport'] = dict()
         report_nfnvm_krona_html = r[0]
         report_nfnvm_krona_downloadpath = f"{pipeline_run_uuid}/selReference_Out/{sample_name}_classkrona.html"
         logging.warning(report_nfnvm_krona_downloadpath)
@@ -279,11 +296,42 @@ def get_report(pipeline_run_uuid, sample_name):
     '''
 
     '''
+    begin nfnvm map2coverage report
+    '''
+    samples_cov_names = get_samples_cov_names(pipeline_run_uuid, sample_name, 'nfnvm_map2coverage_report')
+    
+    if samples_cov_names != None:
+        logging.warning(len(samples_cov_names))
+        report_data['nfnvm_map2coverage_report'] = dict()
+        report_data['nfnvm_map2coverage_report']['data'] = []
+        for sample_cov_name_string in samples_cov_names:
+            sample_cov_name = sample_cov_name_string[0]
+            logging.warning(sample_cov_name)    
+            r = get_report_for_type(pipeline_run_uuid, sample_cov_name, 'nfnvm_map2coverage_report')
+
+            sample_ref_files = dict()
+                
+            if r:
+                #efd531dd-1c9c-4ece-af1e-e33ee5252b35/mapping2_Out/F10_BC01_MK077344_cov.png
+                report_nfnvm_cov_downloadpath = f"{pipeline_run_uuid}/mapping2_Out/{sample_cov_name}_cov.png"
+                logging.warning(report_nfnvm_cov_downloadpath)
+                sample_ref_files['name'] = sample_cov_name
+                sample_ref_files['path'] = report_nfnvm_cov_downloadpath
+                report_data['nfnvm_map2coverage_report']['finished_epochtime'] =  int(r[5])
+                report_data['nfnvm_map2coverage_report']['data'].append(sample_ref_files)
+                logging.warning(report_nfnvm_cov_downloadpath)
+       
+    '''
+    end nfnvm map2coverage report
+    '''
+
+    '''
     begin nfnvm flureport report
     '''
     r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_flureport')
-    report_data['nfnvm_flureport'] = dict()
+
     if r:
+        report_data['nfnvm_flureport'] = dict()
         report_nfnvm_flureport_guid = r[0]
         report_nfnvm_flureport_filepath = f"/work/reports/catreport/reports/{report_nfnvm_flureport_guid}.json"
         logging.warning(report_nfnvm_flureport_filepath)
@@ -299,8 +347,9 @@ def get_report(pipeline_run_uuid, sample_name):
     begin nfnvm viralreport report
     '''
     r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_viralreport')
-    report_data['nfnvm_viralreport'] = dict()
+    
     if r:
+        report_data['nfnvm_viralreport'] = dict()
         report_nfnvm_viralreport_guid = r[0]
         report_nfnvm_viralreport_filepath = f"/work/reports/catreport/reports/{report_nfnvm_viralreport_guid}.json"
         logging.warning(report_nfnvm_viralreport_filepath)
@@ -325,6 +374,7 @@ def main():
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_kronareport", make_file_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_flureport", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_viralreport", make_trivial_copy_report)).start()
+    threading.Thread(target=report_thread_factory, args=(con, "nfnvm_map2coverage_report", make_file_copy_report)).start()
     
     app.run(port=10000)
 

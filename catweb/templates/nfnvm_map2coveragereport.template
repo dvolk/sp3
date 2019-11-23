@@ -1,0 +1,6 @@
+<p>Report generated on: <strong>{{ report['nfnvm_map2coverage_report']['finished_epochtime'] }}</strong></p>
+
+{% for data in report['nfnvm_map2coverage_report']['data'] %}
+  {% set url = report['nfnvm_map2coverage_report']['download_url'] + data['path']  %}
+  <img src="{{ url }}" alt="{{ data['name'] }}" width="215" height="215">
+{% endfor %}
