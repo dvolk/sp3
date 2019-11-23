@@ -47,10 +47,14 @@ def get_samples_cov_names(pipeline_run_uuid, sample_name, report_type):
     
     sample_like = sample_name + '%'
 
+    sql = f'select * from q where status = "done" and pipeline_run_uuid = "{pipeline_run_uuid}" and sample_name like "{sample_like}" and type = "{report_type}" order by added_epochtime desc'
+
+    logging.warning(sql)
+
     with sql_lock, con:
-        r = con.execute('select * from q where status = "done" and pipeline_run_uuid = ? and sample_name like ? and type = ? order by added_epochtime desc', 
-                         (pipeline_run_uuid, sample_like, report_type)).fetchall()
+        r = con.execute(sql).fetchall()
     if r:
+        logging.warning(r[0])
         return r[0]
     else:
         return None
@@ -293,20 +297,21 @@ def get_report(pipeline_run_uuid, sample_name):
     '''
     begin nfnvm map2coverage report
     '''
-    report_data['nfnvm_map2coveragereport'] = dict()
-    samples_cov_names = get_samples_cov_names(pipeline_run_uuid, sample_name, 'nfnvm_map2coveragereport')
+    report_data['nfnvm_map2coverage_report'] = dict()
+
+    samples_cov_names = get_samples_cov_names(pipeline_run_uuid, sample_name, 'nfnvm_map2coverage_report')
 
     for sample_cov_name in samples_cov_names:
-        r = get_report_for_type(pipeline_run_uuid, sample_cov_name, 'nfnvm_map2coveragereport')
+        r = get_report_for_type(pipeline_run_uuid, sample_cov_name, 'nfnvm_map2coverage_report')
 
-        report_data['nfnvm_map2coveragereport'][sample_cov_name] = dict()
+        report_data['nfnvm_map2coverage_report'][sample_cov_name] = dict()
         if r: 
-            report_nfnvm_cov_downloadpath = f"{pipeline_run_uuid}/mapping2_Out/{samsample_cov_name}_cov.png"
+            report_nfnvm_cov_downloadpath = f"{pipeline_run_uuid}/mapping2_Out/{sample_cov_name}_cov.png"
             logging.warning(report_nfnvm_cov_downloadpath)
 
-            report_data['nfnvm_map2coveragereport'][sample_cov_name]['path'] = report_nfnvm_krona_downloadpath
-            report_data['nfnvm_map2coveragereport']sample_cov_name]['finished_epochtime'] = int(r[5])
-            report_data['nfnvm_map2coveragereport']['finished_epochtime'] =  int(r[5])
+            report_data['nfnvm_map2coverage_report'][sample_cov_name]['path'] = report_nfnvm_krona_downloadpath
+            report_data['nfnvm_map2coverage_report'][sample_cov_name]['finished_epochtime'] = int(r[5])
+            report_data['nfnvm_map2coverage_report']['finished_epochtime'] =  int(r[5])
        
     '''
     end nfnvm map2coverage report
@@ -359,7 +364,7 @@ def main():
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_kronareport", make_file_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_flureport", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_viralreport", make_trivial_copy_report)).start()
-    threading.Thread(target=report_thread_factory, args=(con, "nfnvm_map2coveragereportreport", make_file_copy_report)).start()
+    threading.Thread(target=report_thread_factory, args=(con, "nfnvm_map2coverage_report", make_file_copy_report)).start()
     
     app.run(port=10000)
 
