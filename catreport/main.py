@@ -117,7 +117,7 @@ def report_thread_factory(con, report_type, make_report_function):
             report_finished_epochtime = epochtime()
             db_update_report_result(con, report_filename, report_started_epochtime, report_finished_epochtime, report_status, report_uuid)
 
-        time.sleep(5)
+        time.sleep(1)
 
 def get_report_for_type(pipeline_run_uuid, sample_name, report_type):
     '''
