@@ -2,20 +2,14 @@
 
 <table class="table table-sm table-bordered" >
   <thead>
-    <th>Barcode</th>
-    <th>Acc</th>
-    <th>Pathogen</th>
-    <th>Subtype</th>
-    <th>aveCov</th>
-    <th>cov1Rate</th>
-    <th>cov10Rate</th>
-    <th>readsMapped</th>
-    <th>supplementaryReads</th>
-    <th>baseTotal</th>
-    <th>baseMapped</th>
+    {% for head in report['nfnvm_viralreport']['head'] %}
+    {% if head.strip() %}
+    <th>{{ head }}</th>
+    {% endif %}
+    {% endfor %}
   </thead>
   <tbody>
-    {% for row in report['nfnvm_viralreport']['data'] %}
+    {% for row in report['nfnvm_viralreport']['data'][:-1] %}
     <tr>
       {% for elem in row %}<td>{{ elem }}</td>{% endfor %}
     </tr>

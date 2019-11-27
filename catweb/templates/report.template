@@ -42,25 +42,25 @@
 {% endif %}
 
 {% if report['nfnvm_nanostats_qc'] %}
-  <h3>Nanostats QC</h3>
+  <h3>Data quality summary</h3>
 
   {% include 'nfnvm_nanostats_qc.template' %}
 {% endif %}
 
 {% if report['nfnvm_kronareport'] %}
-  <h3>Krona Report</h3>
+  <h3>Taxonomic assignment of reads</h3>
 
   {% include 'nfnvm_krona.template' %}
 {% endif %}
 
 {% if report['nfnvm_flureport'] %}
-  <h3>Flu report</h3>
+  <h3>Influenza identification</h3>
 
   {% include 'nfnvm_flureport.template' %}
 {% endif %}
 
 {% if report['nfnvm_viralreport'] %}
-  <h3>Viral report</h3>
+  <h3>Organism identification</h3>
 
   {% include 'nfnvm_viralreport.template' %}
 {% endif %}

@@ -10,7 +10,7 @@ version: "0.1.0"
 description: "Nanopore Virus Metagenomics"
 contexts:
   - name: local
-    arguments: "-profile cloud -process.executor slurm --Porchop false --Cent true --selRef true --BLASTdraft true --mapper true --mapping2 true --QCmode true --mapping true --report true --prepAssembly true --assembly true"
+    arguments: "-profile cloud -process.executor slurm --demultiplex 'skip' --QCmode true --Cent true --selRef true --mapping true --BLASTdraft true  --mapping2 true --report true --prepAssembly true --assembly true"
 param:
   description:
     - name: 'indir'

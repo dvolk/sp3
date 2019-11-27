@@ -1039,13 +1039,16 @@ def get_report(run_uuid : str, dataset_id: str):
         [line1, line2, _] = report_data['nfnvm_flureport']['data'].split('\n')
         line1 = line1.split('\t')
         line2 = line2.split('\t')
-        for i in range(0, 9):
+        for i in range(0, 7):
             template_report_data['nfnvm_flureport']['data'][line1[i]] = line2[i]
         template_report_data['nfnvm_flureport']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_flureport']['finished_epochtime']))
 
     if 'nfnvm_viralreport' in report_data.keys():
         template_report_data['nfnvm_viralreport'] = dict()
         template_report_data['nfnvm_viralreport']['data'] = list()
+        header = report_data['nfnvm_viralreport']['data'].split('\n')[0]
+        template_report_data['nfnvm_viralreport']['head'] = header.split('\t')
+        logging.warning(header)
         for line in report_data['nfnvm_viralreport']['data'].split('\n')[1:]:
             elems = line.split('\t')
             template_report_data['nfnvm_viralreport']['data'].append(elems)
