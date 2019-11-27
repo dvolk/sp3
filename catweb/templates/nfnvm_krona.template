@@ -1,3 +1,3 @@
 <p>Report generated on: <strong>{{ report['nfnvm_kronareport']['finished_epochtime'] }}</strong></p>
-<a href="{{ report['nfnvm_kronareport']['download_url'] }}">Krona Report</a>
+<a href="{{ report['nfnvm_kronareport']['download_url'] }}"><img style="width:100px;height:30px" src='/static/krona.png' alt='Krona Report'></a>
 <hr>
