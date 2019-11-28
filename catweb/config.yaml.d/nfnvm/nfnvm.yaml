@@ -1,5 +1,5 @@
-name: "nfNVM"
-display_name: "NVM"
+name: "NanoSPC"
+display_name: "NanoSPC"
 script: 
 show: yes
 script: 'viralMetagenomicsDetection.nf'
@@ -7,7 +7,7 @@ root_dir: "nfnvm/"
 prog_dir: "nfnvm/"
 output_dir: "output/"
 version: "0.1.0"
-description: "Nanopore Virus Metagenomics"
+description: "Nanopore Metagenomic Data Processing"
 contexts:
   - name: local
     arguments: "-profile cloud -process.executor slurm --demultiplex 'skip' --QCmode true --Cent true --selRef true --mapping true --BLASTdraft true  --mapping2 true --report true --prepAssembly true --assembly true"
