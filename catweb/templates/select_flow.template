@@ -22,7 +22,9 @@
 	<div class="input-group mb-3">
 	  <select name="flow_name" class="form-control" id="flow_option">
 	    {% for name in all_flow_names %}
+	    {% if not user_pipeline_list or name in user_pipeline_list %}
 	    <option {% if flow_name == name %}selected{% endif %}>{{ name }}</option>
+	    {% endif %}
 	    {% endfor %}
 	  </select>
 	  <button type="Submit" class="btn btn-primary">Update</button>

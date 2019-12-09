@@ -7,31 +7,27 @@ import json
 import pathlib
 import uuid
 import os
-import signal
 import collections
 import base64
 import subprocess
 import shlex
 from io import StringIO
 import datetime
-import re
 import time
-import functools
-import threading
-import contextlib
 import ast
+import sys
 
 import pandas
 import requests
 from flask import Flask, request, render_template, redirect, abort, url_for, g
 import flask_login
-from ldap3 import Connection
 from passlib.hash import bcrypt
 
-import nflib as nflib
-import config as config
-import utils as utils
-import in_fileformat_helper as in_fileformat_helper
+import authenticate
+import nflib
+import config
+import utils
+import in_fileformat_helper
 
 def setup_logging():
     logger = logging.getLogger("ui")
@@ -83,18 +79,33 @@ def reload_cfg():
     flows = dict()
     for f in cfg.get('nextflows'):
         flows[f['name']] = f
+    global auth_builtin
+    auth_builtin = dict()
+    try:
+        auth_builtin = cfg.get('auth_builtin')
+    except KeyError:
+        pass
+    global auth_ldap
+    auth_ldap = dict()
+    try:
+        for l in cfg.get('auth_ldap'):
+            auth_ldap[l['name']] = l
+    except KeyError:
+        pass
+    if not auth_ldap and not auth_builtin:
+        logging.error("you need to configure either built-in authentication or ldap")
+        sys.exit(1)
     global users
     users = dict()
-    for u in cfg.get('users'):
-        users[u['name']] = u
-    global ldap
-    ldap = dict()
+    global user_pipeline_map
+    user_pipeline_map = dict()
     try:
-        for l in cfg.get('ldap'):
-            ldap[l['name']] = l
-    except Exception as e:
-        logger.warning("No LDAP authentication, continuing with builtin")
-        logger.warning(e)
+        for u in cfg.get('user_pipeline_map'):
+            user_pipeline_map[u['user']] = list()
+            for pipeline in u['pipelines']:
+                user_pipeline_map[u['user']].append(pipeline)
+    except:
+        pass
 
 reload_cfg()
 
@@ -175,66 +186,64 @@ def login():
     if request.method == 'GET':
         return render_template('login.template')
     if request.method == 'POST':
+        if not 'username' in request.form or not 'password' in request.form:
+            logging.warning(f"form submitted without username or password")
+            return redirect('/')
+
         form_username = request.form['username']
         form_password = request.form['password']
 
         if auth == 'ldap':
-            '''
-            Check user authorization
-            '''
-            ldap_host = cfg.get('ldap')[0]['host']
-            conn = Connection(ldap_host,
-                              user=form_username,
-                              password=form_password,
-                              read_only=True)
-            if not conn.bind():
-                logger.warning("invalid credentials for ldap user {0}".format(form_username))
+            for ldap_domain, ldap_dict in auth_ldap.items():
+                if form_username in ldap_dict['authorized_users']:
+                    auth_cfg = ldap_dict
+                    ldap_host = auth_cfg['host']
+                    is_ok = authenticate.check_ldap_authentication(form_username, form_password, ldap_host)
+                    if is_ok:
+                        logger.warning(f"user {form_username} verified for ldap host {ldap_host}")
+                        break
+                    else:
+                        logger.warning(f"invalid credentials for ldap user {form_username} host {ldap_host}")
+                        return redirect('/')
+            else:
+                logger.warning(f"user {form_username} is not in ldap authorized_users list")
                 return redirect('/')
-
-            '''
-            User is authorized
-            '''
-            logger.info("ldap user {0} logged in".format(form_username))
-
-            user = User()
-            user.id = form_username
-            flask_login.login_user(user)
-
-            cap = list()
-            if form_username in cfg.get('ldap')[0]['admins']:
-                cap = ['admin']
-
-            global users
-            users[user.id] = {
-                'name': form_username,
-                'capabilities' : cap,
-            }
-
-            return redirect('/')
 
         if auth == 'builtin':
             '''
             Check user authorization
             '''
-            if not form_username in users:
-                logger.warning("unknown user {0}".format(form_username))
-                return redirect('/login')
+            for u in auth_builtin['authorized_users']:
+                if u['username'] == form_username:
+                    password_hash = u['password_bcrypt_hash']
+                    if bcrypt.verify(form_password, password_hash.encode()):
+                        auth_cfg = auth_builtin
+                        break
+                    else:
+                        logger.warning(f"invalid credentials for builtin user {form_username}")
+                        return redirect('/login')
+            else:
+                logger.warning(f"user {form_username} not in builtin authorized_users list")
+                return redirect('/')
 
-            password_hash = users[form_username]['password']
-            if not bcrypt.verify(form_password, password_hash):
-                logger.warning("invalid credentials for user {0}".format(form_username))
-                return redirect('/login')
+        '''
+        User is authorized
+        '''
+        user = User()
+        user.id = form_username
+        flask_login.login_user(user)
 
-            '''
-            User is authorized
-            '''
-            logger.info("user {0} logged in".format(form_username))
+        cap = list()
+        if form_username in auth_cfg['admins']:
+            cap = ['admin']
 
-            user = User()
-            user.id = form_username
-            flask_login.login_user(user)
+        users[user.id] = {
+            'name': form_username,
+            'capabilities' : cap,
+        }
 
-            return redirect('/')
+        return redirect('/')
+
     assert False, "unreachable"
 
 @app.route('/logout')
@@ -242,13 +251,22 @@ def logout():
     flask_login.logout_user()
     return redirect('/')
 
+def get_user_pipelines(user):
+    logging.warning(user_pipeline_map)
+    if user_pipeline_map and user in user_pipeline_map:
+        return user_pipeline_map[user]
+    else:
+        return None
+
 # todo move this and similar to nflib.py
 @app.route('/')
 @flask_login.login_required
 def status():
     response = api_get_request('nfweb_api', '/status')
     running, recent, failed = response['running'], response['recent'], response['failed']
-    return render_template('status.template', running=running, recent=recent, failed=failed)
+
+    return render_template('status.template', running=running, recent=recent, failed=failed,
+                           user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
 
 def is_admin():
     return 'admin' in users[flask_login.current_user.id]['capabilities']
@@ -330,7 +348,8 @@ def list_flows():
     for flow in cfg.get('nextflows'):
         flows.append(flow)
 
-    return render_template('list_flows.template', flows=flows)
+    return render_template('list_flows.template', flows=flows,
+                           user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
 
 def get_user_params_dict(flow_name, run_uuid):
     ret = dict()
@@ -941,7 +960,8 @@ def select_flow(guid):
                            flow_name=flow_name,
                            all_flow_names = all_flow_names,
                            input_dir=input_dir,
-                           output_dir_b16=output_dir_b16)
+                           output_dir_b16=output_dir_b16,
+                           user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
 
 @app.route('/fetch_details/<guid>')
 @flask_login.login_required
@@ -1031,7 +1051,7 @@ def get_report(run_uuid : str, dataset_id: str):
         template_report_data['nfnvm_map2coverage_report']['data'] = report_data['nfnvm_map2coverage_report']['data']
         template_report_data['nfnvm_map2coverage_report']['download_url'] = cfg.get('download_url')
         template_report_data['nfnvm_map2coverage_report']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_map2coverage_report']['finished_epochtime']))
-        
+
 
     if 'nfnvm_flureport' in report_data.keys():
         template_report_data['nfnvm_flureport'] = dict()

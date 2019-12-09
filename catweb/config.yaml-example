@@ -26,14 +26,24 @@ fetch_api: { host: '127.0.0.1', port: '7200' }
 cattag_api: { host: '192.168.9.9', port: '12000' }
 
 authentication: ldap
-
-ldap:
+auth_ldap:
   - name: 'ndm.local'
     host: '192.168.7.16'
+    authorized_users: ['denisv@ndm.local', 'fan@ndm.local']
     admins: ['denisv@ndm.local', 'fan@ndm.local']
 
-users:
-  - name: compass
+auth_builtin:
+  authorized_users:
+    - username: denis
+      password_bcrypt_hash: '$2b$14$xDz5X3y2sjCnghS.l3Ql6Oa6C8SV./lr38acdG3380cPlXezus222'
+    - username: fan
+      password_bcrypt_hash: '$2b$14$xDz5X3y2sjCnghS.l3Ql6Oa6C8SV./lr38acdG3380cPlXezus222'
+  admins: ['denis']
+
+user_pipeline_map:
+  - user: 'denisv@ndm.local'
+    pipelines:
+      - 'Clockwork_combined'
 
 cluster_view:
   disk_filter: "home|sda|sdb|sdc"
