@@ -109,10 +109,6 @@ def reload_cfg():
 
 reload_cfg()
 
-@app.context_processor
-def inject_globals():
-    return dict(nfweb_version=cfg.get('nfweb_version'))
-
 # really could just be one function
 def api_get_request(api, api_request):
     api_request = "http://{0}:{1}{2}".format(cfg.get(api)['host'],
@@ -180,6 +176,17 @@ def request_loader(request):
 
     user.is_authenticated = bcrypt.verify(form_password, password_hash)
     return user
+
+def is_admin():
+    try:
+        return 'admin' in users[flask_login.current_user.id]['capabilities']
+    except:
+        return False
+
+@app.context_processor
+def inject_globals():
+    return { 'nfweb_version': cfg.get('nfweb_version'),
+             'is_admin': is_admin() }
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -267,9 +274,6 @@ def status():
 
     return render_template('status.template', running=running, recent=recent, failed=failed,
                            user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
-
-def is_admin():
-    return 'admin' in users[flask_login.current_user.id]['capabilities']
 
 @app.route('/userinfo/<username>', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -789,6 +793,8 @@ def kill_nextflow(flow_name : str, run_uuid: int):
 @app.route('/terminate_job/<job_id>')
 @flask_login.login_required
 def terminate_job(job_id):
+    if not is_admin():
+        abort(403)
     data_json = { 'job_id': job_id }
     response = api_post_request('nfweb_api', '/terminate_job', data_json)
     return redirect('/cluster')
