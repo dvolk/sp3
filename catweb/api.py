@@ -46,8 +46,6 @@ def reload_cfg():
     global cfg
     cfg = config.Config()
     cfg.load(str(configFile))
-    global auth
-    auth = cfg.get('authentication')
     global contexts
     contexts = dict()
     for c in cfg.get('contexts'):
@@ -56,15 +54,6 @@ def reload_cfg():
     flows = dict()
     for f in cfg.get('nextflows'):
         flows[f['name']] = f
-    global users
-    users = dict()
-    for u in cfg.get('users'):
-        users[u['name']] = u
-    global ldap
-    ldap = dict()
-    if auth == 'ldap':
-        for l in cfg.get('ldap'):
-            ldap[l['name']] = l
 
 reload_cfg()
 
