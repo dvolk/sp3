@@ -1080,7 +1080,6 @@ def get_report(run_uuid : str, dataset_id: str):
         template_report_data['pick_reference']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['pick_reference']['finished_epochtime']))
 
     if report_data['resistance'] and 'effects' in report_data['resistance']['data']:
-        logger.debug(f"*** FROM CATREPORT {report_data['resistance']}")
         # check if it is synonymous mutation (first  amino-acid is same as last amino-acid) or invalid mutation (contain z or Z)
         def is_ok_mutation(eff):
             '''
@@ -1171,8 +1170,6 @@ def get_report(run_uuid : str, dataset_id: str):
         for drug_name in ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM']:
             template_report_data['resistance']['data']['prediction_ex'][drug_name] = drug_prediction(report_data['resistance']['data']['effects'], drug_name)
 
-        logger.debug(f"prediction_ex: {template_report_data['resistance']['data']['prediction_ex']}")
-
         for item in report_data['resistance']['data']['effects']:
             if is_ok_mutation(item):
                 full_name = item['gene_name'] + '_' + item['mutation_name']
@@ -1180,11 +1177,7 @@ def get_report(run_uuid : str, dataset_id: str):
                 template_report_data['resistance']['data']['resistance_effects'][drug_name].append(item)
                 template_report_data['resistance']['data']['res_rev_index'][full_name].append(item)
 
-        logger.debug(f"resistance_effects: {template_report_data['resistance']['data']['resistance_effects']}")
-        logger.debug(f"res_rev_index: {template_report_data['resistance']['data']['res_rev_index']}")
-
         template_report_data['resistance']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['resistance']['finished_epochtime']))
-        logger.debug(f"*** TO TEMPLATE {template_report_data['resistance']}")
 
     if report_data['mykrobe_speciation']:
         template_report_data['mykrobe_speciation'] = dict()
