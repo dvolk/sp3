@@ -1079,7 +1079,7 @@ def get_report(run_uuid : str, dataset_id: str):
         template_report_data['pick_reference']['data'] = report_data['pick_reference']['data']
         template_report_data['pick_reference']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['pick_reference']['finished_epochtime']))
 
-    if report_data['resistance']:
+    if report_data['resistance'] and 'effects' in report_data['resistance']['data']:
         logger.debug(f"*** FROM CATREPORT {report_data['resistance']}")
         # check if it is synonymous mutation (first  amino-acid is same as last amino-acid) or invalid mutation (contain z or Z)
         def is_ok_mutation(eff):
