@@ -94,16 +94,25 @@ def fetch_log(in_guid):
 
 @app.route('/api/fetch/describe')
 def describe():
-    sources = { 
-        'ena1': 
-        { 
-            'description': 'fetch paired fastq reads from ENA (data identifier: accession)',
-            'flatten_directory': config.get('ena_flatten_dir')
-        },
-        'local1': 
+    sources = {
+        'ena1':
         {
-            'description': 'fetch from local filesystem (data identifier: local directory)',
-            'flatten_directory': config.get('local_flatten_dir')
+            'display_name': 'ENA',
+            'description': 'Fetch paired fastq SRA reads from the ENA.',
+            'data_identifier_display_name': 'Accession',
+            'data_filter_display_name': 'Filter',
+            'flatten_directory': config.get('ena_flatten_dir'),
+            'has_data_filter': 'yes'
+        },
+        'local1':
+        {
+            'display_name': 'Local server',
+            'description': '''Fetch from local filesystem.
+                              Pick this if you transferred data to the SP3 server over SFTP.''',
+            'data_identifier_display_name': 'Local path',
+            'flatten_directory': config.get('local_flatten_dir'),
+            'local_glob_directory': '/data/inputs/uploads/*',
+            'has_data_filter': 'no'
         }
     }
     return json.dumps(util.make_api_response('success', data= { 'sources': sources }))

@@ -1,0 +1,48 @@
+{% extends "base1.template" %}
+{% block content %}
+
+<form action="/fetch_new" method="get">
+  <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
+  <h2>{{ source['display_name'] }}</h2>
+  <p>{{ source['description'] }}</p>
+  <hr/>
+
+
+  <div class="input-group">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">{{ source['data_identifier_display_name'] }}</span>
+    </div>
+    {% if paths %}
+
+    <select name="fetch_name" class="form-control">
+      {% for p in paths %}
+      <option>{{ p }}</option>
+      {% endfor %}
+    </select>
+
+    {% else %}
+
+    <input name="fetch_name" type=text class="form-control" {% if data_identifier %}value='{{ data_identifier }}'{% endif %} required>
+
+    {% endif %}
+  </div>
+
+  <br/>
+
+  {% if source['has_data_filter'] == 'yes' %}
+  <div class="input-group ">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">{{ source['data_filter_display_name'] }}</span>
+    </div>
+    <input name="fetch_range" type=text class="form-control">
+  </div>
+  <p>Syntax example: 0,2,10-20</p>
+  {% endif %}
+
+  <br/>
+
+  <div class="input-group ">
+    <button type="Submit" class="btn btn-primary">Start Fetch</button>
+  </div>
+</form>
+{% endblock content %}

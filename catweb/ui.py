@@ -16,6 +16,7 @@ import datetime
 import time
 import ast
 import sys
+import glob
 
 import pandas
 import requests
@@ -846,6 +847,14 @@ def fetch_data():
     r = api_get_request('fetch_api', '/api/fetch/describe')
     sources = r['sources']
 
+    return render_template('new_fetch.template', sources=sources)
+
+@app.route('/fetch_data2/<fetch_kind>')
+@flask_login.login_required
+def fetch_data2(fetch_kind):
+    r = api_get_request('fetch_api', '/api/fetch/describe')
+    source = r['sources'][fetch_kind]
+
     # allow prefilling of the new fetch form
     in_data_kind = None
     in_data_identifier = None
@@ -855,8 +864,16 @@ def fetch_data():
         in_data_identifier = request.args.get('id')
         in_data_identifier = base64.b16decode(in_data_identifier).decode('utf-8')
 
-    return render_template('new_fetch.template', sources=sources,
-                           data_kind=in_data_kind, data_identifier=in_data_identifier)
+    paths = list()
+    if 'local_glob_directory' in source:
+        paths = glob.glob(source['local_glob_directory'])
+
+    return render_template('new_fetch2.template',
+                           source=source,
+                           fetch_kind=fetch_kind,
+                           data_kind=in_data_kind,
+                           data_identifier=in_data_identifier,
+                           paths=paths)
 
 @app.route('/fetch')
 @flask_login.login_required
