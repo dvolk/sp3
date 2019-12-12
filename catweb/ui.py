@@ -867,6 +867,7 @@ def fetch_data2(fetch_kind):
     paths = list()
     if 'local_glob_directory' in source:
         paths = glob.glob(source['local_glob_directory'])
+        paths.sort()
 
     return render_template('new_fetch2.template',
                            source=source,
