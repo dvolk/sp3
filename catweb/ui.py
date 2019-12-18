@@ -164,20 +164,6 @@ def user_loader(username):
     user.id = username
     return user
 
-@login_manager.request_loader
-def request_loader(request):
-    username = request.form.get('username')
-    if username not in users:
-        return
-    user = User()
-    user.id = username
-
-    form_password = request.form['password']
-    password_hash = users[form_username]['password']
-
-    user.is_authenticated = bcrypt.verify(form_password, password_hash)
-    return user
-
 def is_admin():
     try:
         return 'admin' in users[flask_login.current_user.id]['capabilities']
