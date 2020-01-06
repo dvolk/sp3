@@ -1,0 +1,11 @@
+auth_ldap:
+  - name: 'ndm.local'
+    host: '192.168.7.16'
+    authorized_users:
+      - 'denisv@ndm.local'
+      - 'fan@ndm.local'
+      - 'richardm@ndm.local'
+      - 'sam@ndm.local'
+      - 'ulfs@ndm.local'
+      - 'weig@ndm.local'
+      - 'Yifei@ndm.local'
