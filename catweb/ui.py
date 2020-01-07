@@ -526,15 +526,34 @@ def list_runs(flow_name : str):
     response = api_get_request('nfweb_api', '/flow/{0}'.format(flow_name))
     data = response["data"]
 
-    subflow_display_names = []
-    if 'subflows' in flow_cfg:
-        for subflow_name in flow_cfg['subflows']:
-            subflow_display_names.append(flows[subflow_name]['display_name'])
+    has_dagpng = False
+    if pathlib.Path(f"/data/pipelines/dags/{flow_name}.png").is_file():
+        has_dagpng = True
 
     return render_template('list_runs.template',
-                           subflow_display_names=subflow_display_names,
                            stuff={ 'display_name': flow_cfg['display_name'],'flow_name': flow_cfg['name'] },
+                           has_dagpng=has_dagpng,
                            data=data)
+
+@app.route('/flow/<flow_name>/dagpng')
+@flask_login.login_required
+def show_dagpng(flow_name : str):
+    if not flow_name in flows:
+        abort(404, description="Flow not found")
+
+    dagpng_path = f"/data/pipelines/dags/{flow_name}.png"
+
+    if not pathlib.Path(dagpng_path).is_file():
+        abort(404, description="DAG png file not found")
+
+    with open(dagpng_path, "rb") as f:
+        dagpng_b64 = base64.b64encode(f.read()).decode()
+
+    return render_template('show_dagpng.template',
+                           flow_name=flow_name,
+                           dagpng_b64=dagpng_b64)
+
+
 
 @app.route('/flow/<flow_name>/go_details/<run_uuid>')
 @flask_login.login_required

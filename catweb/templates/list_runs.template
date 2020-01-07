@@ -1,21 +1,11 @@
 {% extends "base1.template" %}
 {% block content %}
   <h4>{{ stuff['display_name'] }}</h4>
-  {% if subflow_display_names %}
-    <p>Composed of:</p>
-    {% for subflow_display_name in subflow_display_names %}
-    {% if loop.index0 == 0 %}
-    <h5 style="display: inline">{{ subflow_display_name }}</h5>
-    {% else %}
-    <h5 style="display: inline"> ➔ {{ subflow_display_name }}</h5>
-    {% endif %}
-    {% endfor %}
-    <br/><br/>
-  {% endif %}
   <a href="/flow/{{ stuff['flow_name'] }}/new"><button type="button" class="btn btn-primary">New Run</button></a>
   <a href="/edit_flow_config/{{ stuff['flow_name'] }}"><button type="button" class="btn btn-info">Edit Config</button></a>
-  {% if not subflow_display_names %}
   <a href="/flow/{{ stuff['flow_name'] }}/nf_script"><button type="button" class="btn btn-info">View Script</button></a>
+  {% if has_dagpng %}
+  <a href="/flow/{{ stuff['flow_name'] }}/dagpng"><button type="button" class="btn btn-info">View Graph</button></a>
   {% endif %}
   <br/>
 <table class="table table-hover table-sm" style="margin-top:10px">
@@ -55,25 +45,3 @@
   </tbody>
 </table>
 {% endblock content %}
-
-{#
-CREATE TABLE nfruns (date_time, duration, code_name, status, hash, uuid, command_line, user, sample_group, workflow, context, root_dir, run_uuid primary key not null, start_epochtime, pid, ppid, end_epochtime);
-
- 1 date_time
- 2 duration
- 3 code_name
- 4 status
- 5 hash
- 6 uuid
- 7 command_line
- 8 user
- 9 sample_group
-10 workflow
-11 context
-12 root_dir
-13 run_uuid primary key not null
-14 start_epochtime
-15 pid
-16 ppid
-17 end_epochtime
-#}

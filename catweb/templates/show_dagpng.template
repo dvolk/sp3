@@ -1,0 +1,6 @@
+{% extends "base1.template" %}
+{% block content %}
+  <h4>Pipeline graph for {{ flow_name }}</h4>
+  <hr>
+  <img src="data:image/png;base64,{{ dagpng_b64 }}">
+{% endblock content %}
