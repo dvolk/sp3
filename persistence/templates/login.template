@@ -1,59 +1,36 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends 'base1.template' %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <title>SP3 Platform</title>
-  </head>
-  <body style="padding-top: 2%">
-    <div class='container'>
-      <img style="width: 160px; height: 85px; float: left;" src="/static/mmmlogo_small.png">
-      <h1 style="position: relative; top: 10px; left: 10px;">
-        <a href="/" style="text-decoration: none; color: black">Oxford SP<sup>3</sup> Portal</a>
-      </h1>
-      <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
-
-      <br/>
-
-      <!-- content -->
-
-      <h2>Persistent store</h2>
-
-      <form action="login" class="form-horizontal" method="post" role="form">
-        <input name="" type="hidden" value="" />
-        <div class="form-group">
-          <div class="col-md-10">
-            <label class="control-label" for="Email">Username (i.e. you@ndm.local)</label>
-            <input class="form-control" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="username" type="text" value="" />
-            <span class="field-validation-valid text-danger" data-valmsg-for="Email" data-valmsg-replace="true"></span>
-          </div>
+{% block content %}
+<div class="row">
+  <div class="container">
+    <h4>Login Required</h4>
+    <hr />
+  </div>
+  <br>
+  <div class="col-md-6">
+    <form action="login" class="form-horizontal" method="post" role="form">
+      <input name="" type="hidden" value="" />
+      <div class="form-group">
+        <div class="col-md-10">
+	  <label class="control-label" for="Email">Username (i.e. you@ndm.local)</label>
+          <input class="form-control" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="username" type="text" value="" />
+          <span class="field-validation-valid text-danger" data-valmsg-for="Email" data-valmsg-replace="true"></span>
         </div>
-        <div class="form-group">
-          <div class="col-md-10">
-            <label class="control-label" for="Password">Password</label>
-            <input class="form-control" data-val="true" data-val-required="The Password field is required." id="password" name="password" type="password" />
-            <span class="field-validation-valid text-danger" data-valmsg-for="Password" data-valmsg-replace="true"></span>
-          </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-10">
+          <label class="control-label" for="Password">Password</label>
+          <input class="form-control" data-val="true" data-val-required="The Password field is required." id="password" name="password" type="password" />
+          <span class="field-validation-valid text-danger" data-valmsg-for="Password" data-valmsg-replace="true"></span>
         </div>
-        <div class="form-group">
-          <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="Log in" class="btn btn-primary" />
-          </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+          <input type="submit" value="Log in" class="btn btn-primary" />
         </div>
-      </form>
-
-      <!-- end content -->
-
-      <hr>
-      <footer>
-        <p>Version 0.1 - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a>, <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2019 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
-      </footer>
-
-    </div>
-  </body>
-</html>
+      </div>
+    </form>
+    <div class="col-md-6"></div>
+  </div>
+</div>
+{% endblock %}

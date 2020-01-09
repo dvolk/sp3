@@ -1,22 +1,6 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends 'base1.template' %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <title>SP3 Platform</title>
-  </head>
-  <body style="padding-top: 2%">
-    <div class='container'>
-       <img style="width: 160px; height: 85px; float: left;" src="/static/mmmlogo_small.png">
-        <h1 style="position: relative; top: 10px; left: 10px;">
-          <a href="/" style="text-decoration: none; color: black">Oxford SP<sup>3</sup> Portal</a>
-        </h1>
-        <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
+{% block content %}
       <h1>Runs</h1>
       <p><a href="/">main</a> /
 	<a href="/cluster_browse/{{ cluster_info['id'] }}">{{ cluster_info['name'] }}</a>
@@ -44,13 +28,6 @@
 	  </tr>
 	  {% endfor %}
 	</tbody>
-      </table>
-      <br>
-      <hr>
-      <footer>
-	<p>Version 0.1 - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a>, <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2019 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
-      </footer>
-
-    </div>
-  </body>
-</html>
+  </table>
+  {% endblock %}
+     
