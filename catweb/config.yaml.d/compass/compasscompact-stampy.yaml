@@ -1,22 +1,16 @@
 name: "CompassCompact-stampy"
 display_name: "CompassCompact with stampy"
 show: yes
-
 script: 'main_stampy.nf'
-
+# relative if context has these dirs
 root_dir: 'CompassCompact'
 prog_dir: 'CompassCompact'
 output_dir: 'output/'
-
-description: "A cloud version of the compact COMPASS pipeline with the stampy mapper"
+description: "Compact COMPASS pipeline with the stampy mapper"
 version: "1.0.3"
-
 contexts:
   - name: local
-    arguments: "-profile standard -with-singularity /mnt/disk1/images/oxfordmmm_compasscompact_v1.0.2.img"
-  - name: slurm
-    arguments: "-profile standard -process.executor slurm -with-singularity /mnt/disk1/images/oxfordmmm_compasscompact_v1.0.2.img"
-
+    arguments: "-profile standard -process.executor slurm -with-singularity /data/images/oxfordmmm_compasscompact_v1.0.2.img"
 param:
   description:
     - name: 'indir'
@@ -37,14 +31,15 @@ param:
       type: switch
       desc: 'Reference in fasta format'
       globs:
-        - /mnt/disk1/inputs/references/compass/fasta
-
+        - /data/references/compass/fasta/*.fasta
+    - name: 'mask_file'
+      arg: "--mask_file"
+      type: switch
+      desc: 'Reference mask file'
+      globs:
+        - /data/references/compass/mask/*
 output:
     parameter: "--output_dir"
 
-postrun:
-  - type: script
-    execute: /home/ubuntu/test.sh
-
 count_tasks_per_sample: 5
-count_tasks_ignore: ['GenerateMaskReference']
+count_tasks_ignore: ['GenerateIndex']
