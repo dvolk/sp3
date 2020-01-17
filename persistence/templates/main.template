@@ -1,26 +1,8 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends 'base1.template' %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <title>SP3 Platform</title>
-  </head>
-  <body style="padding-top: 2%">
-    <div class='container'>
-     <img style="width: 160px; height: 85px; float: left;" src="/static/mmmlogo_small.png">
-        <h1 style="position: relative; top: 10px; left: 10px;">
-          <a href="/" style="text-decoration: none; color: black">Oxford SP<sup>3</sup> Portal</a>
-        </h1>
-        <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
-
-	<br/>
-       <h2>Instances</h2>
-      <div class="row">
+{% block content %}
+  <h2>Instances</h2>
+  <div class="row">
 	{% for instance in instances %}
 	<div class="col-sm-6">
 	  <div class="card" style="margin-bottom: 15px; margin-top: 15px;">
@@ -37,26 +19,11 @@
 	  </div>
 	</div>
 	{% endfor %}
-      </div>
+  </div>
 	{% if labkey_url %}
 	<h2>Labkey</h2>
 	<a href="{{ labkey_url }}">Open labkey</a> to view the SP3 database.
 	{% endif %}
-      <br>
+  <br>
 	<br>
-	<h2>Publication</h2>
-	<p>Yang-Turner F. et al., An Open-source Azure Solution for Scalable Genomics Workflows, 2018 IEEE World Congress on Services <a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8495785">PDF</a></p>
-        <p>Yang-Turner F. et al., Scalable Pathogen Pipeline Platform (SP<sup>3</sup>), 2019 IEEE 12th International Conference on Cloud Computing (CLOUD) <a href="https://ieeexplore.ieee.org/document/8814501">PDF</a> </p>
-
-
-     <h2>Logout</h2>
-     <p>Click <a href="/logout">here</a> to log out of the persistent store</p>
-
-      <hr>
-      <footer>
-	<p>Version 0.2 - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a>, <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2020 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
-      </footer>
-
-    </div>
-  </body>
-</html>
+{% endblock %}

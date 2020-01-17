@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>SP3 Platform</title>
+  </head>
+  <body style="padding-top: 2%">
+    <div class='container'>
+      <img style="width: 160px; height: 85px; float: left;" src="/static/mmmlogo_small.png">
+      <h1 style="position: relative; top: 10px; left: 10px;">
+        <a href="/" style="text-decoration: none; color: black">Oxford SP<sup>3</sup> Portal</a>
+      </h1>
+      <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
+      <br/>
+
+      {% block content %}
+      {% endblock content %}
+      {% block footer %}
+      <br>
+      <hr>
+      <footer>
+	<p>Version {{ nfweb_version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2020 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
+      </footer>
+      {% endblock footer %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	    crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	    crossorigin="anonymous"></script>
+    <script src="/static/scripts/jquery.tablesorter.js"></script>
+    <script src="/static/scripts/site.js"></script>
+  </body>
+</html>
