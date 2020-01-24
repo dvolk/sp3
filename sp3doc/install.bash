@@ -70,7 +70,7 @@ sudo mkdir -p /data/images
 sudo mkdir -p /data/pipelines
 sudo mkdir -p /data/references
 sudo mkdir -p /data/references/clockwork
-sudo mkdir -p /data/reports/resistance/data
+sudo mkdir -p /data/reports/resistance
 sudo mkdir -p /data/fetch
 sudo mkdir -p /data/inputs
 sudo mkdir -p /data/inputs/uploads
@@ -107,8 +107,12 @@ sudo mkdir -p /db
 sudo chown $USERNAME -R /db
 
 #
-# copy resistance data from repo
+# download resistance data
 #
+sudo wget 'https://files.mmmoxford.uk/f/18582d8058c44f22b3a8/?dl=1' -O /data/reports/resistance/resistance-data.tar
+sudo tar xf /data/reports/resistance/resistance-data.tar -C /data/reports/resistance/
+sudo rm /data/reports/resistance/resistance-data.tar
+
 sudo cp -r $SP3PREFIX/resistance/piezo/config/* /data/reports/resistance/data
 sudo cp -r $SP3PREFIX/resistance/resistanceapi/data/* /data/reports/resistance/data
 
