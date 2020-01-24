@@ -16,12 +16,9 @@ def get_resistance_for_tb_sample(vcf_id):
     vcf_filename = str(pathlib.Path(resistanceConfig['vcf_location']) / f"{vcf_id}.vcf")
 
     try:
-        rs = piezo_resistance.get_resistance_for_tb_sample(resistanceConfig['genbank_file'],
-                                                           resistanceConfig['catalogue_file'],
-                                                           resistanceConfig['catalogue_name'],
-                                                           resistanceConfig['resistance_log'],
-                                                           vcf_id,
-                                                           vcf_filename)
+        rs = piezo_resistance.get_resistance_for_tb_sample2(vcf_filename,
+                                                            resistanceConfig['genome_object'],
+                                                            resistanceConfig['catalogue_file'])
         return json.dumps({ 'status': 'success',
                             'data': rs,
                             'message': '' })

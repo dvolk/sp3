@@ -50,7 +50,13 @@
 		<br/>
 		<sup style="background-color: pink; margin-top: 3px;">
 		  {% for tag in tags[dataset_id] %}
+		  {% if tag[0] == 'resistance_profile' %}
+		  {% for c in tag[1] %}
+		  <span style="color:{% if c == 'R' %}red{% else %}grey{% endif %}">{{ c }}</span>
+		  {% endfor %}
+		  {% else %}
 		  {{ tag[1] }}<br/>
+		  {% endif %}
 		  {% endfor %}
 		 </sup>
 		  {% endif %}

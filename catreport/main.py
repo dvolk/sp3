@@ -44,7 +44,7 @@ def db_get_report_for_type(pipeline_run_uuid, sample_name, report_type):
         return None
 
 def get_samples_cov_names(pipeline_run_uuid, sample_name, report_type):
-    
+
     sample_like = sample_name + '%'
 
     sql = f'select sample_name from q where status = "done" and pipeline_run_uuid = "{pipeline_run_uuid}" and sample_name like "{sample_like}" and type = "{report_type}" order by added_epochtime desc'
@@ -108,10 +108,12 @@ def report_thread_factory(con, report_type, make_report_function):
             row = rows[0]
             report_uuid = row[0]
             sample_filepath = row[8]
+            sample_name = row[7]
+            pipeline_run_uuid = row[6]
 
             report_started_epochtime = epochtime()
             print(f"{report_type}_thread: working on {report_uuid} ({sample_filepath})")
-            report_filename = make_report_function(report_uuid, sample_filepath)
+            report_filename = make_report_function(report_uuid, sample_filepath, sample_name, pipeline_run_uuid)
             print(f"{report_type}_thread: finished with {report_uuid}")
             report_status = 'done'
             report_finished_epochtime = epochtime()
@@ -127,7 +129,7 @@ def get_report_for_type(pipeline_run_uuid, sample_name, report_type):
     '''
     return db_get_report_for_type(pipeline_run_uuid, sample_name, report_type)
 
-def make_resistance_report(report_uuid, sample_filepath):
+def make_resistance_report(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
     '''
     1. symlink sample file path to /work/reports/resistanceapi/vcfs/{report_uuid}.vcf
     2. send request for report to resistance api
@@ -136,24 +138,30 @@ def make_resistance_report(report_uuid, sample_filepath):
     '''
     os.system(f'cd /work/reports/resistanceapi/vcfs; ln -s {sample_filepath} {report_uuid}.vcf')
     url = f'http://localhost:8990/api/v1/resistances/piezo/{report_uuid}?type=piezo'
-    print(url)
+    logging.warning('res api')
     r = requests.get(url)
-    print(r.text)
-    out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
-    with open(out_filepath, 'w') as report_file:
-        report_file.write(r.text)
-    os.system(f'cd /work/reports/resistanceapi/vcfs && rm {report_uuid}.vcf')
+    logging.warning('res api end')
+    try:
+        out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
+        with open(out_filepath, 'w') as report_file:
+            report_file.write(r.text)
+        os.system(f'cd /work/reports/resistanceapi/vcfs && rm {report_uuid}.vcf')
+
+    except Exception as e:
+        logging.warning("couldn't write report file")
+        logging.warning(str(e))
+
     return out_filepath
 
-def make_trivial_copy_report(report_uuid, sample_filepath):
+def make_trivial_copy_report(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
     out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
     os.system(f'cp {sample_filepath} {out_filepath}')
     return out_filepath
 
-def make_file_copy_report(report_file_path, sample_filepath):
+def make_file_copy_report(report_file_path, sample_filepath, sample_name, pipeline_run_uuid):
     out_filepath = f'/work/reports/catreport/reports/{report_file_path}'
     os.system(f'cp {sample_filepath} {out_filepath}')
-    return out_filepath    
+    return out_filepath
 
 @app.route('/report/<pipeline_run_uuid>/<sample_name>')
 def get_report(pipeline_run_uuid, sample_name):
@@ -176,18 +184,12 @@ def get_report(pipeline_run_uuid, sample_name):
             with open(report_resistance_filepath) as f:
                 report_data['resistance']['data'] = json.loads(f.read())['data']
             report_data['resistance']['finished_epochtime'] = int(r[5])
-
-            for i, item in enumerate(report_data['resistance']['data']['effects']):
-                mut = item['gene_name'] + '_' + item['mutation_name']
-                drug = item['drug_name']
-                source = resistance_help.gene_to_source(mut, drug)[1]
-                logging.debug(mut, source)
-                report_data['resistance']['data']['effects'][i]['source'] = source
+            report_data['resistance']['data'] = resistance_help.resistance_postprocess(report_data)
 
         except Exception as e:
-            logging.error("couldn't load resistance file as json")
+            logging.error("resistance report processing failed")
             logging.error(str(e))
-            report_data['resistance']['data'] = dict()
+            report_data['resistance'] = dict()
 
     '''
     end resistance report
@@ -299,18 +301,18 @@ def get_report(pipeline_run_uuid, sample_name):
     begin nfnvm map2coverage report
     '''
     samples_cov_names = get_samples_cov_names(pipeline_run_uuid, sample_name, 'nfnvm_map2coverage_report')
-    
+
     if samples_cov_names != None:
         logging.warning(len(samples_cov_names))
         report_data['nfnvm_map2coverage_report'] = dict()
         report_data['nfnvm_map2coverage_report']['data'] = []
         for sample_cov_name_string in samples_cov_names:
             sample_cov_name = sample_cov_name_string[0]
-            logging.warning(sample_cov_name)    
+            logging.warning(sample_cov_name)
             r = get_report_for_type(pipeline_run_uuid, sample_cov_name, 'nfnvm_map2coverage_report')
 
             sample_ref_files = dict()
-                
+
             if r:
                 #efd531dd-1c9c-4ece-af1e-e33ee5252b35/mapping2_Out/F10_BC01_MK077344_cov.png
                 report_nfnvm_cov_downloadpath = f"{pipeline_run_uuid}/mapping2_Out/{sample_cov_name}_cov.png"
@@ -320,7 +322,7 @@ def get_report(pipeline_run_uuid, sample_name):
                 report_data['nfnvm_map2coverage_report']['finished_epochtime'] =  int(r[5])
                 report_data['nfnvm_map2coverage_report']['data'].append(sample_ref_files)
                 logging.warning(report_nfnvm_cov_downloadpath)
-       
+
     '''
     end nfnvm map2coverage report
     '''
@@ -347,7 +349,7 @@ def get_report(pipeline_run_uuid, sample_name):
     begin nfnvm viralreport report
     '''
     r = get_report_for_type(pipeline_run_uuid, sample_name, 'nfnvm_viralreport')
-    
+
     if r:
         report_data['nfnvm_viralreport'] = dict()
         report_nfnvm_viralreport_guid = r[0]
@@ -363,7 +365,7 @@ def get_report(pipeline_run_uuid, sample_name):
     return json.dumps({ 'status': 'success', 'details': None, 'data': { 'report_data': report_data }})
 
 def main():
-    
+
     threading.Thread(target=report_thread_factory, args=(con, "resistance", make_resistance_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "mykrobe_speciation", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "kraken2_speciation", make_trivial_copy_report)).start()
@@ -375,7 +377,7 @@ def main():
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_flureport", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_viralreport", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_map2coverage_report", make_file_copy_report)).start()
-    
+
     app.run(port=10000)
 
 if __name__ == '__main__':
