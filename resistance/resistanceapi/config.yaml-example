@@ -1,6 +1,3 @@
-genbank_file: "/data/reports/resistance/data/H37rV_v3.gbk"
-catalogue_file: "/data/reports/resistance/data/CRYPTICv1.0-RSU-catalogue-H37rV_v3.csv"
-catalogue_name: "CRYPTICv1.0"
-resistance_log:  "/logs/piezo-"
 vcf_location: "/work/reports/resistanceapi/vcfs"
-
+genome_object: "/data/reports/resistance/pickles/H37rV_v3.pkl.gz"
+catalogue_file: "/data/reports/resistance/catalogues/NC_000962.3_CRyPTIC_v1.0_GARC1_RUS.csv"
