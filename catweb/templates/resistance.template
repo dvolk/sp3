@@ -62,7 +62,11 @@
       <tr>
         <td>{{ item['gene_name'] }}_{{ item['mutation_name'] }}</td>
         <td>{{ item['ref'] }} →  {{ item['alt'] }}</td>
-        <td>{{ item['gt_conf'] }}</td>
+	{% if 'gt_conf' in item %}
+        <td>{{ "%.2f"|format(item['gt_conf']) }}</td>
+	{% else %}
+        <td></td>
+	{% endif %}
 	<td>{{ d['drug_name'] }}</td>
 	<td>{{ d['source'] }}</td>
       </tr>
