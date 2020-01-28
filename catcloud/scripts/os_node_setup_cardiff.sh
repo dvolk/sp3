@@ -2,9 +2,16 @@ set -e
 
 sudo -s
 
+for i in {8..63}; do
+    if [ -e /dev/loop$i ]; then continue; fi;
+    mknod /dev/loop$i b 7 $i;
+    chown --reference=/dev/loop0 /dev/loop$i;
+    chmod --reference=/dev/loop0 /dev/loop$i;
+done
+
 apt update
 sleep 5
-apt install -y singularity-container nfs-common
+DEBIAN_FRONTEND=noninteractive apt install -o Dpkg::Options::='--force-confold' --force-yes -fuy singularity-container nfs-common
 sleep 5
 
 echo 'bind path = /work' >> /etc/singularity/singularity.conf
