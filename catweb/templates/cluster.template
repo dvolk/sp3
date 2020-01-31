@@ -1,14 +1,13 @@
-
 {% extends "base1.template" %}
+
+{% block head %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock head %}
+
 {% block content %}
   <h4>Cluster status</h4>
-{% if embeds %}
-  {% for embed in embeds %}
-    {% if 'title' in embed %}<h5>{{ embed['title'] }}</h5>{% endif %}
-    {% if 'img' in embed %}<img style='margin-bottom: 20px;' src='{{ embed['img'] }}'>{% endif %}
-  {% endfor %}
-  </br>
-{% endif %}
+
+<div id="catgrid_stats" style="width:1000px;height:400px;"></div>
 
 <h5>Disks</h5>
 
@@ -65,4 +64,72 @@
   </tbody>
 </table>
 
+<script>
+
+catgrid_stats = document.getElementById('catgrid_stats');
+
+function getData(url) {
+    return fetch(url)
+	.then((response) => { return response.json() });
+}
+
+getData('/get_cluster_stats').then((data) => {
+
+    console.log(data);
+
+    var trace1 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'Nodes',
+	x: data[0],
+	y: data[1],
+	line: {color: '#17BECF'}
+    }
+    var trace2 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'Cores',
+	x: data[0],
+	y: data[2],
+	line: {color: '#7FFFD4'}
+    }
+    var trace3 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'Memory',
+	x: data[0],
+	y: data[3],
+	line: {color: '#FFEBCD'}
+    }
+    var trace4 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'Free memory',
+	x: data[0],
+	y: data[4],
+	line: {color: '#7FFF00'}
+    }
+    var trace5 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'Running',
+	x: data[0],
+	y: data[5],
+	line: {color: '#FF7F50'}
+    }
+    var trace6 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'Queued',
+	x: data[0],
+	y: data[6],
+	line: {color: '#FF1493'}
+    }
+
+    Plotly.newPlot(catgrid_stats,
+		   [trace1, trace2, trace3, trace4, trace5, trace6],
+		   { margin: { t: 0 } } );
+});
+
+</script>
 {% endblock content %}

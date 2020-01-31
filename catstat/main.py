@@ -3,6 +3,8 @@ import threading
 import io
 import json
 import pathlib
+import sqlite3
+import logging
 
 import requests
 import flask
@@ -14,15 +16,20 @@ import matplotlib.dates
 data_titles = ["nodes", "cores", "mem", "used_mem", "running", "queued"]
 colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:olive']
 data_plot = data_titles
-data = list()
+
+con = sqlite3.connect('/db/catstat.sqlite', check_same_thread=False)
+con.execute("create table if not exists catgrid_stats (time, nodes, cores, mem, free_mem, running, queued)")
 
 def stat_collector():
     global data
     i = 0
     while True:
-        r = requests.get('http://127.0.0.1:6000/status').json()
-        nodes = r['nodes']
-        queue = r['queue']
+        try:
+            r = requests.get('http://127.0.0.1:6000/status').json()
+            nodes = r['nodes']
+            queue = r['queue']
+        except:
+            logging.warning("couldn't connect to catgrid")
 
         n_nodes = len(nodes)
         cores = sum([int(node['cores']) for node in nodes.values()])
@@ -32,31 +39,43 @@ def stat_collector():
         running = sum([len(node['jobs']) for node in nodes.values()])
         queued = len(queue)
 
-        now = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
+        now = time.time()
 
-        print(f'{now} - nodes: {n_nodes}, cores: {cores}, mem: {mem}, free_mem: {free_mem}, running: {running}, queued: {queued}')
-        data.append([time.time(), n_nodes, cores, mem, used_mem, running, queued])
-
-        data = data[-1440:]
-
-        # every 10 minutes, write to file
-        if i >= 9:
-            with open(f'stats.txt', 'w') as f:
-                f.write(json.dumps(data))
-            i = 0
-        else:
-            i = i + 1
+        con.execute("insert into catgrid_stats values (?,?,?,?,?,?,?)",
+                    (now, n_nodes, cores, mem, free_mem, running, queued))
+        con.commit()
 
         time.sleep(60)
 
 
 app = flask.Flask(__name__)
 
+@app.route('/data')
+def get_data():
+    data = con.execute("select * from catgrid_stats").fetchall()
+
+    # convert to SoA and format the time
+    ret = list()
+    for i in range(0, len(data[0])):
+        ret.append(list())
+    print(ret)
+    for i,_ in enumerate(data):
+        for j in range(0, len(data[i])):
+            ret[j].append(data[i][j])
+    for i,_ in enumerate(ret[0]):
+        ret[0][i] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(ret[0][i]))
+
+    return json.dumps({'status': 'success',
+                       'message': '',
+                       'data': ret })
+
 @app.route('/draw')
 def draw():
     fig = Figure(figsize=(6,3), dpi=100)
     ax1 = fig.add_subplot(111)
     ax2 = ax1.twinx()
+
+    data = con.execute("select * from catgrid_stats").fetchall()
 
     data2 = list(map(list, zip(*data)))
     t = matplotlib.dates.epoch2num(data2[0])
@@ -92,11 +111,6 @@ def draw():
     return response
 
 def main():
-    if pathlib.Path('stats.txt').is_file():
-        with open('stats.txt', 'r') as f:
-            global data
-            data = json.loads(f.read())
-
     threading.Thread(target=stat_collector).start()
     app.run(port=8000)
 

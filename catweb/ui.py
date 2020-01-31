@@ -1141,6 +1141,13 @@ def get_report(run_uuid : str, dataset_id: str):
                            pipeline_run_uuid=run_uuid,
                            dataset_id=dataset_id,
                            report=template_report_data)
+
+@app.route('/get_cluster_stats')
+def proxy_get_cluster_stats():
+    response = api_get_request('catstat_api', '/data')
+    return json.dumps(response)
+
+
 def main():
     app.run(port=7000)
 
