@@ -39,6 +39,19 @@
   <p>Syntax example: 0,2,10-20</p>
   {% endif %}
 
+  {% if source['fetch_methods'] %}
+  <div class="input-group ">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Fetch method</span>
+    </div>
+    <select name="fetch_method" class="form-control">
+      {% for m in source['fetch_methods'] %}
+      <option>{{ m }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  {% endif %}
+
   <br/>
 
   <div class="input-group ">

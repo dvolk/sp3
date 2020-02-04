@@ -870,8 +870,10 @@ def fetch_data2(fetch_kind):
         in_data_identifier = base64.b16decode(in_data_identifier).decode('utf-8')
 
     paths = list()
-    if 'local_glob_directory' in source:
-        paths = glob.glob(source['local_glob_directory'])
+    if 'local_glob_directories' in source:
+        for d in source['local_glob_directories']:
+            for p in glob.glob(d):
+                paths.append(p)
         paths.sort()
 
     return render_template('new_fetch2.template',
@@ -921,11 +923,12 @@ def fetch_new():
     fetch_name = request.args.get("fetch_name")
     fetch_range = request.args.get("fetch_range")
     fetch_kind = request.args.get("fetch_kind")
+    fetch_method = request.args.get("fetch_method")
 
     # base16 encode path to avoid / in url
     fetch_name_b = base64.b16encode(bytes(fetch_name, encoding='utf-8')).decode('utf-8')
 
-    url = '/api/fetch/{0}/new/{1}?fetch_range={2}'.format(fetch_kind, fetch_name_b, fetch_range)
+    url = f"/api/fetch/{fetch_kind}/new/{fetch_name_b}?fetch_range={fetch_range}&fetch_method={fetch_method}"
     api_get_request('fetch_api', url)
 
     return redirect('/fetch')

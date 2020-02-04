@@ -102,17 +102,20 @@ def describe():
             'data_identifier_display_name': 'Accession',
             'data_filter_display_name': 'Filter',
             'flatten_directory': config.get('ena_flatten_dir'),
-            'has_data_filter': 'yes'
+            'has_data_filter': 'yes',
+            'fetch_methods': None
         },
         'local1':
         {
             'display_name': 'Local server',
             'description': '''Fetch from local filesystem.
-                              Pick this if you transferred data to the SP3 server over SFTP.''',
+                              Pick this if you're using SFTP or S3''',
             'data_identifier_display_name': 'Local path',
             'flatten_directory': config.get('local_flatten_dir'),
-            'local_glob_directory': '/data/inputs/uploads/*',
-            'has_data_filter': 'no'
+            'local_glob_directories': ['/data/inputs/uploads/*',
+                                       '/data/inputs/s3/*'],
+            'has_data_filter': 'no',
+            'fetch_methods': ['link', 'copy']
         }
     }
     return json.dumps(util.make_api_response('success', data= { 'sources': sources }))

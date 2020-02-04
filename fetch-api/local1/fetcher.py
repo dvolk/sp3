@@ -58,7 +58,7 @@ class local1_Fetcher(threading.Thread):
         self.queue.set_val(guid, "total", len(ok_download_files))
 
         flatten_dir = config.get('local_flatten_dir')
-        r = local1.flatten.flatten(guid, flatten_dir, guid, self.tlogger)
+        r = local1.flatten.flatten(guid, flatten_dir, guid, self.tlogger, data['fetch_method'])
 
         return util.make_api_response(status='success', details={})
 
