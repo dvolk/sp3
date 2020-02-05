@@ -702,7 +702,6 @@ def run_details(flow_name : str, run_uuid: int):
                            output_dir=output_dir,
                            buttons=buttons,
                            fetch_id=fetch_id,
-                           subruns=subruns,
                            trace_nice=trace_nice,
                            run_name=run_name,
                            user_param_dict=user_param_dict,
