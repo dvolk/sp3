@@ -113,9 +113,6 @@ sudo wget 'https://files.mmmoxford.uk/f/18582d8058c44f22b3a8/?dl=1' -O /data/rep
 sudo tar xf /data/reports/resistance/resistance-data.tar -C /data/reports/resistance/
 sudo rm /data/reports/resistance/resistance-data.tar
 
-sudo cp -r $SP3PREFIX/resistance/piezo/config/* /data/reports/resistance/data
-sudo cp -r $SP3PREFIX/resistance/resistanceapi/data/* /data/reports/resistance/data
-
 #
 # copy example configs to main configs
 #
