@@ -135,7 +135,7 @@ sudo rm /etc/nginx/sites-enabled/default
 #
 sudo git clone https://gitlab.com/MMMCloudPipeline/clockworkcloud /data/pipelines/clockworkcloud
 
-sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/clockwork_container-0.7.7.img&dl=1' -O /data/images/clockwork_container-0.7.7.img
+sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/clockwork-2020-02-04T11%3A41%3A10%2B00%3A00_v0.8.1-3-g48f141e.img&dl=1' -O /data/images/clockwork-2020-02-04T11:41:10+00:00_v0.8.1-3-g48f141e.img
 sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/fatos-1.7.img&dl=1' -O /data/images/fatos-1.7.img
 sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/qc_vc.tar&dl=1' -O /data/references/clockwork/qc_vc.tar
 sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/spectest4.tar&dl=1' -O /data/inputs/uploads/spectest4.tar
