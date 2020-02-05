@@ -1,6 +1,0 @@
-name: "lodestoneCR+CompassNext-testing"
-show: yes
-description: "SP3 standard pipeline"
-combined:
-  - 'lodestoneCR'
-  - 'CompassNext-testing'

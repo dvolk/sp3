@@ -436,7 +436,6 @@ def begin_run(flow_name: str):
         # user parameters, grabbed from run from
         user_param_dict = dict()
 
-        subflows = list()
         fetch_given_input_b = ""
 
         sample_names=list()
@@ -468,7 +467,6 @@ def begin_run(flow_name: str):
         logger.debug(sample_names)
         logger.debug(references)
         return render_template('start_run.template',
-                               subflows = subflows,
                                ref_uuid=ref_uuid,
                                flow_cfg=flow_cfg,
                                sample_names=sample_names,
@@ -645,21 +643,6 @@ def run_details(flow_name : str, run_uuid: int):
 
     data = json.loads(rows['data'][0][20])
     user_param_dict = data['user_param_dict']
-
-    '''
-    Check if this is a composite run
-    '''
-    subruns = []
-    if 'subflows' in data:
-        if 'subflow_uuids' in data:
-            for run_uuid_ in data['subflow_uuids']:
-                subrun = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid_))['data'][0]
-                subrun[20] = json.loads(subrun[20])
-                subrun_flow_name = subrun[9]
-                subrun[20].update({ 'subflow_display_name': flows[subrun_flow_name]['display_name'] })
-                subruns.append(subrun)
-
-    logger.debug(subruns)
 
     response = api_get_request('nfweb_api', '/flow/{0}/details/{1}'.format(flow_name, run_uuid))
     trace, output_dir, buttons, fetch_subdir, run_name = response['trace'], response['output_dir'], response['buttons'], response['fetch_subdir'], response['run_name']
