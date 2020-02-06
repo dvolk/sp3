@@ -141,6 +141,9 @@ def cluster_run_details(cluster_id, run_uuid):
     output_dir = pathlib.Path('/work') / 'persistence' / cluster_id / 'work' / 'output' / run_uuid
     output_dir_exists = output_dir.is_dir()
     
+    nextflow_log = pathlib.Path('/work') / 'persistence' / cluster_id / 'work' / 'runs' / run_uuid / '.nextflow.log'
+    nextflow_log_exists = nextflow_log.is_file()
+
     con = sqlite3.connect(f'/work/persistence/{cluster_id}/db/catweb.sqlite')
     con.row_factory = sqlite3.Row
     run = con.execute('select * from nfruns where run_uuid = ?', (run_uuid,)).fetchone()
@@ -155,15 +158,20 @@ def cluster_run_details(cluster_id, run_uuid):
     reports = [dict(x) for x in reports]
 
     for report in reports:
-        report['finished_time_str'] = time.strftime("%Y/%m/%d %H:%M",
-                                                    time.localtime(int(report['finished_epochtime'])))
+        try:
+            report['finished_time_str'] = time.strftime("%Y/%m/%d %H:%M",
+                                                        time.localtime(int(report['finished_epochtime'])))
+        except:
+            # report queued/running
+            pass
 
     return render_template('cluster_run_details.template',
                            run=run,
                            run_json_data=run_json_data,
                            cluster_info=cluster_info,
                            reports=reports,
-                           output_dir_exists=output_dir_exists)
+                           output_dir_exists=output_dir_exists,
+                           nextflow_log_exists=nextflow_log_exists)
 
 def main():
     app.run(port=11000)
