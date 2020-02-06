@@ -58,10 +58,21 @@
 	  {% if output_dir_exists %}
 	  <a href="https://persistent-files.mmmoxford.uk/files/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}">Browse output files</a>
 	  {% else %}
-	  <p>Output directory not found</p>
+	  Output directory not found
 	  {% endif %}
 	</li>
-      </ul>
+	<li>
+	  {% if nextflow_log_exists %}
+	  <a href="https://persistent-files.mmmoxford.uk/runs/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}">Browse run files</a>
+	</li>
+	<li>
+	  <a href="https://persistent-files.mmmoxford.uk/runs/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}/.nextflow.log">Open Nextflow log</a>
+	</li>
+	{% else %}
+	Run directory not found
+        </li>
+        {% endif %}
+        </ul>
       <br>
       <br>
 
