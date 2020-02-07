@@ -50,8 +50,7 @@
       <tr>
         <th>Gene Mutation</th>
         <th>Change</th>
-        <th>Ref Coverage</th>
-        <th>Alt Coverage</th>
+        <th>GT conf</th>
 	<th>Drug</th>
 	<th>Support</th>
       </tr>
@@ -63,8 +62,11 @@
       <tr>
         <td>{{ item['gene_name'] }}_{{ item['mutation_name'] }}</td>
         <td>{{ item['ref'] }} →  {{ item['alt'] }}</td>
-        <td>{{ item['ref_coverage'] }}</td>
-	<td>{{ item['alt_coverage'] }}</td>
+	{% if 'gt_conf' in item %}
+        <td>{{ "%.2f"|format(item['gt_conf']) }}</td>
+	{% else %}
+        <td></td>
+	{% endif %}
 	<td>{{ d['drug_name'] }}</td>
 	<td>{{ d['source'] }}</td>
       </tr>

@@ -7,16 +7,6 @@ server {
         location / {
                 proxy_pass http://localhost:7000/;
         }
-
-        listen 80;
-}
-
-#
-# file download site
-#
-server {
-        server_name download.sp3.dev.local;
-
 	location /files {
                 alias /work/output;
                 auth_request /auth;
@@ -35,19 +25,6 @@ server {
         listen 80;
 }
 
-#
-# cluster stats image download site
-#
-server {
-        server_name stat.sp3.dev.local;
-
-        location / {
-                proxy_pass http://localhost:8000/;
-        }
-
-        listen 80;
-}
-
 ##
 ## persistence site (optional)
 ##
@@ -57,39 +34,16 @@ server {
 #        location / {
 #                proxy_pass http://localhost:11000/;
 #        }
-#
-#        listen 443 ssl;
-#        ssl_certificate /etc/letsencrypt/mmmoxford.uk.cert.pem;
-#        ssl_certificate_key /etc/letsencrypt/mmmoxford.uk.key.pem;
-#
-#        include /etc/letsencrypt/options-ssl-nginx.conf;
-#        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-#}
-#
-##
-## persistence file server (optional)
-##
-#server {
-#        server_name persistent-files.mmmoxford.uk;
-#
 #        location /files/e03386bb-f867-420f-8650-f8f58c64ca54 {
 #		 autoindex on;
 #		 alias /work/persistence/e03386bb-f867-420f-8650-f8f58c64ca54/work/output/;
 #        }
-#        location /files/aace3028-c84f-4067-9ec6-211a302d21ea {
+#        location /runs/e03386bb-f867-420f-8650-f8f58c64ca54 {
 #		 autoindex on;
-#		 alias /work/persistence/aace3028-c84f-4067-9ec6-211a302d21ea/work/output/;
-#        }
-#        location /files/a2c44551-c52c-4231-916c-eb3663b2333d {
-#		 autoindex on;
-#		 alias /work/persistence/a2c44551-c52c-4231-916c-eb3663b2333d/work/output/;
-#        }
-#        location /files/b13d7dc2-2136-416c-aa75-230620519870 {
-#		 autoindex on;
-#		 alias /work/persistence/b13d7dc2-2136-416c-aa75-230620519870/work/output/;
+#		 alias /work/persistence/e03386bb-f867-420f-8650-f8f58c64ca54/work/runs/;
 #        }
 #
-#	listen 443 ssl;
+#        listen 443 ssl;
 #        ssl_certificate /etc/letsencrypt/mmmoxford.uk.cert.pem;
 #        ssl_certificate_key /etc/letsencrypt/mmmoxford.uk.key.pem;
 #

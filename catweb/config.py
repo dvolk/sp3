@@ -77,9 +77,6 @@ class Config:
         print("nfweb version: ", self.config['nfweb_version'])
 
         for nextflow in self.get('nextflows'):
-            if 'subflows' in nextflow:
-                continue
-
             old = os.getcwd()
 
             # construct the path to the git repo (presumably) containing the nextflow file

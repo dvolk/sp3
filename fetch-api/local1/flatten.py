@@ -9,11 +9,12 @@ import requests
 import sys
 import pathlib
 import os
+import shutil
 
 import util
 from config import config
 
-def flatten(guid, path_root, path_suffix, logger):
+def flatten(guid, path_root, path_suffix, logger, fetch_method):
     path_root = pathlib.Path(path_root) # symlink destination root
     path_suffix = pathlib.Path(path_suffix) # symlink destination dir
 
@@ -40,8 +41,13 @@ def flatten(guid, path_root, path_suffix, logger):
 
     for src in local_dir.glob('*'):
         dest = path_root / path_suffix / src.name
-        logger.debug("symlink {0} -> {1}".format(src, dest))
-        os.symlink(str(src), str(dest))
+        if fetch_method == 'link':
+            logger.debug("symlink {0} -> {1}".format(src, dest))
+            os.symlink(str(src), str(dest))
+        elif fetch_method == 'copy':
+            logger.debug("copy {0} -> {1}".format(src, dest))
+            shutil.copyfile(str(src), str(dest))
+
 
 def main():
     guid = sys.argv[1]

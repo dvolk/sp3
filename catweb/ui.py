@@ -436,7 +436,6 @@ def begin_run(flow_name: str):
         # user parameters, grabbed from run from
         user_param_dict = dict()
 
-        subflows = list()
         fetch_given_input_b = ""
 
         sample_names=list()
@@ -468,7 +467,6 @@ def begin_run(flow_name: str):
         logger.debug(sample_names)
         logger.debug(references)
         return render_template('start_run.template',
-                               subflows = subflows,
                                ref_uuid=ref_uuid,
                                flow_cfg=flow_cfg,
                                sample_names=sample_names,
@@ -646,21 +644,6 @@ def run_details(flow_name : str, run_uuid: int):
     data = json.loads(rows['data'][0][20])
     user_param_dict = data['user_param_dict']
 
-    '''
-    Check if this is a composite run
-    '''
-    subruns = []
-    if 'subflows' in data:
-        if 'subflow_uuids' in data:
-            for run_uuid_ in data['subflow_uuids']:
-                subrun = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid_))['data'][0]
-                subrun[20] = json.loads(subrun[20])
-                subrun_flow_name = subrun[9]
-                subrun[20].update({ 'subflow_display_name': flows[subrun_flow_name]['display_name'] })
-                subruns.append(subrun)
-
-    logger.debug(subruns)
-
     response = api_get_request('nfweb_api', '/flow/{0}/details/{1}'.format(flow_name, run_uuid))
     trace, output_dir, buttons, fetch_subdir, run_name = response['trace'], response['output_dir'], response['buttons'], response['fetch_subdir'], response['run_name']
 
@@ -719,7 +702,6 @@ def run_details(flow_name : str, run_uuid: int):
                            output_dir=output_dir,
                            buttons=buttons,
                            fetch_id=fetch_id,
-                           subruns=subruns,
                            trace_nice=trace_nice,
                            run_name=run_name,
                            user_param_dict=user_param_dict,
@@ -870,8 +852,10 @@ def fetch_data2(fetch_kind):
         in_data_identifier = base64.b16decode(in_data_identifier).decode('utf-8')
 
     paths = list()
-    if 'local_glob_directory' in source:
-        paths = glob.glob(source['local_glob_directory'])
+    if 'local_glob_directories' in source:
+        for d in source['local_glob_directories']:
+            for p in glob.glob(d):
+                paths.append(p)
         paths.sort()
 
     return render_template('new_fetch2.template',
@@ -921,11 +905,12 @@ def fetch_new():
     fetch_name = request.args.get("fetch_name")
     fetch_range = request.args.get("fetch_range")
     fetch_kind = request.args.get("fetch_kind")
+    fetch_method = request.args.get("fetch_method")
 
     # base16 encode path to avoid / in url
     fetch_name_b = base64.b16encode(bytes(fetch_name, encoding='utf-8')).decode('utf-8')
 
-    url = '/api/fetch/{0}/new/{1}?fetch_range={2}'.format(fetch_kind, fetch_name_b, fetch_range)
+    url = f"/api/fetch/{fetch_kind}/new/{fetch_name_b}?fetch_range={fetch_range}&fetch_method={fetch_method}"
     api_get_request('fetch_api', url)
 
     return redirect('/fetch')
@@ -1108,104 +1093,9 @@ def get_report(run_uuid : str, dataset_id: str):
         template_report_data['pick_reference']['data'] = report_data['pick_reference']['data']
         template_report_data['pick_reference']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['pick_reference']['finished_epochtime']))
 
-    if report_data['resistance'] and 'effects' in report_data['resistance']['data']:
-        # check if it is synonymous mutation (first  amino-acid is same as last amino-acid) or invalid mutation (contain z or Z)
-        def is_ok_mutation(eff):
-            '''
-            Mutations where the mutation does nothing or ends in a z are 'not ok' cf Tim Peto
-            '''
-            if eff['mutation_name'][0] == eff['mutation_name'][-1] or eff['mutation_name'][-1] in ['z', 'Z']:
-                return False
-            else:
-                return True
-
-        def drug_prediction(effects, drug_name):
-            '''
-            this returns the resistance prediction for drug
-
-            Although the piezo resistance prediction already includes a prediction, we include
-            some extra logic to add the F (failed) prediction.
-            '''
-            drug_effects = [x for x in effects if drug_name == x['drug_name']]
-            '''
-            Also, group the effects under drug name
-            '''
-            # TODO
-            template_report_data['resistance']['data'][drug_name] = drug_effects
-
-            '''
-            No effects = S
-            '''
-            if not drug_effects:
-                return 'S'
-
-            '''
-            All effects are S = S
-            '''
-            all_S = True
-            for eff in drug_effects:
-                if eff['prediction'] != 'S':
-                    all_S = False
-                    break
-            if all_S:
-                return 'S'
-
-            '''
-            At least one R that is an ok mutation = R
-            '''
-            one_ok_R = False
-            for eff in drug_effects:
-                if eff['prediction'] == 'R' and is_ok_mutation(eff):
-                    one_ok_R = True
-                    break
-            if one_ok_R:
-                return 'R'
-
-            '''
-            At least one R that is not an ok mutation = F
-            '''
-            one_bad_R = False
-            for eff in drug_effects:
-                if eff['prediction'] == 'R' and not is_ok_mutation(eff):
-                    one_bad_R = True
-                    break
-            if one_bad_R:
-                return 'F'
-
-            '''
-            No Rs and all U are bad mutations = S
-            '''
-            all_bad_U = True
-            for eff in drug_effects:
-                if eff['prediction'] == 'U' and is_ok_mutation(eff):
-                    all_bad_U = False
-            if all_bad_U:
-                return 'S'
-
-            '''
-            All other cases = U
-            '''
-            return 'U'
-
+    if report_data['resistance']:
         template_report_data['resistance'] = dict()
-        template_report_data['resistance']['data'] = dict()
-        template_report_data['resistance']['data']['resistance_effects'] = collections.defaultdict(list)
-        template_report_data['resistance']['data']['res_rev_index'] = collections.defaultdict(list) # gene_mutation -> item
-
-        template_report_data['resistance']['data']['effects'] = report_data['resistance']['data']['effects']
-        template_report_data['resistance']['data']['mutations'] = report_data['resistance']['data']['mutations']
-
-        template_report_data['resistance']['data']['prediction_ex'] = dict()
-        for drug_name in ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM']:
-            template_report_data['resistance']['data']['prediction_ex'][drug_name] = drug_prediction(report_data['resistance']['data']['effects'], drug_name)
-
-        for item in report_data['resistance']['data']['effects']:
-            if is_ok_mutation(item):
-                full_name = item['gene_name'] + '_' + item['mutation_name']
-                drug_name = item['drug_name']
-                template_report_data['resistance']['data']['resistance_effects'][drug_name].append(item)
-                template_report_data['resistance']['data']['res_rev_index'][full_name].append(item)
-
+        template_report_data['resistance']['data'] = report_data['resistance']['data']
         template_report_data['resistance']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['resistance']['finished_epochtime']))
 
     if report_data['mykrobe_speciation']:
@@ -1236,6 +1126,13 @@ def get_report(run_uuid : str, dataset_id: str):
                            pipeline_run_uuid=run_uuid,
                            dataset_id=dataset_id,
                            report=template_report_data)
+
+@app.route('/get_cluster_stats')
+def proxy_get_cluster_stats():
+    response = api_get_request('catstat_api', '/data')
+    return json.dumps(response)
+
+
 def main():
     app.run(port=7000)
 

@@ -20,14 +20,17 @@ def local1_new(in_accession, request_args):
     fetch_type = request_args.get('fetch_type')
     fetch_rerun = request_args.get('fetch_rerun')
     fetch_range = request_args.get('fetch_range')
+    fetch_method = request_args.get('fetch_method')
 
     if not fetch_type: fetch_type = "all"
     if not fetch_rerun: fetch_rerun = "false"
     if not fetch_range: fetch_range = ""
+    if not fetch_method: fetch_method = "link"
 
     data = { 'fetch_type': fetch_type,
              'fetch_rerun': fetch_rerun,
-             'fetch_range': fetch_range }
+             'fetch_range': fetch_range,
+             'fetch_method': fetch_method }
 
     glogger.info(data)
 

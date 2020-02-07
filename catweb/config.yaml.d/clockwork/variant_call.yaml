@@ -9,7 +9,7 @@ version: "0.1"
 description: "Clockwork variant vall"
 contexts:
   - name: local
-    arguments: "-with-singularity /data/images/clockwork_container-0.7.7.img -process.executor slurm"
+    arguments: "-with-singularity -process.executor slurm"
 param:
   description:
     - name: 'ref_dir'

@@ -6,18 +6,18 @@ setup(
     version=__version__,
     author='Philip W Fowler',
     author_email="philip.fowler@ndm.ox.ac.uk",
+    description="Antibiotic suscetibility predictions from a VCF file.",
+    url="https://github.com/oxfordmmm/piezo",
     packages=['piezo'],
     package_data={'': ['../config/*']},
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent"  ],
+    python_requires='>=3.5',
     install_requires=[
-        "numpy >= 1.13",
-        "pandas >= 0.23.1",
-        "datreant >= 1.0.2",
-        "PyVCF >= 0.6.8",
-        "Biopython >= 1.70",
-        "tqdm >= 4.19.5"
+        "pandas >= 0.23.1"
     ],
-    license='MIT',
-    scripts=['bin/piezo-vcf-parse.py'],
-    long_description=open('README.md').read(),
+    license='University of Oxford, see LICENSE.md',
+    scripts=['bin/piezo-predict.py'],
     zip_safe=False
 )

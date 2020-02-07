@@ -3,6 +3,9 @@ import logging
 import uuid
 import pathlib
 import os
+import sys
+import time
+import sqlite3
 
 def cmd(s):
     logging.warning(s)
@@ -23,19 +26,47 @@ def main():
     instance_id = conf['id']
     store_host = conf['store']
 
-    local_files_abs = [instance_conf]
+    catweb_database_file = '/db/catweb.sqlite'
+
+    last_synced = 0
+    # get the time we last synced to this store
+    try:
+        with open(f"{store_host}.last") as f:
+            last_synced = int(f.read())
+    except Exception as e:
+        print(str(e))
+
+    print(last_synced)
+
+    # update the last synced time to this time
+    now = str(int(time.time()))
+
+    # get guids for successfully finished runs that have started since we last synced
+    con = sqlite3.connect(catweb_database_file)
+    runs = con.execute("select run_uuid from nfruns where status = 'OK' and cast(start_epochtime as integer) > ?", (last_synced,)).fetchall()
+    runs = [x[0] for x in runs]
+
+    local_outputs = [f"/work/output/{run}" for run in runs]
+    local_runs = [f"/work/runs/{run}" for run in runs]
+
+    local_files_abs = [str(instance_conf)]
     local_files_rel = ['/db/catweb.sqlite',
                        '/db/catreport.sqlite',
-                       '/work/reports/catreport/reports',
-                       '/work/output']
+                       '/work/reports/catreport/reports']
+
+    #local_files_rel += local_outputs
+    local_files_rel += local_runs
 
     # abs files: /a/b/c -> /persistence/{instance_id}/c
     # rel files: /a/b/c -> /persistence/{instance_id}/a/b/c
 
-    for local_file_abs in local_files_abs:
-        cmd(f'rsync            -a {local_file_abs} {store_host}:/work/persistence/{instance_id}/')
-    for local_file_rel in local_files_rel:
-        cmd(f'rsync --relative -a {local_file_rel} {store_host}:/work/persistence/{instance_id}/')
+    cmd(f"rsync            -a {' '.join(local_files_abs)} {store_host}:/work/persistence/{instance_id}/")
+    # TODO chunk local_files_rel in case it's too big
+    cmd(f"rsync --relative -a {' '.join(local_files_rel)} {store_host}:/work/persistence/{instance_id}/")
+
+    # write new last synced time
+    with open(f"{store_host}.last", "w") as f:
+        f.write(str(int(time.time())))
 
     return 0
 

@@ -70,7 +70,7 @@ sudo mkdir -p /data/images
 sudo mkdir -p /data/pipelines
 sudo mkdir -p /data/references
 sudo mkdir -p /data/references/clockwork
-sudo mkdir -p /data/reports/resistance/data
+sudo mkdir -p /data/reports/resistance
 sudo mkdir -p /data/fetch
 sudo mkdir -p /data/inputs
 sudo mkdir -p /data/inputs/uploads
@@ -107,10 +107,11 @@ sudo mkdir -p /db
 sudo chown $USERNAME -R /db
 
 #
-# copy resistance data from repo
+# download resistance data
 #
-sudo cp -r $SP3PREFIX/resistance/piezo/config/* /data/reports/resistance/data
-sudo cp -r $SP3PREFIX/resistance/resistanceapi/data/* /data/reports/resistance/data
+sudo wget 'https://files.mmmoxford.uk/f/18582d8058c44f22b3a8/?dl=1' -O /data/reports/resistance/resistance-data.tar
+sudo tar xf /data/reports/resistance/resistance-data.tar -C /data/reports/resistance/
+sudo rm /data/reports/resistance/resistance-data.tar
 
 #
 # copy example configs to main configs
@@ -134,7 +135,7 @@ sudo rm /etc/nginx/sites-enabled/default
 #
 sudo git clone https://gitlab.com/MMMCloudPipeline/clockworkcloud /data/pipelines/clockworkcloud
 
-sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/clockwork_container-0.7.7.img&dl=1' -O /data/images/clockwork_container-0.7.7.img
+sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/clockwork-2020-02-04T11%3A41%3A10%2B00%3A00_v0.8.1-3-g48f141e.img&dl=1' -O /data/images/clockwork-2020-02-04T11:41:10+00:00_v0.8.1-3-g48f141e.img
 sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/fatos-1.7.img&dl=1' -O /data/images/fatos-1.7.img
 sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/qc_vc.tar&dl=1' -O /data/references/clockwork/qc_vc.tar
 sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/spectest4.tar&dl=1' -O /data/inputs/uploads/spectest4.tar
