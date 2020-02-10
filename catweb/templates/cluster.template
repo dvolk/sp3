@@ -125,9 +125,33 @@ getData('/get_cluster_stats').then((data) => {
 	y: data[6],
 	line: {color: '#FF1493'}
     }
+    var trace7 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'free% /',
+	x: data[0],
+	y: data[7],
+	line: {color: '#8B008B'}
+    }
+    var trace8 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'free% /data',
+	x: data[0],
+	y: data[8],
+	line: {color: '#2F4F4F'}
+    }
+    var trace9 = {
+	type: "scatter",
+	mode: "lines",
+	name: 'free% /work',
+	x: data[0],
+	y: data[9],
+	line: {color: '#7B68EE'}
+    }
 
     Plotly.newPlot(catgrid_stats,
-		   [trace1, trace2, trace3, trace4, trace5, trace6],
+		   [trace1, trace2, trace3, trace4, trace5, trace6, trace7, trace8, trace9],
 		   { margin: { t: 0 } } );
 });
 

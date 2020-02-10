@@ -5,6 +5,7 @@ import json
 import pathlib
 import sqlite3
 import logging
+import subprocess
 
 import requests
 import flask
@@ -13,12 +14,15 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 import matplotlib.dates
 
-data_titles = ["nodes", "cores", "mem", "used_mem", "running", "queued"]
-colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:olive']
-data_plot = data_titles
-
 con = sqlite3.connect('/db/catstat.sqlite', check_same_thread=False)
-con.execute("create table if not exists catgrid_stats (time, nodes, cores, mem, free_mem, running, queued)")
+con.execute("create table if not exists catgrid_stats (time, nodes, cores, mem, free_mem, running, queued, free_disk_root, free_disk_data, free_disk_work)")
+
+def du(d):
+  for line in subprocess.check_output('df').decode().split('\n'):
+    xs = line.split()
+    if len(xs) >= 6 and  xs[5] == d:
+      return int(xs[4].replace('%', ''))
+  return 0
 
 def stat_collector():
     global data
@@ -38,11 +42,14 @@ def stat_collector():
         used_mem = mem - free_mem
         running = sum([len(node['jobs']) for node in nodes.values()])
         queued = len(queue)
+        free_disk_root = du('/')
+        free_disk_data = du('/data')
+        free_disk_work = du('/work')
 
         now = time.time()
 
-        con.execute("insert into catgrid_stats values (?,?,?,?,?,?,?)",
-                    (now, n_nodes, cores, mem, free_mem, running, queued))
+        con.execute("insert into catgrid_stats values (?,?,?,?,?,?,?,?,?,?)",
+                    (now, n_nodes, cores, mem, free_mem, running, queued, free_disk_root, free_disk_data, free_disk_work))
         con.commit()
 
         time.sleep(60)
