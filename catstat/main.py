@@ -52,7 +52,7 @@ app = flask.Flask(__name__)
 
 @app.route('/data')
 def get_data():
-    data = con.execute("select * from catgrid_stats").fetchall()
+    data = con.execute("select * from catgrid_stats order by time desc limit 1440").fetchall()
 
     # convert to SoA and format the time
     ret = list()
