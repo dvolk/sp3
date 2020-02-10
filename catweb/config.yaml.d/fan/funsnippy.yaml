@@ -1,0 +1,33 @@
+name: "funsnippy"
+display_name: "Fun Snippy"
+script:
+show: yes
+script: 'snippy.nf'
+root_dir: "FunSnippy/"
+prog_dir: "FunSnippy/"
+output_dir: "output/"
+version: "0.1.0"
+description: "Run Snippy on Cloud"
+contexts:
+  - name: local
+    arguments: "-profile singularity -process.executor slurm "
+param:
+  description:
+    - name: 'indir'
+      arg: "--input_dir"
+      type: input-reqr
+      desc: "input fastq files directory"
+    - name: 'readpat'
+      arg: '--pattern'
+      type: input-reqr
+      desc: 'Input file pattern (*.fastq.gz)'
+    - name: 'ref'
+      arg: "--ref"
+      type: switch
+      desc: 'Reference in genbank format'
+      globs:
+        - /data/references/snippy/*.gbk
+
+output:
+      parameter: "--output_dir"
+count_tasks_per_sample: 1

@@ -136,8 +136,6 @@ def browse(cluster_id):
 def cluster_run_details(cluster_id, run_uuid):
     cluster_info = get_instance('/work/persistence', cluster_id)
 
-    # https://persistent-files.mmmoxford.uk/files/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}">
-
     output_dir = pathlib.Path('/work') / 'persistence' / cluster_id / 'work' / 'output' / run_uuid
     output_dir_exists = output_dir.is_dir()
     
