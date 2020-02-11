@@ -128,7 +128,7 @@ getData('/get_cluster_stats').then((data) => {
     var trace7 = {
 	type: "scatter",
 	mode: "lines",
-	name: 'free% /',
+	name: 'Free% /',
 	x: data[0],
 	y: data[7],
 	line: {color: '#8B008B'}
@@ -136,7 +136,7 @@ getData('/get_cluster_stats').then((data) => {
     var trace8 = {
 	type: "scatter",
 	mode: "lines",
-	name: 'free% /data',
+	name: 'Free% /data',
 	x: data[0],
 	y: data[8],
 	line: {color: '#2F4F4F'}
@@ -144,7 +144,7 @@ getData('/get_cluster_stats').then((data) => {
     var trace9 = {
 	type: "scatter",
 	mode: "lines",
-	name: 'free% /work',
+	name: 'Free% /work',
 	x: data[0],
 	y: data[9],
 	line: {color: '#7B68EE'}
