@@ -1,0 +1,46 @@
+name: "catbug"
+display_name: "Catbug pathogen pipeline"
+script: "catbug.nf"
+show: yes
+root_dir: "clockworkcloud/"
+prog_dir: "clockworkcloud/"
+output_dir: "output/"
+version: "0.1"
+description: "Catbug - speciation + clockwork (tb) or compass (non-tb)"
+contexts:
+  - name: local
+    arguments: "-process.executor slurm"
+param:
+  minargs: 5
+  description:
+    - name: 'kraken2_db'
+      arg: "--kraken2_db"
+      type: switch
+      desc: "Kraken 2 databse"
+      globs:
+        - /data/databases/clockworkcloud/kraken2/*
+    - name: 'input_filetype'
+      type: switch
+      desc: 'Input file type'
+      arg: '--input_filetype'
+      options: { 'Gzipped fastq': 'fastq.gz', 'Uncompressed fastq': 'fastq', 'BAM': 'bam' }
+    - name: 'ref'
+      type: switch
+      desc: 'Reference'
+      arg: '--ref'
+      options: { 'AUTO - Automatic based on mykrobe species': 'AUTO' }
+      globs:
+        - /data/references/clockwork/qc_vc/*
+    - name: 'indir'
+      arg: '--indir'
+      type: input-reqr
+      desc: "Input directory"
+    - name: 'readpat'
+      arg: '--readpat'
+      type: input-reqr
+      desc: "Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz)"
+
+output:
+      parameter: "--output_dir"
+refmap: yes
+

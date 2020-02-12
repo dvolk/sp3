@@ -1,0 +1,43 @@
+name: "happycompare"
+display_name: "VCF Compare"
+script:
+show: yes
+script: 'compare.nf'
+root_dir: "vcfcompare/"
+prog_dir: "vcfcompare/"
+output_dir: "output/"
+version: "0.1.0"
+description: "Compare VCF using hap.py"
+contexts:
+  - name: local
+    arguments: "-profile singularity -process.executor slurm "
+param:
+  description:
+    - name: 'indir'
+      arg: "--input"
+      type: input-reqr
+      desc: "input vcf files directory"
+    - name: 'readpat'
+      arg: '--pattern'
+      type: switch
+      options: {'*.vcf.gz': '*.vcf.gz', "*.vcf": "*.vcf"}
+      desc: 'Input file pattern (vcf or vcf.gz)'
+    - name: 'ref'
+      arg: '--ref'
+      type: switch
+      desc: 'Reference that the vcf generated from'
+      globs:
+         - /data/references/compass/fasta/*.fasta
+    - name: 'refindex'
+      arg: '--refindex'
+      type: switch
+      desc: 'Reference index file by samtools'
+      globs:
+         - /data/references/compass/fasta/*.fasta.fai
+    - name: 'refvcf'
+      arg: '--refvcf'
+      type: input-reqr
+      desc: 'True VCF file'
+output:
+      parameter: "--output"
+count_tasks_per_sample: 1
