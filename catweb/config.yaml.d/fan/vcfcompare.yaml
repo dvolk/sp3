@@ -1,5 +1,5 @@
 name: "happycompare"
-display_name: "VCF Compare"
+display_name: "Happy Compare"
 script:
 show: yes
 script: 'compare.nf'
