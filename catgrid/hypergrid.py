@@ -63,6 +63,8 @@ results = collections.defaultdict(list)
 
 scheduling_lock = threading.Lock()
 
+strictorder = True
+
 class JobQueue:
     def __init__(self):
         self.queue = list()
@@ -83,6 +85,11 @@ class JobQueue:
                     if node.status == 'ready' and len(node.jobs) < node.cores and job.mem <= node.mem_free():
                         node.add_job(job)
                         self.queue.remove(job)
+                        break
+                else:
+                    if strictorder:
+                        # we want jobs to be allocated strictly in order,
+                        # but we couldn't place a job, so stop trying
                         break
 
 jq = JobQueue()
