@@ -69,7 +69,7 @@ class JobQueue:
     def __init__(self):
         self.queue = list()
     def add(self, job):
-        self.queue.append(job)
+        self.queue.insert(0, job)
     def remove(self, jobid):
         with scheduling_lock:
             old_queue = self.queue
