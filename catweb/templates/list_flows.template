@@ -3,7 +3,7 @@
 <div class="list-group list-group-flush">
   <h4>Flows</h4>
   {% for flow in flows %}
-  {% if flow['show'] and (not user_pipeline_list or flow['name'] in user_pipeline_list)  %}
+  {% if flow['show'] and flow['name'] in user_pipeline_list  %}
   <a href="/flow/{{ flow['name'] }}" class="list-group-item list-group-item-action flex-column align-items-start">
     <div class="d-flex w-100 justify-content-between">
       <h4 class="mb-1">{% if 'display_name' in flow %}{{ flow['display_name'] }}{% else %}{{ flow['name'] }}{% endif %}</h4>
