@@ -7,25 +7,27 @@
   <p>{{ source['description'] }}</p>
   <hr/>
 
+  {% if fetch_kind != 'ena1' and not paths %}
+  <p>No paths found</p>
+  {% else %}
 
   <div class="input-group">
     <div class="input-group-prepend">
       <span class="input-group-text" id="basic-addon1">{{ source['data_identifier_display_name'] }}</span>
     </div>
-    {% if paths %}
-
+  {% if paths %}
     <select name="fetch_name" class="form-control">
       {% for p in paths %}
       <option>{{ p }}</option>
       {% endfor %}
     </select>
-
     {% else %}
 
     <input name="fetch_name" type=text class="form-control" {% if data_identifier %}value='{{ data_identifier }}'{% endif %} required>
 
     {% endif %}
   </div>
+
 
   <br/>
 
@@ -57,5 +59,10 @@
   <div class="input-group ">
     <button type="Submit" class="btn btn-primary">Start Fetch</button>
   </div>
+
+
+  {% endif %}
+
+
 </form>
 {% endblock content %}

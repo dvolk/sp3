@@ -186,6 +186,7 @@ def login():
 
         form_username = request.form['username']
         form_password = request.form['password']
+        org_map = cfg.get("organisations")
 
         if auth == 'ldap':
             for ldap_domain, ldap_dict in auth_ldap.items():
@@ -220,6 +221,19 @@ def login():
                 logger.warning(f"user {form_username} not in builtin authorized_users list")
                 return redirect('/')
 
+        # organisation stuff
+        org = authenticate.check_organisation(form_username, org_map)
+        upload_dirs = []
+        if not org:
+            logger.warning(f"user {form_username} doesn't belong to any organisation")
+        else:
+            upload_dirs = authenticate.get_org_upload_dirs(org, org_map)
+            if not upload_dirs:
+                logger.warning(f"organisation {org} doesn't have any upload_dirs defined")
+
+        logger.warning(f"{form_username} - org: {org}")
+        logger.warning(f"{form_username} - upload_dirs: {upload_dirs}")
+
         '''
         User is authorized
         '''
@@ -234,6 +248,8 @@ def login():
         users[user.id] = {
             'name': form_username,
             'capabilities' : cap,
+            'org': org,
+            'upload_dirs': upload_dirs
         }
 
         return redirect('/')
@@ -836,6 +852,9 @@ def fetch_data():
 
     return render_template('new_fetch.template', sources=sources)
 
+def get_user_dict():
+    return users[flask_login.current_user.id]
+
 @app.route('/fetch_data2/<fetch_kind>')
 @flask_login.login_required
 def fetch_data2(fetch_kind):
@@ -854,8 +873,9 @@ def fetch_data2(fetch_kind):
     paths = list()
     if 'local_glob_directories' in source:
         for d in source['local_glob_directories']:
-            for p in glob.glob(d):
-                paths.append(p)
+            if authenticate.user_can_see_upload_dir(get_user_dict(), d):
+                for p in glob.glob(d):
+                    paths.append(p)
         paths.sort()
 
     return render_template('new_fetch2.template',
@@ -873,11 +893,6 @@ def fetch():
 
     sources = r2['sources']
 
-    # Get the first name of the nextflow and all of them,
-    # to allow users to change what to run
-    flow_name = cfg.get('nextflows')[0]['name']
-    all_flow_names = [x['name'] for x in cfg.get('nextflows')]
-
     # TODO error checking
     fetches=r
 
@@ -893,11 +908,9 @@ def fetch():
                    'output_dir': output_dir_b16
         })
 
-    logger.debug(all_flow_names)
-    if request.args.get('flow_name'):
-        flow_name = request.args.get('flow_name')
-    return render_template('fetch.template', fetches=fetches, flow_name=flow_name,
-                           all_flow_names=all_flow_names, sources=sources)
+    fetches = { k:v for k,v in fetches.items() if authenticate.is_public_fetch_source(v['kind']) or authenticate.user_can_see_upload_dir(get_user_dict(), v['name']) }
+
+    return render_template('fetch.template', fetches=fetches, sources=sources)
 
 @app.route('/fetch_new')
 @flask_login.login_required

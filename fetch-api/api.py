@@ -112,8 +112,7 @@ def describe():
                               Pick this if you're using SFTP or S3''',
             'data_identifier_display_name': 'Local path',
             'flatten_directory': config.get('local_flatten_dir'),
-            'local_glob_directories': ['/data/inputs/uploads/*',
-                                       '/data/inputs/s3/*'],
+            'local_glob_directories': config.get('local_glob_directories'),
             'has_data_filter': 'no',
             'fetch_methods': ['link', 'copy']
         }

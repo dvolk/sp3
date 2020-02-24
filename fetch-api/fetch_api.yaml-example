@@ -7,3 +7,7 @@ ena_download_dir: "/data/fetch/ena/"
 # where to flatten the files to
 ena_flatten_dir: "/data/inputs/ena/"
 local_flatten_dir: "/data/inputs/local/"
+
+local_glob_directories:
+  - '/data/inputs/uploads/*'
+  - '/data/inputs/s3/tom/*'
