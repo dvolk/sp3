@@ -1,6 +1,20 @@
 from ldap3 import Connection
 import logging
 
+def get_user_pipelines(username, user_pipeline_map):
+    for usr in user_pipeline_map:
+        if usr['user'] == username:
+            if 'pipelines' in usr:
+                return usr['pipelines']
+    return list()
+
+def get_org_pipelines(org_name, organisations):
+    for org in organisations:
+        if org['name'] == org_name:
+            if 'pipelines' in org:
+                return org['pipelines']
+    return list()
+
 def path_begins_with(p1, p2):
     if str(p1) >= str(p2):
         if p1[0:len(str(p2))] == p2:
@@ -17,16 +31,17 @@ def user_can_see_upload_dir(user_dict, p2):
         logging.warning(f"{user_dict} {p1} {p2}")
         if path_begins_with(p2, p1):
             return True
+    return False
 
-def check_organisation(username, org_map):
-    for org in org_map:
+def check_organisation(username, organisations):
+    for org in organisations:
         if username in org["users"]:
             return org["name"]
     return None
 
-def get_org_upload_dirs(org_name, org_map):
-    logging.warning(str(org_map))
-    for org in org_map:
+def get_org_upload_dirs(org_name, organisations):
+    logging.warning(str(organisations))
+    for org in organisations:
         if org["name"] == org_name:
             return org["upload_dirs"]
     return []

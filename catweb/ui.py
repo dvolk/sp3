@@ -98,15 +98,6 @@ def reload_cfg():
         sys.exit(1)
     global users
     users = dict()
-    global user_pipeline_map
-    user_pipeline_map = dict()
-    try:
-        for u in cfg.get('user_pipeline_map'):
-            user_pipeline_map[u['user']] = list()
-            for pipeline in u['pipelines']:
-                user_pipeline_map[u['user']].append(pipeline)
-    except:
-        pass
 
 reload_cfg()
 
@@ -261,12 +252,12 @@ def logout():
     flask_login.logout_user()
     return redirect('/')
 
-def get_user_pipelines(user):
-    logging.warning(user_pipeline_map)
-    if user_pipeline_map and user in user_pipeline_map:
-        return user_pipeline_map[user]
-    else:
-        return None
+def get_user_pipelines(username):
+    ret = list()
+    u = get_user_dict()
+    ret += authenticate.get_user_pipelines(u['name'], cfg.get('user_pipeline_map'))
+    ret += authenticate.get_org_pipelines(u['org'], cfg.get('organisations'))
+    return ret
 
 # todo move this and similar to nflib.py
 @app.route('/')
