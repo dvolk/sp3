@@ -424,7 +424,7 @@ def new_run1(flow_name, flow_cfg, form):
     }
 
     # convert to json
-    logger.debug('data: {0}'.format(data))
+    logger.warning(f"data: {data}")
     data_json = json.dumps(data)
 
     response = api_post_request('nfweb_api', '/run/start', data_json)
