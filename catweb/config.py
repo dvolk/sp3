@@ -69,7 +69,7 @@ class Config:
             with open(filename) as f:
                 cfg = yaml.load(f.read())
             org_containing_dir = pathlib.Path(filename).parent.stem
-            cfg['filepath'] = filename
+            cfg['filepath'] = str(filename)
             cfg['organisation'] = org_containing_dir
             # prefix nextflow name with organisation
             cfg['name'] = org_containing_dir + '-' + cfg['name']
