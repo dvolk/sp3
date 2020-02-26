@@ -86,7 +86,7 @@ del data['flow_cfg']
 '''
 add flow git version to database
 '''
-data['nfweb_git_version'] = cfg.get('nfweb_version')
+data['catweb_git_version'] = cfg.get('catweb_version')
 data['flow_git_version'] = flow_cfg['git_version']
 '''
 TODO: add container image version
