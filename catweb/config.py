@@ -22,6 +22,8 @@ class Loader(yaml.SafeLoader):
             # set filepath key to the path of the file being loaded
             # we need this to be able to edit the config
             y['filepath'] = filename
+            org_containing_dir = pathlib.Path(filename).parent.stem
+            y['name'] = org_containing_dir + '-' + y['name']
             return y
 
 Loader.add_constructor('!include', Loader.include)
