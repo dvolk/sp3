@@ -4,29 +4,11 @@ import pathlib
 import shlex
 import datetime
 import glob
+import logging
 
 import yaml
 
 import validate
-
-# https://stackoverflow.com/questions/528281/how-can-i-include-a-yaml-file-inside-another
-class Loader(yaml.SafeLoader):
-    def __init__(self, stream):
-        self._root = os.path.split(stream.name)[0]
-        super(Loader, self).__init__(stream)
-
-    def include(self, node):
-        filename = os.path.join(self._root, self.construct_scalar(node))
-        with open(filename, 'r') as f:
-            y = yaml.load(f)
-            # set filepath key to the path of the file being loaded
-            # we need this to be able to edit the config
-            y['filepath'] = filename
-            org_containing_dir = pathlib.Path(filename).parent.stem
-            y['name'] = org_containing_dir + '-' + y['name']
-            return y
-
-Loader.add_constructor('!include', Loader.include)
 
 class Config:
     """
@@ -61,36 +43,48 @@ class Config:
         os.chdir(old)
         return version
 
-    def load(self, config_file: str):
+    def load(self, config_file):
+        # validate config.yaml with config.yaml.schema
         with open(config_file, 'r') as stream:
             ok, errs = validate.validate_yaml('config.yaml.schema', config_file)
             if ok:
-                print(config_file, "validated")
+                logging.warning(f"{config_file} validated")
             else:
-                print(config_file, "validation failed")
-                print(errs)
+                logging.warning(f"{config_file} validation failed")
+                logging.warning(str(errs))
 
-            self.config = yaml.load(stream, Loader)
+            self.config = yaml.load(stream)
 
         if 'canonical_prog_dir' not in self.config:
             return
 
-        self.config['nfweb_version'] = self.git_describe('.')
-        print("nfweb version: ", self.config['nfweb_version'])
+        # add catweb git version to config
+        self.config['catweb_version'] = self.git_describe('.')
+        logging.warning(f"catweb version: {self.config['catweb_version']}")
+
+        # load nextflow pipeline files
+        self.config['nextflows'] = list()
+        for filename in pathlib.Path('config.yaml.d/orgs/').glob('**/*.yaml'):
+            logging.warning(f"loading {filename}")
+            with open(filename) as f:
+                cfg = yaml.load(f.read())
+            org_containing_dir = pathlib.Path(filename).parent.stem
+            cfg['filepath'] = filename
+            cfg['organisation'] = org_containing_dir
+            # prefix nextflow name with organisation
+            cfg['name'] = org_containing_dir + '-' + cfg['name']
+            self.config['nextflows'].append(cfg)
 
         for nextflow in self.get('nextflows'):
-            old = os.getcwd()
-
             # construct the path to the git repo (presumably) containing the nextflow file
-            #
             new = str(pathlib.Path(self.config['canonical_prog_dir']) / nextflow['prog_dir'])
 
             nextflow['last_commit'] = self.git_last_commit(new)
             nextflow['git_version'] = self.git_describe(new)
             last_commit_pretty = datetime.datetime.fromtimestamp(int(nextflow['last_commit'])).strftime("%F %T")
-            nextflow['version'] = "Version: {1} Last commit: {0}".format(last_commit_pretty, nextflow['git_version'])
+            nextflow['version'] = f"Version: {last_commit_pretty} Last commit: {nextflow['git_version']}"
 
-            print("{0} {1}".format(new, nextflow['version']))
+            print(f"{new} {nextflow['version']}")
 
             # for params with switch type, scan the globs array,
             # glob the directories and add them to the options
@@ -99,7 +93,6 @@ class Config:
                     if 'globs' in p:
                         for fglob in p['globs']:
                             files = glob.glob(fglob)
-                            #files = pathlib.Path(glob).glob('*')
                             for f in files:
                                 sf = f
                                 if 'options' not in p:
