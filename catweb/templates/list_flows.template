@@ -12,9 +12,7 @@
     <div class="d-flex w-100 justify-content-between">
       <p class="mb-1">{{ flow['description'] }}</p>
       <p class="mb-1">
-	{% for context in flow['contexts'] %}
-	<span id="context" class="btn-sm btn-primary">{{ context['name'] }}</span>
-	{% endfor %}
+	<span id="context" class="btn-sm btn-primary">{{ flow['organisation'] }}</span>
       </p>
     </div>
   </a>
