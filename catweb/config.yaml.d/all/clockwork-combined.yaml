@@ -6,7 +6,7 @@ root_dir: "clockworkcloud/"
 prog_dir: "clockworkcloud/"
 output_dir: "output/"
 version: "0.1"
-description: "Clockwork RC+QC+VC pipeline"
+description: "Clockwork with human removal, speciation, autoreference, report"
 contexts:
   - name: local
     arguments: "-process.executor slurm"
@@ -43,3 +43,4 @@ param:
 output:
       parameter: "--output_dir"
 refmap: yes
+

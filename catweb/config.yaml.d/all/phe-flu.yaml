@@ -1,0 +1,32 @@
+name: "phe-flu"
+display_name: "PHE flu pipeline"
+script: "FLU-generic.nf"
+show: yes
+root_dir: "phe-flu/"
+prog_dir: "phe-flu/"
+output_dir: "output/"
+version: "0.1"
+description: "PHE flu pipeline"
+contexts:
+  - name: local
+    arguments: "-process.executor slurm"
+param:
+  minargs: 5
+  description:
+    - name: 'workflow'
+      type: switch
+      desc: 'Workflow'
+      arg: '--workflow'
+      options: { 'FLU-generic.ngsservice': 'FLU-generic.ngsservice' }
+    - name: 'indir'
+      arg: '--indir'
+      type: input-reqr
+      desc: "Input directory"
+    - name: 'readpat'
+      arg: '--readpat'
+      type: input-reqr
+      desc: "Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz)"
+
+output:
+      parameter: "--output_dir"
+refmap: yes

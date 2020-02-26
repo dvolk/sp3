@@ -1,0 +1,37 @@
+name: "phw_qc_nextflow"
+display_name: "PHW qc"
+script: "main.nf"
+show: yes
+root_dir: "qc_nextflow/"
+prog_dir: "qc_nextflow/"
+output_dir: "output/"
+version: "0.1"
+description: "PHW QC pipeline"
+contexts:
+  - name: local
+    arguments: "-profile slurm"
+param:
+  minargs: 5
+  description:
+    - name: 'hg_uri'
+      arg: '--hg_uri'
+      type: switch
+      desc: 'Human genome reference fasta URI'
+      options: { 'file:///data/databases/qc_nextflow/genomes/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz': 'file:///data/databases/qc_nextflow/genomes/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz' }
+    - name: 'db_uri'
+      arg: '--db_uri'
+      type: switch
+      desc: 'Centrifuge database URI'
+      options: { 'file:///data/databases/qc_nextflow/centrifuge/p+h+v.tar.gz': 'file:///data/databases/qc_nextflow/centrifuge/p+h+v.tar.gz' }
+    - name: 'indir'
+      arg: '--fq'
+      type: input-reqr
+      desc: "Input directory"
+    - name: 'readpat'
+      arg: '--readpat'
+      type: input-reqr
+      desc: "Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz)"
+
+output:
+      parameter: "--outdir"
+refmap: no
