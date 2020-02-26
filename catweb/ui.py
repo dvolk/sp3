@@ -254,9 +254,12 @@ def logout():
 
 def get_user_pipelines(username):
     ret = list()
-    u = get_user_dict()
-    ret += authenticate.get_user_pipelines(u['name'], cfg.get('user_pipeline_map'))
-    ret += authenticate.get_org_pipelines(u['org'], cfg.get('organisations'))
+    if is_admin():
+        ret = flows.keys()
+    else:
+        u = get_user_dict()
+        ret += authenticate.get_user_pipelines(u['name'], cfg.get('user_pipeline_map'))
+        ret += authenticate.get_org_pipelines(u['org'], cfg.get('organisations'))
     return ret
 
 # todo move this and similar to nflib.py
