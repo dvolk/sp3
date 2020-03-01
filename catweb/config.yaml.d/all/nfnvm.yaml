@@ -10,7 +10,7 @@ version: "0.1.0"
 description: "Nanopore Metagenomic Data Processing"
 contexts:
   - name: local
-    arguments: "-profile cloud -process.executor slurm --demultiplex 'skip' --QCmode true --Cent true --selRef true --mapping true --BLASTdraft true  --mapping2 true --report true --prepAssembly true --assembly true"
+    arguments: "-profile cloud -process.executor slurm  --QC true --Cent true --selRef true --mapping true --BLASTdraft true  --mapping2 true --report true --varcall clair --consensus false --verifyConsensus false --assembly true"
 param:
   description:
     - name: 'indir'
@@ -20,7 +20,11 @@ param:
     - name: 'readpat'
       arg: '--readpat'
       type: input-list
-      desc: 'Input file pattern (*fastq.gz)' 
-
+      desc: 'Input file pattern (*fastq.gz)'
+    - name: 'demultiplex'
+      type: switch
+      desc: 'demultiplex mode'
+      arg: '--demultiplex'
+      options: { 'skip': 'skip', 'qcat': 'qcat', 'normal':'normal', 'strict':'strict' } 
 output:
       parameter: "--dataDir"
