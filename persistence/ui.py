@@ -45,6 +45,39 @@ def logout():
     flask_login.logout_user()
     return redirect('/login')
 
+def get_user_dict():
+    return users[flask_login.current_user.id]
+
+def get_user_organisation():
+    if 'organisations' not in cfg:
+        logging.error("config doesn't have organisations")
+        logging.error(str(cfg))
+        return None
+    u = get_user_dict()
+    for org in cfg['organisations']:
+        if 'users' in org and u['name'] in org['users']:
+            return org['name']
+    logging.warning("user not in any organisation")
+
+def is_admin():
+    try:
+        return 'admin' in users[flask_login.current_user.id]['capabilities']
+    except:
+        return False
+
+def org_can_see_pipeline(org_name, pipeline_name):
+    if is_admin():
+        return True
+    else:
+        return pipeline_name[0:len(org_name)+1] == org_name + "-"
+
+def org_filter_runs(org_name, runs):
+    ret = list()
+    for run in runs:
+        if org_can_see_pipeline(org_name, run[9]):
+            ret.append(run)
+    return ret
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -79,8 +112,13 @@ def login():
         user.id = form_username
         flask_login.login_user(user)
 
+        cap = list()
+        if form_username in auth_cfg['admins']:
+            cap = ['admin']
+
         users[user.id] = {
             'name': form_username,
+            'capabilities': cap
         }
 
         return redirect('/list_instances')
@@ -125,7 +163,9 @@ def browse(cluster_id):
     cluster_info = get_instance('/work/persistence', cluster_id)
 
     con = sqlite3.connect(f'/work/persistence/{cluster_id}/db/catweb.sqlite')
-    runs = con.execute('select * from nfruns order by start_epochtime desc').fetchall()
+    runs = con.execute('select * from nfruns  where status="OK" order by start_epochtime desc').fetchall()
+    runs = org_filter_runs(get_user_organisation(), runs)
+
     return render_template('cluster_browse.template',
                            runs=runs,
                            cluster_id=cluster_id,
@@ -138,7 +178,7 @@ def cluster_run_details(cluster_id, run_uuid):
 
     output_dir = pathlib.Path('/work') / 'persistence' / cluster_id / 'work' / 'output' / run_uuid
     output_dir_exists = output_dir.is_dir()
-    
+
     nextflow_log = pathlib.Path('/work') / 'persistence' / cluster_id / 'work' / 'runs' / run_uuid / '.nextflow.log'
     nextflow_log_exists = nextflow_log.is_file()
 
