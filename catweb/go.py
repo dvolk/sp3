@@ -336,16 +336,9 @@ os.system("nextflow clean -k -f")
 
 data['output_dir'] = str(output_dir)
 
-os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_samtools_qc_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_kraken2_speciation_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_mykrobe_speciation_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_pick_reference_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/clockwork_resistance_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_qc_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_flu_report_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_viral_report_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_krona_report_submit.py {shlex.quote(json.dumps(data))}')
-os.system(f'/home/ubuntu/sp3/catweb/scripts/nfnvm_map2coverage_report_submit.py {shlex.quote(json.dumps(data))}')
-
+for report_script in pathlib.Path('/home/ubuntu/sp3/catweb/scripts/').glob('*.py'):
+    cmd = f"{str(report_script)} {shlex.quote(json.dumps(data))}"
+    logger.warning(f"running report script {cmd}")
+    os.system(cmd)
 
 logger.info("go.py: done")
