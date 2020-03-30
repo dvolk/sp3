@@ -938,8 +938,8 @@ def fetch_stop(guid):
 @flask_login.login_required
 def select_flow(guid):
     ret1 = api_get_request('fetch_api', '/api/fetch/status_sample/{0}'.format(guid))
-    flow_name = cfg.get('nextflows')[0]['name']
 
+    flow_name = None
     if request.args.get('flow_name'):
         flow_name = request.args.get('flow_name')
     if guid in ret1:
@@ -971,6 +971,11 @@ def select_flow(guid):
     # to allow users to change what to run
     all_flow_names = [x['name'] for x in cfg.get('nextflows')]
 
+    user_pipelines = get_user_pipelines(flask_login.current_user.id)
+    if not flow_name:
+        if user_pipelines:
+            flow_name = user_pipelines[0]
+
     return render_template('select_flow.template',
                            guid=guid,
                            name=accession,
@@ -979,10 +984,9 @@ def select_flow(guid):
                            progress=progress,
                            total=total,
                            flow_name=flow_name,
-                           all_flow_names = all_flow_names,
                            input_dir=input_dir,
                            output_dir_b16=output_dir_b16,
-                           user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
+                           user_pipelines=user_pipelines)
 
 @app.route('/fetch_details/<guid>')
 @flask_login.login_required
