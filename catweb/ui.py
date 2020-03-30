@@ -266,7 +266,13 @@ def get_user_pipelines(username):
 @app.route('/')
 @flask_login.login_required
 def status():
-    response = api_get_request('nfweb_api', '/status')
+    if 'org' in get_user_dict():
+        org = get_user_dict()['org']
+    else:
+        org = 'None'
+
+    response = api_get_request('nfweb_api', f'/status/{org}')
+    logging.error(str(response['recent']))
     running, recent, failed = response['running'], response['recent'], response['failed']
 
     return render_template('status.template', running=running, recent=recent, failed=failed,

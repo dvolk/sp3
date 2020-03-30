@@ -34,10 +34,10 @@ def get_reference_cache(ref_uuid):
     assert len(ret) == 1
     return ret[0][0]
 
-def get_status():
-    running = con.execute('select * from nfruns where status = "-" order by "start_epochtime" desc').fetchall()
-    recent = con.execute('select * from nfruns where status = "OK" order by "start_epochtime" desc limit 5').fetchall()
-    failed = con.execute('select * from nfruns where status = "ERR" or status = "FAIL" order by "start_epochtime" desc limit 5').fetchall()
+def get_status(org):
+    running = con.execute(f'select * from nfruns where workflow like "{org}-%" and status = "-" order by "start_epochtime" desc').fetchall()
+    recent = con.execute(f'select * from nfruns where  workflow like "{org}-%" and status = "OK" order by "start_epochtime" desc limit 5').fetchall()
+    failed = con.execute(f'select * from nfruns where  workflow like "{org}-%" and status = "ERR" or status = "FAIL" order by "start_epochtime" desc limit 5').fetchall()
     return (running, recent, failed)
 
 def get_workflow(flow_name):
