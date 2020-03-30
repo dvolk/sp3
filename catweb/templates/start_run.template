@@ -50,7 +50,7 @@
 	   {% elif param['name'] == 'readpat' %}
 	   {% if guessed_filename_format %}
 	   value="{{ guessed_filename_format }}"
-	   {% else %}value="Couldn't guess format" style="background-color: pink"{% endif %}
+	   {% else %}value="" style="background-color: pink"{% endif %}
 	   {% endif %}
 	   {% set is_req = not param['optional'] %}
 	   {% if is_req %} required {% endif %}
