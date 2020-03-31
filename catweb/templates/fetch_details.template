@@ -30,8 +30,31 @@
 <h2 id='log'>Log</h2>
 <pre style='font-family: monospace;'>{{ log }}</pre>
 
+{% if ena_table or sp3data %}
+{% if ena_table %}
 <h2 id='metadata'>ENA metadata table</h2>
-
 {{ ena_table|safe }}
+{% else %}
+<h2 id='metadata'>SP3 metadata table</h2>
+
+<table border="1">
+  {% for (i, row) in sp3data %}
+  {% for k,v in row.items() %}
+  <tr>
+    {% if k == 'fetch_uuid' %}
+    <td rowspan="{{ row|length }}" valign="top">{{ i }}</td>
+    {% endif %}
+    <td>{{ k }}</td>
+    <td>{{ v }}</td>
+  </tr>
+  {% endfor %}
+  {% endfor %}
+</table>
+
+{% endif %}
+{% endif %}
+
+
 
 {% endblock content %}
+  

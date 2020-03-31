@@ -7,7 +7,7 @@ from flask import Flask, request
 
 config = yaml.load(open('config.yaml').read())
 
-con = sqlite3.connect(config['db_target'])
+con = sqlite3.connect(config['db_target'], check_same_thread=False)
 
 con.execute("create table if not exists fetch_to_run (fetch_uuid, pipeline_run_uuid);")
 con.execute("create table if not exists sp3_data (fetch_uuid, submission_uuid4, sample_uuid4, sample_index, subindex, sample_filename, sample_file_extension, sample_host, sample_collection_date, sample_country, submission_title, submission_description, submitter_organisation, submitter_email, instrument_platform, instrument_model, instrument_flowcell, original_file_md5, original_file_sha1, original_file_sha512, clean_file_md5, clean_file_sha1, clean_file_sha512);")
@@ -32,7 +32,16 @@ def get_sp3_data_for_fetch(fetch_uuid):
     con.row_factory = sqlite3.Row
     rows = con.execute("select * from sp3_data where fetch_uuid = ?", (fetch_uuid,)).fetchall()
     con.row_factory = None
-    return json.dumps([dict(row) for row in rows])
+    data = [dict(row) for row in rows]
+    return json.dumps({ 'status': 'success',
+                        'data': data,
+                        'message': None })
+
+@app.route('/get_sp3_data_for_run/<pipeline_run_uuid>')
+def get_sp3_data_for_run(pipeline_run_uuid):
+    fetch_uuid = json.loads(get_fetch_for_run(pipeline_run_uuid))
+    if fetch_uuid:
+        return get_sp3_data_for_fetch(fetch_uuid)
 
 @app.route('/fetch_to_run', methods=['POST'])
 def fetch_to_run():

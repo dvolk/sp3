@@ -1029,10 +1029,14 @@ def fetch_details(guid):
     app_log = ret2['app']
 
     ena_table = ""
+    sp3data = None
     if 'ena' in ret2 and ret2['ena']:
         logger.debug(ret2['ena'][:80])
         pandas.set_option('display.max_colwidth', -1)
         ena_table = pandas.read_json(ret2['ena']).stack().sort_index().to_frame().to_html()
+    else:
+        sp3data = api_get_request('catpile_api', f'/get_sp3_data_for_fetch/{guid}')
+        sp3data = list(enumerate(sp3data))
 
     return render_template('fetch_details.template',
                            guid=guid,
@@ -1043,8 +1047,9 @@ def fetch_details(guid):
                            total=total,
                            file_table=file_table,
                            log=app_log,
-                           input_dir = input_dir,
-                           ena_table=ena_table)
+                           input_dir=input_dir,
+                           ena_table=ena_table,
+                           sp3data=sp3data)
 
 @app.route('/flow/<run_uuid>/<dataset_id>/report')
 @flask_login.login_required
@@ -1143,6 +1148,8 @@ def get_report(run_uuid : str, dataset_id: str):
                            pipeline_run_uuid=run_uuid,
                            dataset_id=dataset_id,
                            report=template_report_data)
+
+
 
 @app.route('/get_cluster_stats')
 def proxy_get_cluster_stats():
