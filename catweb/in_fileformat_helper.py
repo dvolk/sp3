@@ -108,7 +108,8 @@ def guess_format(files):
 
 def guess_from_dir(pat):
     files = pathlib.Path(pat).glob('*')
-    files = [str(x.name) for x in files]
+    files_excludcsvs = [x for x in files if x.suffix not in ['.csv', '.txt']]
+    files = [str(x.name) for x in files_excludcsvs]
     return guess_format(files)
 
 def main():
