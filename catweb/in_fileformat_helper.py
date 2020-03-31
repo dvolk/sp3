@@ -88,10 +88,31 @@ class PHE_FLU_FilenameFormat:
     def get_pattern(self):
         return f"*_OM_H{self.m1}-{self.m2}.FLU-generic.ngsservice.R{{1,2}}.fastq.gz"
 
+class S3_Upload_FilenameFormat:
+    '''
+    e.g.:
+    c6f24a54-3a6d-4676-9024-2dec6a51830b_C1.fastq.gz
+    c6f24a54-3a6d-4676-9024-2dec6a51830b_C2.fastq.gz
+    '''
+    def is_match(self, files):
+        p = re.compile('(.{8}-.{4}-.{4}-.{4}-.{12})_C(?:1|2)\.fastq\.gz')
+        sample_names = []
+        for f in files:
+            m = p.match(f)
+            print(m)
+            if not m:
+                return False, None
+            sample_names.append(m[1])
+        return True, sample_names
+
+    def get_pattern(self):
+        return "*_C{1,2}.fastq.gz"
+
 formats = [ENA_FilenameFormat(),
            PHE_FilenameFormat(),
            APHA_FilenameFormat(),
-           PHE_FLU_FilenameFormat()]
+           PHE_FLU_FilenameFormat(),
+           S3_Upload_FilenameFormat()]
 
 def guess_format(files):
     if not files:
