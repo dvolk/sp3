@@ -980,7 +980,7 @@ def select_flow(guid):
     user_pipelines = get_user_pipelines(flask_login.current_user.id)
     if not flow_name:
         if user_pipelines:
-            flow_name = user_pipelines[0]
+            flow_name = list(user_pipelines)[0]
 
     return render_template('select_flow.template',
                            guid=guid,
