@@ -15,6 +15,7 @@
     {% if buttons['report'] %}<a href="/flow/{{ flow_name }}/report/{{ uuid }}"><button type="button" class="btn btn-info">View report</button></a>{% endif %}
     {% if buttons['timeline'] %}<a href="/flow/{{ flow_name }}/timeline/{{ uuid }}"><button type="button" class="btn btn-info">View timeline</button></a>{% endif %}
     {% if buttons['dagdot'] %}<a href="/flow/{{ flow_name }}/dagdot/{{ uuid }}"><button type="button" class="btn btn-info">View Graph</button></a>{% endif %}
+    {% if buttons['report'] %}<a href="/flow/{{ flow_name }}/show_metadata/{{ uuid }}"><button type="button" class="btn btn-info">View metadata</button></a>{% endif %}
     {% if buttons['stop'] %}<a href="/flow/{{ flow_name }}/stop/{{ uuid }}"><button type="button" class="btn btn-danger">Stop</button></a>{% endif %}
     {% if buttons['rerun'] %}<a href="/flow/{{ flow_name }}/new?replay={{ uuid }}"><button type="button" class="btn btn-warning">Repeat Run</button></a>{% endif %}
     {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/delete_output_files/{{ uuid }}" id="delete_output" data-confirm="Are you sure to delete output files?"><button type="button" class="btn btn-danger">Delete output files</button></a>{% endif %}

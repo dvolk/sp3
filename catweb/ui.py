@@ -994,6 +994,16 @@ def select_flow(guid):
                            output_dir_b16=output_dir_b16,
                            user_pipelines=user_pipelines)
 
+@app.route('/flow/<flow_name>/show_metadata/<pipeline_run_uuid>')
+@flask_login.login_required
+def fetch_metadata(flow_name, pipeline_run_uuid):
+    sp3data = api_get_request('catpile_api', f'/get_sp3_data_for_run/{pipeline_run_uuid}')
+    sp3data = list(enumerate(sp3data))
+
+    return render_template('show_sp3data.template',
+                           pipeline_run_uuid=pipeline_run_uuid,
+                           sp3data=sp3data)
+
 @app.route('/fetch_details/<guid>')
 @flask_login.login_required
 def fetch_details(guid):

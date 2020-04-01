@@ -42,6 +42,10 @@ def get_sp3_data_for_run(pipeline_run_uuid):
     fetch_uuid = json.loads(get_fetch_for_run(pipeline_run_uuid))
     if fetch_uuid:
         return get_sp3_data_for_fetch(fetch_uuid)
+    else:
+        return json.dumps({ 'status': 'success',
+                            'data': [],
+                            'message': None })
 
 @app.route('/fetch_to_run', methods=['POST'])
 def fetch_to_run():
