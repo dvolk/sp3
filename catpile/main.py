@@ -56,20 +56,23 @@ def fetch_to_run():
     pipeline_run_uuid = j['pipeline_run_uuid']
 
     link_data(fetch_uuid, pipeline_run_uuid)
+    return "ok"
 
 def link_data(fetch_uuid, pipeline_run_uuid):
     con.execute(f"insert into fetch_to_run values (?,?)", (fetch_uuid, pipeline_run_uuid))
     con.commit()
 
-@app.route('/load_sp3_data/', methods=['POST'])
+@app.route('/load_sp3_data', methods=['POST'])
 def load_sp3_data():
     j = request.json
+    print(j)
     if not 'fetch_uuid' in j or not 'fetch_dir' in j:
         abort(404)
     fetch_uuid = j['fetch_uuid']
     fetch_dir = j['fetch_dir']
 
     add_data(fetch_uuid, fetch_dir)
+    return "ok"
 
 def add_data(fetch_uuid, fetch_dir):
     sp3data_filepath = pathlib.Path(fetch_dir) / 'sp3data.csv'

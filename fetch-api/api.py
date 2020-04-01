@@ -16,6 +16,7 @@ import json
 import pathlib
 import base64
 
+import requests
 from flask import Flask, abort, request
 
 import util
@@ -123,17 +124,37 @@ def describe():
 def ena1_new(in_accession_b):
     in_accession = base64.b16decode(in_accession_b).decode('utf-8')
 
-    return ena1.api.ena_new(in_accession, request.args)
+    ret = ena1.api.ena_new(in_accession, request.args)
+    return ret
 
 @app.route('/api/fetch/ena1/delete/<in_guid>')
 def ena1_delete(in_guid):
     return ena1.api.ena_delete(in_guid)
 
+def try_register_sp3data(args, in_accession):
+    guid = json.loads(args)['data']['guid']
+    directory = in_accession
+
+    try:
+        # attempt to register the dataset with catpile api
+        requests.post("http://127.0.0.1:22000/load_sp3_data",
+                      headers = {'content-type': 'application/json'},
+                      data = json.dumps({ "fetch_uuid": guid,
+                                          "fetch_dir": directory }))
+    except Exception as e:
+        glogger = logging.getLogger('fetch_logger')
+        glogger.warning("catpile error: {str(e)}")
+
 @app.route('/api/fetch/local1/new/<in_accession_b>')
 def local1_new(in_accession_b):
     in_accession = base64.b16decode(in_accession_b).decode('utf-8')
 
-    return local1.api.local1_new(in_accession, request.args)
+    ret = local1.api.local1_new(in_accession, request.args)
+
+    try_register_sp3data(ret, in_accession)
+
+    return ret
+
 
 @app.route('/api/fetch/local1/delete/<in_guid>')
 def local1_delete(in_guid):
