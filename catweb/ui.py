@@ -378,6 +378,14 @@ def new_run1(flow_name, flow_cfg, form):
 
     run_name = form['run_name']
     context = form['context']
+    fetch_uuid = form['fetch_uuid']
+
+    try:
+        api_post_request('catpile_api', '/fetch_to_run',
+                         json.dumps({ 'fetch_uuid': fetch_uuid,
+                                      'pipeline_run_uuid': run_uuid }))
+    except Exception as e:
+        logger.error("catpile failed linking fetch and run: {str(e)}")
 
     reference_map = '{}'
     if 'ref_uuid' in form and form['ref_uuid'] and 'refmap' in flow_cfg:
@@ -453,6 +461,7 @@ def begin_run(flow_name: str):
         user_param_dict = dict()
 
         fetch_given_input_b = ""
+        fetch_uuid = ""
 
         sample_names=list()
         references=list()
@@ -463,7 +472,6 @@ def begin_run(flow_name: str):
         if request.args.get('given_input'):
             fetch_given_input_b = request.args.get('given_input')
             fetch_given_input = base64.b16decode(fetch_given_input_b).decode('utf-8')
-
             # try to get the sample names and reference
             guessed_filename_format, sample_names = in_fileformat_helper.guess_from_dir(fetch_given_input)
             if sample_names:
@@ -475,6 +483,9 @@ def begin_run(flow_name: str):
         elif request.args.get('replay'):
             replay_uuid = request.args.get('replay')
             user_param_dict = get_user_params_dict(flow_name, replay_uuid)
+
+        if request.args.get('fetch_uuid'):
+            fetch_uuid = request.args.get('fetch_uuid')
 
         ref_uuid = str()
         if request.args.get('ref_uuid'):
@@ -491,7 +502,8 @@ def begin_run(flow_name: str):
                                fetch_given_input_b=fetch_given_input_b,
                                now=datetime.datetime.now().strftime("%Y%m%d_%H%M%S"),
                                user_param_dict=user_param_dict,
-                               guessed_filename_format=guessed_filename_format)
+                               guessed_filename_format=guessed_filename_format,
+                               fetch_uuid=fetch_uuid)
 
     elif request.method == 'POST':
         logger.debug('form: {0}'.format(request.form))

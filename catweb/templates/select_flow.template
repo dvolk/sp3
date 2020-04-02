@@ -32,6 +32,6 @@
   </div>
 </div>
 <p>Selected pipeline: <strong><span id="selected_flow">{{ flow_name }}</span></strong></p>
-<a class='btn btn-success' id='submit_pipeline' href='/flow/{{ flow_name }}/new?given_input={{ output_dir_b16 }}' data-confirm="Are you sure to run pipeline {{ flow_name }}?">Run</a>
+<a class='btn btn-success' id='submit_pipeline' href='/flow/{{ flow_name }}/new?given_input={{ output_dir_b16 }}&fetch_uuid={{ guid }}' data-confirm="Are you sure to run pipeline {{ flow_name }}?">Run</a>
 
 {% endblock %}

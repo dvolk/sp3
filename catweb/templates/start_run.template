@@ -5,6 +5,7 @@
 <p id="header-workdir"></p>
 <form action='/flow/{{ flow_cfg['name'] }}/new' method='POST'>
   <input type="hidden" name="ref_uuid" id="ref_uuid" value="{{ ref_uuid }}">
+  <input type="hidden" name="fetch_uuid" id="fetch_uuid" value="{{ fetch_uuid }}">
   {# ==============Project Name ================ #}
   <div class="input-group mb-3">
     <div class="input-group-prepend">
