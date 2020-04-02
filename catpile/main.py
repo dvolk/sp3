@@ -49,9 +49,9 @@ def get_sp3_data_for_run(pipeline_run_uuid):
 
 @app.route('/fetch_to_run', methods=['POST'])
 def fetch_to_run():
-    j = request.json
+    j = json.loads(request.json)
     if not 'fetch_uuid' in j or not 'pipeline_run_uuid' in j:
-        abort(400)
+        abort(404)
     fetch_uuid = j['fetch_uuid']
     pipeline_run_uuid = j['pipeline_run_uuid']
 
