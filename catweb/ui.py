@@ -515,14 +515,20 @@ def begin_run(flow_name: str):
 def map_samples():
     if 'sample_names' in request.form:
         # display table
+        if 'fetch_uuid' in request.form:
+            fetch_uuid = request.form['fetch_uuid']
+        else:
+            fetch_uuid = ""
         return render_template('refmap.template',
                                sample_names=ast.literal_eval(request.form['sample_names']),
                                references=ast.literal_eval(request.form['references']),
                                flow_name=request.form['flow_name'],
-                               fetch_given_input_b=request.form['fetch_given_input_b'])
+                               fetch_given_input_b=request.form['fetch_given_input_b'],
+                               fetch_uuid=fetch_uuid)
     else:
         # save results in database and redirect to new run
         reference_map = dict()
+        logger.warning(str(request.form))
         for k,v in request.form.items():
             if k[0:5] == '_ref_':
                 logger.debug(f'{k}={v}')
@@ -532,14 +538,17 @@ def map_samples():
         ref_uuid = str(uuid.uuid4())
         data = { 'ref_uuid': ref_uuid,
                  'reference_json': reference_map }
+        if 'fetch_uuid' in request.form:
+            fetch_uuid = request.form['fetch_uuid']
+        else:
+            fetch_uuid = ""
+
         logger.debug(f'form data: {data}')
         if 'cancel' in request.form:
-            return redirect(f'/flow/{ request.form["flow_name"] }/new?given_input={ request.form["fetch_given_input_b"] }')
+            return redirect(f'/flow/{ request.form["flow_name"] }/new?given_input={ request.form["fetch_given_input_b"] }&fetch_uuid={ fetch_uuid }')
         else:
             api_post_request('nfweb_api', '/add_to_reference_cache', json.dumps(data))
-            return redirect(f'/flow/{ request.form["flow_name"] }/new?given_input={ request.form["fetch_given_input_b"] }&ref_uuid={ ref_uuid }')
-
-
+            return redirect(f'/flow/{ request.form["flow_name"] }/new?given_input={ request.form["fetch_given_input_b"] }&ref_uuid={ ref_uuid }&fetch_uuid={ fetch_uuid }')
 
 @app.route('/flow/<flow_name>')
 @flask_login.login_required

@@ -71,6 +71,7 @@
   <input type="hidden" name="sample_names" id="sample_names" value="{{ sample_names }}">
   <input type="hidden" name="flow_name" id="flow_name" value="{{ flow_cfg['name'] }}">
   <input type="hidden" name="fetch_given_input_b" id="fetch_given_input_b" value="{{ fetch_given_input_b }}">
+  <input type="hidden" id="fetch_uuid" name="fetch_uuid" value='{{ fetch_uuid }}'>
   <button style="margin-top: 5px;" id="submitButton" type="submit" class="btn btn-primary">Map individual samples</button>
 </form>
 {% endif %}
