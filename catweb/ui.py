@@ -271,7 +271,7 @@ def status():
     else:
         org = 'None'
 
-    response = api_get_request('nfweb_api', f'/status/{org}')
+    response = api_get_request('nfweb_api', f'/status/{org}/{str(is_admin())}')
     logging.error(str(response['recent']))
     running, recent, failed = response['running'], response['recent'], response['failed']
 

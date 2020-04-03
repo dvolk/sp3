@@ -174,9 +174,9 @@ def delete_run(run_uuid):
         return make_api_response('failure', details=str(e))
     return make_api_response('success')
 
-@app.route('/status/<org>', methods = ['GET'])
-def get_status(org, db=db):
-    running, recent, failed = db.get_status(org)
+@app.route('/status/<org>/<is_admin>', methods = ['GET'])
+def get_status(org, is_admin, db=db):
+    running, recent, failed = db.get_status(org, is_admin)
     return make_api_response('success', data={'running': running,
                                               'recent': recent,
                                               'failed': failed})
