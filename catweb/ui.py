@@ -1091,6 +1091,11 @@ def get_report(run_uuid : str, dataset_id: str):
     report_data = resp['report_data'] # data in from catreport
     template_report_data = dict() # data out to template
 
+    catpile_resp = api_get_request('catpile_api', f'/get_sp3_data_for_run_sample/{run_uuid}/{dataset_id}')
+    if catpile_resp:
+        template_report_data['catpile_metadata'] = dict()
+        template_report_data['catpile_metadata']['data'] = catpile_resp
+
     if report_data['samtools_qc']:
         template_report_data['samtools_qc'] = dict()
         template_report_data['samtools_qc']['data'] = dict()

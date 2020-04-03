@@ -8,6 +8,11 @@
 <p>Pipeline run uuid: <strong>{{ pipeline_run_uuid }}</strong></p>
 <hr/>
 
+{% if report['catpile_metadata'] %}
+  <h3>Metadata</h3>
+  {% include 'catpile_metadata.template' %}
+{% endif %}
+
 {% if report['kraken2_speciation'] %}
   <h3>Kraken2</h3>
   {% include 'kraken2_speciation.template' %}

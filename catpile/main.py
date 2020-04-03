@@ -47,6 +47,22 @@ def get_sp3_data_for_run(pipeline_run_uuid):
                             'data': [],
                             'message': None })
 
+@app.route('/get_sp3_data_for_run_sample/<pipeline_run_uuid>/<sample_name>')
+def get_sp3_data_for_run_sample(pipeline_run_uuid, sample_name):
+    fetch_uuid = json.loads(get_fetch_for_run(pipeline_run_uuid))
+    if fetch_uuid:
+        ret = json.loads(get_sp3_data_for_fetch(fetch_uuid))
+        print(ret)
+        for v in ret['data']:
+            if v['sample_uuid4'] == sample_name:
+                return json.dumps({'status': 'success',
+                                   'data': v,
+                                   'message': None })
+
+    return json.dumps({ 'status': 'success',
+                        'data': [],
+                        'message': None })
+
 @app.route('/fetch_to_run', methods=['POST'])
 def fetch_to_run():
     j = json.loads(request.json)
