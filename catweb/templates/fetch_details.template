@@ -1,7 +1,8 @@
 {% extends 'base1.template' %}
+
 {% block content %}
 
-<h2 id='details'>Details</h2>
+<h4 id='details'>Details</h4>
 <p>Fetch UUID: {{ guid }}</p>
 <p>Accession: {{ name }}</p>
 <p>Fetch range: {{ fetch_range }}</p>
@@ -9,7 +10,7 @@
 <p>Progress: {{ progress }} / {{ total }}</p>
 <p>Pipeline input dir: {{ input_dir }}</p>
 
-<h2 id="files">Files</h2>
+<h4 id="files">Files</h4>
 <table>
   <tr>
     <th>File</th>
@@ -27,15 +28,15 @@
   {% endfor %}
 </table>
 
-<h2 id='log'>Log</h2>
+<h4 id='log'>Log</h4>
 <pre style='font-family: monospace;'>{{ log }}</pre>
 
 {% if ena_table or sp3data %}
 {% if ena_table %}
-<h2 id='metadata'>ENA metadata table</h2>
+<h4 id='metadata'>ENA metadata table</h4>
 {{ ena_table|safe }}
 {% else %}
-<h2 id='metadata'>SP3 metadata table</h2>
+<h4 id='metadata'>SP3 metadata table</h4>
 
 <table class="table table-sm">
   {% for (i, row) in sp3data %}
