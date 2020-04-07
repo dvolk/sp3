@@ -95,18 +95,23 @@ class S3_Upload_FilenameFormat:
     c6f24a54-3a6d-4676-9024-2dec6a51830b_C2.fastq.gz
     '''
     def is_match(self, files):
-        p = re.compile('(.{8}-.{4}-.{4}-.{4}-.{12})_C(?:1|2)\.fastq\.gz')
-        sample_names = []
+        p = re.compile('(.{8}-.{4}-.{4}-.{4}-.{12})_C((?:1|2))\.fastq\.gz')
+        sample_names = list()
+        self.subindexes = set()
         for f in files:
             m = p.match(f)
             print(m)
             if not m:
                 return False, None
             sample_names.append(m[1])
+            self.subindexes.add(m[2])
         return True, sample_names
 
     def get_pattern(self):
-        return "*_C{1,2}.fastq.gz"
+        if self.subindexes == { '1' }:
+            return "*_C1.fastq.gz"
+        if self.subindexes == { '1', '2' }:
+            return "*_C{1,2}.fastq.gz"
 
 formats = [ENA_FilenameFormat(),
            PHE_FilenameFormat(),
