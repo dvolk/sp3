@@ -929,7 +929,11 @@ def fetch():
                    'output_dir': output_dir_b16
         })
 
+    # filter fetches by what the user can see
     fetches = { k:v for k,v in fetches.items() if authenticate.is_public_fetch_source(v['kind']) or authenticate.user_can_see_upload_dir(get_user_dict(), v['name']) }
+
+    # sort fetches by time
+    fetches = dict(reversed(sorted(fetches.items(), key=lambda x: authenticate.is_public_fetch_source(x[1]['started']))))
 
     return render_template('fetch.template', fetches=fetches, sources=sources)
 
