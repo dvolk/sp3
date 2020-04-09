@@ -10,27 +10,6 @@
 <p>Progress: {{ progress }} / {{ total }}</p>
 <p>Pipeline input dir: {{ input_dir }}</p>
 
-<h4 id="files">Files</h4>
-<table>
-  <tr>
-    <th>File</th>
-    <th>MD5</th>
-  </tr>
-  {% for row in file_table %}
-    {% if loop.index0 < progress %}
-      <tr style='background-color: #ADFF2F'>
-    {% else %}
-      <tr>
-    {% endif %}
-      <td>{{ row[0] }}</td>
-      <td>{{ row[1] }}</td>
-    </tr>
-  {% endfor %}
-</table>
-
-<h4 id='log'>Log</h4>
-<pre style='font-family: monospace;'>{{ log }}</pre>
-
 {% if ena_table or sp3data %}
 {% if ena_table %}
 <h4 id='metadata'>ENA metadata table</h4>
@@ -56,6 +35,27 @@
 
 {% endif %}
 {% endif %}
+
+<h4 id="files">Files</h4>
+<table>
+  <tr>
+    <th>File</th>
+    <th>MD5</th>
+  </tr>
+  {% for row in file_table %}
+    {% if loop.index0 < progress %}
+      <tr style='background-color: #ADFF2F'>
+    {% else %}
+      <tr>
+    {% endif %}
+      <td>{{ row[0] }}</td>
+      <td>{{ row[1] }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<h4 id='log'>Log</h4>
+<pre style='font-family: monospace;'>{{ log }}</pre>
 
 {% endblock content %}
   
