@@ -1,7 +1,8 @@
 {% extends "base1.template" %}
 {% block content %}
 <h4>Datasets</h4>
-  <a href="/fetch_data"><button type="button" class="btn btn-primary">New Fetch</button></a>
+<a href="/fetch_data"><button type="button" class="btn btn-primary">New Fetch</button></a>
+<a href="/drop_upload"><button type="button" class="btn btn-info">Upoad Datasets</button></a>
 <table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top: 10px">
   <thead>
     <tr>

@@ -1,8 +1,6 @@
 {% extends "base1.template" %}
 {% block content %}
-  <h2>New Fetch</h2><br/>
-
-  <h3>Supported fetch methods</h3><hr/>
+  <h4>Fetch Dataset</h4>
   <ul>
   {% for k,v in sources.items() %}
   <li>

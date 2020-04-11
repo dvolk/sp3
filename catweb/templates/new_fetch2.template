@@ -3,7 +3,7 @@
 
 <form action="/fetch_new" method="get">
   <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
-  <h2>{{ source['display_name'] }}</h2>
+  <h4>{{ source['display_name'] }}</h4>
   <p>{{ source['description'] }}</p>
   <hr/>
 

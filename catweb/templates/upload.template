@@ -1,0 +1,37 @@
+{% extends "base1.template" %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/dropzone.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/basic.min.css"/>
+<script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/dropzone.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<h4>Upload Files</h4>
+<p>Upload files via browser is not recommended. Please consider using <strong>SP3 upload tool: <a href='https://github.com/oxfordmmm/catsup'>catsup</a>.</strong></p>
+
+<p>File maximum size:<strong>1G</strong></p>
+
+<form method="POST" action='/drop_upload/{{ subfolder }}' class="dropzone dz-clickable"  id="dropper" enctype="multipart/form-data">
+</form>
+<br/>
+<p>Your files will ready at: <strong>{{ fetchpath }}</strong></p>
+<a href='/fetch_data2/local1'>Next step, fetch the data.</a>
+<h4 id='subfolder' hidden>{{ subfolder }}</h4>
+																				   
+{% endblock content %}
+
+{% block scripts %}
+<script type="application/javascript">
+  var subfolder = document.getElementById("subfolder").innerHTML
+  var newulr = '/drop_upload' + '/' + subfolder 
+  Dropzone.options.dropper = {
+      paramName: 'file',
+      chunking: true,
+      forceChunking: true,
+      url: newulr,
+      maxFilesize: 1025, // megabytes
+      chunkSize: 1000000 // bytes
+  }
+</script>
+{% endblock scripts %}
