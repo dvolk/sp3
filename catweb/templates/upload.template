@@ -10,7 +10,7 @@
 <h4>Upload Files</h4>
 <p>Upload files via browser is not recommended. Please consider using <strong>SP3 upload tool: <a href='https://github.com/oxfordmmm/catsup'>catsup</a>.</strong></p>
 
-<p>File maximum size:<strong>1G</strong></p>
+<p>File maximum size:<strong>1G</strong>, only <strong>fastq.gz</strong> file allowed.</p>
 
 <form method="POST" action='/drop_upload/{{ subfolder }}' class="dropzone dz-clickable"  id="dropper" enctype="multipart/form-data">
 </form>
@@ -18,7 +18,8 @@
 <p>Your files will ready at: <strong>{{ fetchpath }}</strong></p>
 <a href='/fetch_data2/local1'>Next step, fetch the data.</a>
 <h4 id='subfolder' hidden>{{ subfolder }}</h4>
-																				   
+
+
 {% endblock content %}
 
 {% block scripts %}

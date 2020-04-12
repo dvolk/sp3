@@ -866,10 +866,6 @@ def cluster():
 
     return render_template('cluster.template', cluster_info=cluster_info, tbl_df=tbl_df, embeds=embeds)
 
-ALLOWED_EXTENSIONS = set(['fastq.gz'])
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 @app.route('/drop_upload')
 @flask_login.login_required
 def upload_data():
@@ -882,17 +878,20 @@ def upload_data():
 @flask_login.login_required
 def upload_data2(subfolder):
     file = request.files['file']
-    rootpath = pathlib.Path('/data/inputs/uploads/sp3visitor')
-    newpath = str(rootpath / subfolder)
-    logger.warning(newpath)
-    if not (os.path.isdir(newpath)):
-        os.mkdir(newpath)    
-    save_path = os.path.join(newpath, secure_filename(file.filename))
-    logger.warning(save_path)
-    with open(save_path, 'ab') as f:
-        f.seek(int(request.form['dzchunkbyteoffset']))
-        f.write(file.stream.read())
-    return make_response(('Uploaded Chunk', 200))
+    if 'fastq.gz' in file.filename:
+        rootpath = pathlib.Path('/data/inputs/uploads/sp3visitor')
+        newpath = str(rootpath / subfolder)
+        logger.warning(newpath)
+        if not (os.path.isdir(newpath)):
+            os.mkdir(newpath)    
+        save_path = os.path.join(newpath, secure_filename(file.filename))
+        logger.warning(save_path)
+        with open(save_path, 'ab') as f:
+            f.seek(int(request.form['dzchunkbyteoffset']))
+            f.write(file.stream.read())
+        return make_response(('Uploaded Chunk', 200))
+    else:
+        return make_response(('File format not permitted', 415))
 
 @app.route('/fetch_data')
 @flask_login.login_required
