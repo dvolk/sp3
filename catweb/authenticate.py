@@ -1,4 +1,5 @@
 from ldap3 import Connection
+import pathlib
 import logging
 
 def get_user_pipelines(username, user_pipeline_map):
@@ -27,8 +28,11 @@ def is_public_fetch_source(kind):
     return kind in public_fetch_sources
 
 def user_can_see_upload_dir(user_dict, p2):
+    if path_begins_with(p2, '/data/inputs/users/{user_dict["name"]}'):
+        if pathlib.Path(p2).exists():
+            return True
     for p1 in user_dict["upload_dirs"]:
-        logging.warning(f"{user_dict} {p1} {p2}")
+        #logging.warning(f"{user_dict} {p1} {p2}")
         if path_begins_with(p2, p1):
             return True
     return False

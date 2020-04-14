@@ -223,6 +223,12 @@ def login():
             if not upload_dirs:
                 logger.warning(f"organisation {org} doesn't have any upload_dirs defined")
 
+        user_upload_dir = pathlib.Path(f'/data/inputs/users/{ form_username }')
+        if not user_upload_dir.exists():
+            user_upload_dir.mkdir()
+
+        upload_dirs.append(str(user_upload_dir))
+
         logger.warning(f"{form_username} - org: {org}")
         logger.warning(f"{form_username} - upload_dirs: {upload_dirs}")
 
@@ -232,6 +238,7 @@ def login():
         user = User()
         user.id = form_username
         flask_login.login_user(user)
+
 
         cap = list()
         if form_username in auth_cfg['admins']:
@@ -870,7 +877,7 @@ def cluster():
 @flask_login.login_required
 def upload_data():
     subfolder = str(uuid.uuid4())
-    rootpath = pathlib.Path('/data/inputs/uploads/sp3visitor')
+    rootpath = pathlib.Path(f'/data/inputs/users/{ get_user_dict()["name"] }')
     newpath = str(rootpath / subfolder)
     return render_template('upload.template', subfolder = subfolder, fetchpath=newpath)
 
@@ -879,11 +886,11 @@ def upload_data():
 def upload_data2(subfolder):
     file = request.files['file']
     if 'fastq.gz' in file.filename:
-        rootpath = pathlib.Path('/data/inputs/uploads/sp3visitor')
+        rootpath = pathlib.Path(f'/data/inputs/users/{ get_user_dict()["name"] }')
         newpath = str(rootpath / subfolder)
         logger.warning(newpath)
         if not (os.path.isdir(newpath)):
-            os.mkdir(newpath)    
+            os.mkdir(newpath)
         save_path = os.path.join(newpath, secure_filename(file.filename))
         logger.warning(save_path)
         with open(save_path, 'ab') as f:

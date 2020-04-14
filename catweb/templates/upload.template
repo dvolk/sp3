@@ -10,7 +10,7 @@
 <h4>Upload Files</h4>
 <p>Upload files via browser is not recommended. Please consider using <strong>SP3 upload tool: <a href='https://github.com/oxfordmmm/catsup'>catsup</a>.</strong></p>
 
-<p>File maximum size:<strong>1G</strong>, only <strong>fastq.gz</strong> file allowed.</p>
+<p>File maximum size:<strong>5G</strong>, only <strong>fastq.gz</strong> file allowed.</p>
 
 <form method="POST" action='/drop_upload/{{ subfolder }}' class="dropzone dz-clickable"  id="dropper" enctype="multipart/form-data">
 </form>
@@ -31,7 +31,7 @@
       chunking: true,
       forceChunking: true,
       url: newulr,
-      maxFilesize: 1025, // megabytes
+      maxFilesize: 5125, // megabytes
       chunkSize: 1000000 // bytes
   }
 </script>
