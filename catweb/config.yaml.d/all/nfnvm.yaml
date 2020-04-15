@@ -10,7 +10,7 @@ version: "0.1.0"
 description: "Nanopore Metagenomic Data Processing"
 contexts:
   - name: local
-    arguments: "-profile cloud -process.executor slurm  --QC true --Cent true --selRef true --mapping true --BLASTdraft true  --mapping2 true --report true  --consensus true --verifyConsensus true --assembly true"
+    arguments: "-profile cloud -process.executor slurm "
 param:
   description:
     - name: 'indir'
