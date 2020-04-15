@@ -1169,12 +1169,10 @@ def get_report(run_uuid : str, dataset_id: str):
         template_report_data['nfnvm_resistance_report']['data'] = report_data['nfnvm_resistance_report']['data']
         template_report_data['nfnvm_resistance_report']['data'] = list()
 
-        for f in report_data['nfnvm_resistance_report']['data']:
-            if f:
-
-                logging.error(f"f: {f}")
-                for row in f.split('\n'):
-                    template_report_data['nfnvm_resistance_report']['data'].append(row.split('\t'))
+        for resistance in report_data['nfnvm_resistance_report']['data']:
+            if resistance:
+                logging.error(f"resistance: {resistance}")
+                template_report_data['nfnvm_resistance_report']['data'].append(resistance)
         
         template_report_data['nfnvm_resistance_report']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_resistance_report']['finished_epochtime']))
 

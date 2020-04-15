@@ -381,7 +381,6 @@ def get_report(pipeline_run_uuid, sample_name):
 
             if r:
                 report_nfnvm_resistance_guid = r[0]
-                #efd531dd-1c9c-4ece-af1e-e33ee5252b35/fluResist_Out/A2_REF_MK576859.fluResistance
                 report_nfnvm_resistance_downloadpath = f"/work/reports/catreport/reports/{ report_nfnvm_resistance_guid }"
                 logging.warning(report_nfnvm_resistance_downloadpath)
                 sample_ref_files['name'] = sample_resistance_name
@@ -389,10 +388,15 @@ def get_report(pipeline_run_uuid, sample_name):
                 logging.warning(report_nfnvm_resistance_downloadpath)
                 report_data['nfnvm_resistance_report']['finished_epochtime'] =  int(r[5])
                 with open(report_nfnvm_resistance_downloadpath) as f:
-                    data_in_resistance_file = f.read()
-                    logging.warning(f"data_in_resistance_file: {data_in_resistance_file}")
-                    report_data['nfnvm_resistance_report']['data'].append(data_in_resistance_file)
-                logging.warning(report_nfnvm_resistance_downloadpath)
+                    resistance = dict()
+                    resistance['species'] = sample_resistance_name
+                    resistance['drug'] = []
+                    logging.warning(f"resistance species: {resistance['species']}")
+                    content_in_file = f.read()
+                    for row in content_in_file.split('\n'):
+                        resistance['drug'].append(row.split('\t'))
+                        logging.warning(f"resistance drug: {resistance['drug']}")
+                    report_data['nfnvm_resistance_report']['data'].append(resistance)
     '''
     end nfnvm resistance report
     '''
