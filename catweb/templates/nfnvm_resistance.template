@@ -1,0 +1,8 @@
+<p>Report generated on: <strong>{{ report['nfnvm_resistance_report']['finished_epochtime'] }}</strong></p>
+
+{% for row in  report['nfnvm_resistance_report']['data'] %}
+{% if row | length > 1 %}
+   <p>{{row}}</p>
+{% endif %}
+{% endfor %}
+  

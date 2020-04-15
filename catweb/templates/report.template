@@ -76,5 +76,12 @@
   {% include 'nfnvm_map2coveragereport.template' %}
 {% endif %}
 
+{% if report['nfnvm_resistance_report'] %}
+  <hr>
+  <h3>Identification of influenza drug-resistant mutations</h3>
 
+  {% include 'nfnvm_resistance.template' %}
+{% endif %}
+
+  
 {% endblock content %}

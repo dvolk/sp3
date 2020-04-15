@@ -17,6 +17,7 @@ import time
 import ast
 import sys
 import glob
+import csv
 
 import pandas
 import requests
@@ -1163,6 +1164,19 @@ def get_report(run_uuid : str, dataset_id: str):
         template_report_data['nfnvm_map2coverage_report']['download_url'] = cfg.get('download_url')
         template_report_data['nfnvm_map2coverage_report']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_map2coverage_report']['finished_epochtime']))
 
+    if 'nfnvm_resistance_report' in report_data.keys():
+        template_report_data['nfnvm_resistance_report'] = dict()
+        template_report_data['nfnvm_resistance_report']['data'] = report_data['nfnvm_resistance_report']['data']
+        template_report_data['nfnvm_resistance_report']['data'] = list()
+
+        for f in report_data['nfnvm_resistance_report']['data']:
+            if f:
+
+                logging.error(f"f: {f}")
+                for row in f.split('\n'):
+                    template_report_data['nfnvm_resistance_report']['data'].append(row.split('\t'))
+        
+        template_report_data['nfnvm_resistance_report']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_resistance_report']['finished_epochtime']))
 
     if 'nfnvm_flureport' in report_data.keys():
         template_report_data['nfnvm_flureport'] = dict()

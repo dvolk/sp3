@@ -362,6 +362,42 @@ def get_report(pipeline_run_uuid, sample_name):
     '''
     end nfnvm viralreport report
     '''
+
+    '''
+    begin nfnvm resistance report
+    '''
+    samples_resistance_names = get_samples_cov_names(pipeline_run_uuid, sample_name, 'nfnvm_resistance')
+
+    if samples_resistance_names != None:
+        logging.warning(len(samples_cov_names))
+        report_data['nfnvm_resistance_report'] = dict()
+        report_data['nfnvm_resistance_report']['data'] = []
+        for sample_resistance_name_string in samples_resistance_names:
+            sample_resistance_name = sample_resistance_name_string[0]
+            logging.warning(sample_resistance_name)
+            r = get_report_for_type(pipeline_run_uuid, sample_resistance_name, 'nfnvm_resistance')
+
+            sample_ref_files = dict()
+
+            if r:
+                report_nfnvm_resistance_guid = r[0]
+                #efd531dd-1c9c-4ece-af1e-e33ee5252b35/fluResist_Out/A2_REF_MK576859.fluResistance
+                report_nfnvm_resistance_downloadpath = f"/work/reports/catreport/reports/{ report_nfnvm_resistance_guid }"
+                logging.warning(report_nfnvm_resistance_downloadpath)
+                sample_ref_files['name'] = sample_resistance_name
+                sample_ref_files['path'] = report_nfnvm_resistance_downloadpath
+                logging.warning(report_nfnvm_resistance_downloadpath)
+                report_data['nfnvm_resistance_report']['finished_epochtime'] =  int(r[5])
+                with open(report_nfnvm_resistance_downloadpath) as f:
+                    data_in_resistance_file = f.read()
+                    logging.warning(f"data_in_resistance_file: {data_in_resistance_file}")
+                    report_data['nfnvm_resistance_report']['data'].append(data_in_resistance_file)
+                logging.warning(report_nfnvm_resistance_downloadpath)
+    '''
+    end nfnvm resistance report
+    '''
+
+    
     return json.dumps({ 'status': 'success', 'details': None, 'data': { 'report_data': report_data }})
 
 def main():
@@ -377,6 +413,8 @@ def main():
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_flureport", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_viralreport", make_trivial_copy_report)).start()
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_map2coverage_report", make_file_copy_report)).start()
+
+    threading.Thread(target=report_thread_factory, args=(con, "nfnvm_resistance", make_file_copy_report)).start()
 
     app.run(port=10000)
 
