@@ -914,6 +914,16 @@ def fetch_data():
 
     return render_template('new_fetch.template', sources=sources)
 
+@app.route('/get_files', methods=['POST'])
+@flask_login.login_required
+def get_files():
+    req = request.get_json()
+    if 'path' not in req:
+        abort(403)
+    
+    path = req['path']
+    return json.dumps([str(x.name) for x in pathlib.Path(path).glob('*')])
+
 def get_user_dict():
     return users[flask_login.current_user.id]
 

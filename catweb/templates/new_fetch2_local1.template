@@ -31,7 +31,7 @@
     <div class="input-group-prepend">
       <span class="input-group-text" id="basic-addon1">{{ source['data_identifier_display_name'] }}</span>
     </div>
-    <select name="fetch_name" class="form-control">
+    <select name="fetch_name" class="form-control" onchange="GetSelectedText(this)" id="fetch_name">
       {% for p in paths %}
       <option {% if p == data_identifier %} selected {% endif %}>{{ p }}</option>
       {% endfor %}
@@ -59,13 +59,32 @@
     <button type="Submit" class="btn btn-primary">Start Fetch</button>
   </div>
 </div> {# div input #}
-<div class="col-md-6 tablearea">
+<div class="col-md-6 tablearea" id="filenames">
 </div>
-</div>
+</div> {# div row #}
 </form>
 
-
-
 {% endif %} {# if not paths #}
-
+<div id="selected_path" hidden></div>
 {% endblock content %}
+
+{% block scripts %}
+    <script type="application/javascript">
+    function GetSelectedText(){
+	var e = document.getElementById("fetch_name");
+	var result = e.options[e.selectedIndex].text;
+	document.getElementById("selected_path").innerHTML = result;
+	var url = '/get_files'
+	var payload = { 'path': result }
+
+	fetch(url, { method: 'POST',
+		     headers: { 'Content-type': 'application/json' },
+		     body: JSON.stringify(payload) })
+	    .then((response) => response.json())
+	    .then((data) => {
+    		document.getElementById("filenames").innerHTML = '';
+		document.getElementById("filenames").innerHTML=data;
+	    })
+    }
+</script>
+{% endblock %}
