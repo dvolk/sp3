@@ -18,7 +18,7 @@
   {% if paths %}
     <select name="fetch_name" class="form-control">
       {% for p in paths %}
-      <option>{{ p }}</option>
+      <option {% if p == data_identifier %} selected {% endif %}>{{ p }}</option>
       {% endfor %}
     </select>
     {% else %}

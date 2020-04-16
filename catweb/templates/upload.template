@@ -16,7 +16,7 @@
 </form>
 <br/>
 <p>Your files will ready at: <strong>{{ fetchpath }}</strong></p>
-<a href='/fetch_data2/local1'>Next step, fetch the data.</a>
+<a href='/fetch_data2/local1?id={{ fetchpath_encoded }}&kind=local1'>Next step, fetch the data.</a>
 <h4 id='subfolder' hidden>{{ subfolder }}</h4>
 
 

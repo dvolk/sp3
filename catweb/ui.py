@@ -880,7 +880,12 @@ def upload_data():
     subfolder = str(uuid.uuid4())
     rootpath = pathlib.Path(f'/data/inputs/users/{ get_user_dict()["name"] }')
     newpath = str(rootpath / subfolder)
-    return render_template('upload.template', subfolder = subfolder, fetchpath=newpath)
+    newpath_encoded = base64.b16encode(bytes(newpath, encoding='utf-8')).decode('utf-8')
+
+    return render_template('upload.template',
+                           subfolder=subfolder,
+                           fetchpath=newpath,
+                           fetchpath_encoded=newpath_encoded)
 
 @app.route('/drop_upload/<subfolder>', methods=['POST'])
 @flask_login.login_required
