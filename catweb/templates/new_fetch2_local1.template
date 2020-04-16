@@ -1,4 +1,17 @@
 {% extends "base1.template" %}
+
+{% block head %}
+<style>
+  .tablearea {
+      width: 400px;
+      min-height: 150px;
+      border-style: solid;
+      border-width: 0.5px;
+      border-color: gray;
+   }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <h4>{{ source['display_name'] }}</h4>
@@ -11,7 +24,9 @@
 {% if not paths %}
   <p>No paths found</p>
 
-{% else %}
+  {% else %}
+<div class="row">
+<div class="col-md-6">  
   <div class="input-group">
     <div class="input-group-prepend">
       <span class="input-group-text" id="basic-addon1">{{ source['data_identifier_display_name'] }}</span>
@@ -43,8 +58,13 @@
   <div class="input-group ">
     <button type="Submit" class="btn btn-primary">Start Fetch</button>
   </div>
-
+</div> {# div input #}
+<div class="col-md-6 tablearea">
+</div>
+</div>
 </form>
+
+
 
 {% endif %} {# if not paths #}
 
