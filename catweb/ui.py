@@ -940,12 +940,21 @@ def fetch_data2(fetch_kind):
                     paths.append(p)
         paths.sort()
 
-    return render_template('new_fetch2.template',
-                           source=source,
-                           fetch_kind=fetch_kind,
-                           data_kind=in_data_kind,
-                           data_identifier=in_data_identifier,
-                           paths=paths)
+    if fetch_kind == 'ena1':
+        return render_template('new_fetch2_ena1.template',
+                               source=source,
+                               fetch_kind=fetch_kind,
+                               data_kind=in_data_kind,
+                               data_identifier=in_data_identifier,
+                               paths=paths)
+    if fetch_kind == 'local1':
+        return render_template('new_fetch2_local1.template',
+                               source=source,
+                               fetch_kind=fetch_kind,
+                               data_kind=in_data_kind,
+                               data_identifier=in_data_identifier,
+                               paths=paths)
+    abort(404)
 
 @app.route('/fetch')
 @flask_login.login_required
