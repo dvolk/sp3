@@ -69,7 +69,8 @@
 {% endblock content %}
 
 {% block scripts %}
-    <script type="application/javascript">
+<script type="application/javascript">
+    GetSelectedText();
     function GetSelectedText(){
 	var e = document.getElementById("fetch_name");
 	var result = e.options[e.selectedIndex].text;
