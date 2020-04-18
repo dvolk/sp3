@@ -61,7 +61,7 @@
     <button type="Submit" class="btn btn-primary">Start Fetch</button>
   </div>
 </div> {# div input #}
-<div class="col-md-6 tablearea" id="filenames">
+<div class="col-md-6 tablearea" id="tablearea">
 </div>
 </div> {# div row #}
 </form>
@@ -72,6 +72,15 @@
 
 {% block scripts %}
 <script type="application/javascript">
+function refresh_list(data){
+   var templateText = $("#tableTemplate").html();
+   var template = Handlebars.compile(templateText);
+   var renderedText = template(data);
+   var renderedDom = $(renderedText);
+   $("#tablearea").empty();
+   $("#tablearea").append(renderedDom);
+}
+
 function load_filenames(){
       var e = document.getElementById("fetch_name");
       var result = e.options[e.selectedIndex].text;
@@ -83,10 +92,20 @@ function load_filenames(){
             body: JSON.stringify(payload) })
             .then((response) => response.json())
             .then((data) => {
-                document.getElementById("filenames").innerHTML = '';
-                document.getElementById("filenames").innerHTML=data;
+                refresh_list(data)
             })
        };      
 load_filenames();
+</script>
+<script type="text/x-handlebars-template" id="tableTemplate">
+  <table class="table table-sm table-striped">
+    {% raw %}
+    {{#each filenames}}
+    <tr>
+      <td>{{this}}</td>
+    </tr>
+    {{/each}}
+    {% endraw %}
+  </table>
 </script>
 {% endblock %}
