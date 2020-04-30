@@ -8,7 +8,7 @@
 
 {% block content %}
 <h4>Upload Files</h4>
-<p>Upload files via browser is not recommended. Please consider using <strong>SP3 upload tool: <a href='https://github.com/oxfordmmm/catsup'>catsup</a>.</strong></p>
+<p>Upload data via browser here. For bulk upload, we recommend our pilot <strong>SP3 upload tool: <a href='https://github.com/oxfordmmm/catsup'>catsup</a>.</strong></p>
 
 <p>File maximum size:<strong>5G</strong>, only <strong>fastq.gz</strong> file allowed.</p>
 
