@@ -11,6 +11,7 @@
   <div class="col-md-6">
     <form action="login" class="form-horizontal" method="post" role="form">
       <input name="" type="hidden" value="" />
+      <input name="next" type="hidden" value="{{ next }}" />
       <div class="form-group">
         <div class="col-md-10">
 	  <label class="control-label" for="Email">Username (i.e. you@ndm.local)</label>

@@ -25,6 +25,7 @@ from flask import Flask, request, render_template, redirect, abort, url_for, g, 
 import flask_login
 from passlib.hash import bcrypt
 from werkzeug.utils import secure_filename
+from werkzeug.urls import url_parse
 
 import authenticate
 import nflib
@@ -171,7 +172,8 @@ def inject_globals():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template('login.template')
+        return render_template('login.template',
+                               next=request.args.get('next'))
     if request.method == 'POST':
         if not 'username' in request.form or not 'password' in request.form:
             logging.warning(f"form submitted without username or password")
@@ -252,7 +254,13 @@ def login():
             'upload_dirs': upload_dirs
         }
 
-        return redirect('/')
+        next = request.form.get('next')
+        logger.warning(f"next url: {next}")
+
+        if not next or url_parse(next).netloc != '':
+            next = '/'
+
+        return redirect(next)
 
     assert False, "unreachable"
 
