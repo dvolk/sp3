@@ -74,6 +74,7 @@ sudo mkdir -p /data/reports/resistance
 sudo mkdir -p /data/fetch
 sudo mkdir -p /data/inputs
 sudo mkdir -p /data/inputs/uploads
+sudo mkdir -p /data/inputs/users
 sudo mkdir -p /data/databases
 sudo mkdir -p /data/databases/clockworkcloud
 sudo mkdir -p /data/databases/clockworkcloud/kraken2
