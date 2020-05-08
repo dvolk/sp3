@@ -1,0 +1,21 @@
+<p>Report generated on: <strong>{{ report['mykrobe_speciation']['finished_epochtime'] }}</strong></p>
+
+{% set phylo = report['mykrobe_speciation']['data']['tb_sample_id']['phylogenetics'] %}
+<table class="table table-sm table-bordered">
+  <thead>
+  <th>Type</th>
+  <th>Identified</th>
+  <th>Coverage</th>
+  <th>Median depth</th>
+  </thead>
+  <tbody>
+{% for phylo_type in ['phylo_group', 'species', 'sub_complex', 'lineage'] %}
+  <tr>
+  {% for k,v in phylo[phylo_type].items() %}
+  <td>{{ phylo_type|capitalize|replace('_', ' ') }}</td>
+  <td>{{ k }}</td>
+  <td>{% if v['percent_coverage'] != -1 %}{{ v['percent_coverage'] }}%{% endif %}</td>
+  <td>{% if v['median_depth'] != -1 %}{{ v['median_depth'] }}{% endif %}</td>
+  {% endfor %}
+{% endfor %}
+</table>

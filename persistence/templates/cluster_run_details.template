@@ -91,7 +91,7 @@
 	<tbody>
 	  {% for report in reports %}
 	  <tr>
-	    <td>{{ report['sample_name'] }}</td>
+	    <td><a href="/report/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}/{{ report['sample_name'] }}">{{ report['sample_name'] }}</a></td>
 	    <td>{{ report['type'] }}</td>
 	    <td>{{ report['finished_time_str'] }}</td>
 	  </tr>

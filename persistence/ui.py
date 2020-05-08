@@ -14,6 +14,8 @@ import flask_login
 import yaml
 
 import authenticate
+import getreportlib
+import reportlib
 
 app = Flask(__name__)
 app.secret_key = 'secret key'
@@ -170,6 +172,22 @@ def browse(cluster_id):
                            runs=runs,
                            cluster_id=cluster_id,
                            cluster_info=cluster_info)
+
+@app.route('/report/<cluster_uuid>/<run_uuid>/<dataset_id>')
+@flask_login.login_required
+def get_report(cluster_uuid, run_uuid, dataset_id):
+    catpile_resp = None
+    report_data = getreportlib.get_report(cluster_uuid,
+                                          None,
+                                          run_uuid,
+                                          dataset_id)['data']['report_data']
+
+    template_report_data = reportlib.process_reports(report_data, catpile_resp, "")
+
+    return render_template('report.template',
+                           pipeline_run_uuid=run_uuid,
+                           dataset_id=dataset_id,
+                           report=template_report_data)
 
 @app.route('/cluster_run_details/<cluster_id>/<run_uuid>')
 @flask_login.login_required

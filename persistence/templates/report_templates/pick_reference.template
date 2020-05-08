@@ -1,0 +1,1 @@
+<p>Reference: {{ report['pick_reference']['data']['pick_taxid'] }}</p>

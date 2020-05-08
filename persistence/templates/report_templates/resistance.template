@@ -1,0 +1,79 @@
+<p>Report generated on: <strong>{{ report['resistance']['finished_epochtime'] }}</strong></p>
+
+<div class='row'>
+  <div class='col-md-12'>
+    <h5>Drugs</h5>
+    <table class="table table-sm table-bordered" >
+      <tr>
+	<td colspan="4" width="50%"><strong>First Line Drugs</strong></td>
+	<td colspan="4" width="50%"><strong>Second Line Drugs</strong></td>
+      </tr>
+      {% set pred_drug_names = ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM'] %}
+
+      <tr>{% for drug in pred_drug_names %}<td>{{ drug }}</td>{% endfor %}</tr>
+      <tr>
+	{% set prediction_class_map = {
+	'F': 'text-warning',
+        'R': 'text-danger',
+        'S': 'text-info',
+        'U': 'text-info'
+	} %}
+
+	{% for drug in pred_drug_names %}
+        {% set prediction = report['resistance']['data']['prediction_ex'][drug] %}
+        <td style="width: 12.5%">
+          <strong class='{{ prediction_class_map[prediction] }}'>{{ prediction }}</strong>
+        </td>
+	{% endfor %}
+      </tr>
+      <tr>
+	{% for pred_drug_name in pred_drug_names %}
+	<td>
+	  {% for item in report['resistance']['data'][pred_drug_name] %}
+	  {% if (report['resistance']['data']['prediction_ex'][pred_drug_name] == 'F' and item['prediction'] == 'R') or item['mutation_name'][-1] not in ['z', 'Z'] and item['mutation_name'][0] != item['mutation_name'][-1] %}
+	  {{ item['gene_name'] + '_' + item['mutation_name'] }} - <strong>{{ item['prediction'] }}</strong>
+	  {% endif %}
+	{% endfor %}
+        </td>
+        {% endfor %}
+      <tr>
+    </table>
+  </div>
+</div>
+
+<div class='row'>
+  <div class='col-md-10'>
+    {% set pred_drug_names = ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM'] %}
+
+    <h5>Mutations</h5>
+    <table class="table table-sm table-bordered" >
+      <tr>
+        <th>Gene Mutation</th>
+        <th>Change</th>
+        <th>GT conf</th>
+	<th>Drug</th>
+	<th>Support</th>
+      </tr>
+      {% for item in report['resistance']['data']['mutations'] %}
+
+      {% if item['mutation_name'][-1] not in ['z', 'Z'] and item['mutation_name'][0] != item['mutation_name'][-1] %}
+      {% for d in report['resistance']['data']['res_rev_index'][item['gene_name'] + '_' + item['mutation_name']] %}
+      {% if d['drug_name'] in pred_drug_names %}
+      <tr>
+        <td>{{ item['gene_name'] }}_{{ item['mutation_name'] }}</td>
+        <td>{{ item['ref'] }} →  {{ item['alt'] }}</td>
+	{% if 'gt_conf' in item %}
+        <td>{{ "%.2f"|format(item['gt_conf']) }}</td>
+	{% else %}
+        <td></td>
+	{% endif %}
+	<td>{{ d['drug_name'] }}</td>
+	<td>{{ d['source'] }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+</div>
