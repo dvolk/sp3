@@ -11,7 +11,7 @@ data = json.loads(sys.argv[1])
 pipeline_run_uuid = data['run_uuid']
 pipeline_output_dir = data['output_dir']
 
-files = pathlib.Path(pipeline_output_dir).glob('*/*/final.vcf')
+files = pathlib.Path(pipeline_output_dir).glob('*/minos/final.vcf')
 
 for sample_filepath in files:
     # >>> p = list(pathlib.Path.cwd().glob('*/*/final.vcf'))[0]
