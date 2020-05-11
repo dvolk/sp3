@@ -4,7 +4,7 @@
 
       <h1>Run details</h1>
       <p><a href="/">main</a> /
-	<a href="/cluster_browse/{{ cluster_info['id'] }}">{{ cluster_info['name'] }}</a> / 
+	<a href="/cluster_browse/{{ cluster_info['id'] }}">{{ cluster_info['name'] }}</a> /
 	<a href="/cluster_run_details/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}">{{ run['output_name'] }}</a>
       </p>
 
@@ -74,29 +74,18 @@
 	{% else %}
 	Run directory not found
         </li>
-        {% endif %}
-        </ul>
-      <br>
+{% endif %}
+</ul>
+<br>
       <br>
 
       <h2>Reports</h2>
-      <table class="table table-sm">
-	<thead>
-	  <tr>
-	    <th>Sample name</th>
-	    <th>Report type</th>
-	    <th>Date generated</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for report in reports %}
-	  <tr>
-	    <td><a href="/report/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}/{{ report['sample_name'] }}">{{ report['sample_name'] }}</a></td>
-	    <td>{{ report['type'] }}</td>
-	    <td>{{ report['finished_time_str'] }}</td>
-	  </tr>
-	  {% endfor %}
-	</tbody>
-      </table>
-		
+      <ul>
+      {% for report in reports %}
+      <li>
+	<a style="font-family: monospace;" href="/report/{{ cluster_info['id'] }}/{{ run['run_uuid'] }}/{{ report['sample_name'] }}">{{ report['sample_name'] }}</a>
+      </li>
+      {% endfor %}
+      </ul>
+
 {% endblock %}

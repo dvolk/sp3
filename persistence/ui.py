@@ -209,9 +209,7 @@ def cluster_run_details(cluster_id, run_uuid):
 
     con2 = sqlite3.connect(f'/work/persistence/{cluster_id}/db/catreport.sqlite')
     con2.row_factory = sqlite3.Row
-    reports = con2.execute('select * from q where pipeline_run_uuid = ? order by sample_name', (run_uuid,)).fetchall()
-
-    reports = [dict(x) for x in reports]
+    reports = con2.execute('select distinct sample_name from q where pipeline_run_uuid = ?', (run_uuid,)).fetchall()
 
     for report in reports:
         try:
