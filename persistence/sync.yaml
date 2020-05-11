@@ -1,0 +1,6 @@
+output_patterns:
+    - '*/minos/gvcf.fasta'
+    - '*/minos/final.vcf'
+    - '*/samtools_qc/samtools_qc.stats'
+    - '*/speciation/*'
+    - '*/basecall/*.consensus.fasta.gz'

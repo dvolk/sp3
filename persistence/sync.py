@@ -13,6 +13,16 @@ def cmd(s):
 
 def main():
     try:
+        sync_conf_file = 'sync.yaml'
+        f = open(sync_conf_file)
+        sync_conf = yaml.load(f.read())
+        output_patterns = sync_conf['output_patterns']
+    except Exception as e:
+        logging.error(f"Sync configuration error: {f}")
+        logging.error(str(e))
+        output_patterns = []
+
+    try:
         instance_conf = pathlib.Path.home() / 'sp3' / 'instance.yaml'
         f = open(instance_conf)
     except Exception as e:
@@ -54,7 +64,6 @@ def main():
                        '/db/catreport.sqlite',
                        '/work/reports/catreport/reports']
 
-    #local_files_rel += local_outputs
     local_files_rel += local_runs
 
     # abs files: /a/b/c -> /persistence/{instance_id}/c
@@ -63,6 +72,14 @@ def main():
     cmd(f"rsync            -a {' '.join(local_files_abs)} {store_host}:/work/persistence/{instance_id}/")
     # TODO chunk local_files_rel in case it's too big
     cmd(f"rsync --relative -a {' '.join(local_files_rel)} {store_host}:/work/persistence/{instance_id}/")
+
+    # selectively sync output files (fasta and vcf files etc)
+    if local_outputs and output_patterns:
+        includes_files = ' '.join(['--include \'' + include + '\'' for include in output_patterns])
+        # include directories, include files, exclude everything else
+        includes_str = f"--include '*/' {includes_files} --exclude '*'"
+        local_outputs_str = ' '.join(local_outputs)
+        cmd(f"rsync --relative -a  {includes_str} {local_outputs_str} {store_host}:/work/persistence/{instance_id}/")
 
     # write new last synced time
     with open(f"{store_host}.last", "w") as f:
