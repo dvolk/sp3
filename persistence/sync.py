@@ -61,6 +61,10 @@ def main():
 
     local_files_abs = [str(instance_conf)]
     local_files_rel = ['/db/catweb.sqlite',
+                       '/db/catpile.sqlite',
+                       '/db/catstat.sqlite',
+                       '/db/cattag.sqlite',
+                       '/db/fetch-api.sqlite',
                        '/db/catreport.sqlite',
                        '/work/reports/catreport/reports']
 
