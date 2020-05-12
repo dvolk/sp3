@@ -1,6 +1,6 @@
 name: "Clockwork_combined"
-display_name: "Clockwork - combined"
-script: "combined2.nf"
+display_name: "Clockwork - combined with gvcf"
+script: "combined_gvcf.nf"
 show: yes
 root_dir: "clockworkcloud/"
 prog_dir: "clockworkcloud/"
