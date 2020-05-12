@@ -7,7 +7,7 @@ from flask import Flask, request
 with open('config.yaml') as f:
     config = yaml.load(f.read())
 
-con = sqlite3.connect('/db/cattag.db', check_same_thread=False)
+con = sqlite3.connect('/db/cattag.sqlite', check_same_thread=False)
 
 con.execute('create table if not exists run_tags (pipeline_name, run_uuid, tag_type, tag_name, unique(pipeline_name, run_uuid, tag_type, tag_name))')
 con.execute('create table if not exists sample_tags (pipeline_name, run_uuid, sample_name, tag_type, tag_name, unique(pipeline_name, run_uuid, sample_name, tag_type, tag_name))')
