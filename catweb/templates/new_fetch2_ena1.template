@@ -13,7 +13,7 @@
     </div>
     <input name="fetch_name" type=text class="form-control" {% if data_identifier %}value='{{ data_identifier }}'{% endif %} required>
   </div>
-
+  <p>Any accession number, such as PRJEB2221, SAMEA961610, ERS013327, ERX2005830 or ERR025833</p>
   <br/>
 
   {% if source['has_data_filter'] == 'yes' %}
