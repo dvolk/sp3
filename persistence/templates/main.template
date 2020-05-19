@@ -2,6 +2,7 @@
 
 {% block content %}
   <h2>Instances</h2>
+  <a href='https://persistence.mmmoxford.uk/docs/'>SP<sup>3</sup> Document</a>
   <div class="row">
 	{% for instance in instances %}
 	<div class="col-sm-6">
