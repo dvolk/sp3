@@ -850,6 +850,28 @@ def hm_timediff(epochtime_start, epochtime_end):
     else:
         return f"{m}m"
 
+@app.route('/storage_analysis')
+@flask_login.login_required
+def storage_analysis():
+    try:
+        with open('/db/catspace_result.txt') as f:
+            catspace_result = json.loads(f.read())
+        catspace_all_sorted = sorted(catspace_result, key=lambda row: row['du_run_space'] + row['du_output_space'], reverse=True)
+    except Exception as e:
+        logging.error(str(e))
+        catspace_all_sorted = None
+
+    for row in catspace_all_sorted:
+        row['total'] = row['du_run_space'] + row['du_output_space']
+
+    total_used_run = sum([row['du_run_space'] for row in catspace_all_sorted])
+    total_used_output = sum([row['du_output_space'] for row in catspace_all_sorted])
+
+    return render_template('storage_analysis.template',
+                           catspace_all_sorted=catspace_all_sorted,
+                           total_used_run=total_used_run,
+                           total_used_output=total_used_output)
+
 @app.route('/cluster')
 @flask_login.login_required
 def cluster():
