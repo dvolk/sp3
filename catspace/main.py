@@ -9,14 +9,19 @@ import subprocess
 import shlex
 import logging
 import json
+import pathlib
 
 logging.basicConfig(level=logging.DEBUG)
+
+def get_runs_from_dir(p):
+    runs = list(pathlib.Path(f'/work/{p}').glob('*'))
+    return [x.stem for x in runs if x.stem != 'index']
 
 def get_runs():
     catweb_database_file = '/db/catweb.sqlite'
     con = sqlite3.connect(catweb_database_file)
     con.row_factory = sqlite3.Row
-    runs = con.execute("select * from nfruns where status = 'OK'").fetchall()
+    runs = con.execute("select * from nfruns").fetchall()
     return runs
 
 def get_run_disk_use(pipeline_run_uuid):
@@ -61,10 +66,24 @@ def emit_result(out):
     with open("/db/catspace_result.txt", "w") as f:
         f.write(json.dumps(out, indent=4))
 
+def emit_warnings_about_missing_runs(db_runs, runs_dirs, outputs_dirs):
+    db_run_uuids = set([db_run['run_uuid'] for db_run in db_runs])
+    runs_dirs_uuids = set(runs_dirs)
+    outputs_dirs_uuids = set(outputs_dirs)
+
+    logging.warning(f"runs in /work/runs but not in database: {list(runs_dirs_uuids.difference(db_run_uuids))}")
+    logging.warning(f"runs in database but not in /work/runs: {list(db_run_uuids.difference(runs_dirs_uuids))}")
+
+    logging.warning(f"runs in /work/output but not in database: {list(outputs_dirs_uuids.difference(db_run_uuids))}")
+    logging.warning(f"runs in database but not in /work/output: {list(db_run_uuids.difference(outputs_dirs_uuids))}")
+
 def main():
     runs = get_runs()
     out = stuff(runs)
     emit_result(out)
+    runs2 = get_runs_from_dir('runs')
+    runs3 = get_runs_from_dir('output')
+    emit_warnings_about_missing_runs(runs, runs2, runs3)
 
 if __name__ == '__main__':
     main()
