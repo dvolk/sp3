@@ -1,3 +1,8 @@
+"""
+Given a pipeline run uuid and a catreport database path, get drug resistance
+gene, and mutation counts by parsing the piezo resistance report
+"""
+
 import sys
 import argparse
 import pathlib
@@ -9,6 +14,7 @@ def perform_analysis(samples):
     drug_predictions = collections.defaultdict(list)
     genes = collections.defaultdict(int)
     mutations = collections.defaultdict(int)
+    gene_muts = collections.defaultdict(int)
 
     for sample_name, sample_json in samples.items():
         if sample_json['status'] != 'success':
@@ -23,8 +29,11 @@ def perform_analysis(samples):
         for effect in sample_json['data']['effects']:
             genes[effect['gene_name']] += 1
             mutations[effect['mutation_name']] += 1
+            full_name = effect['gene_name'] + '_' + effect['mutation_name']
+            gene_muts[full_name] += 1
 
     print('1. metadata')
+
     for drug, predictions in drug_predictions.items():
         print(drug, collections.Counter(predictions))
 
@@ -32,14 +41,31 @@ def perform_analysis(samples):
     genes = { k:v for k,v in genes }
     mutations = sorted(mutations.items(), key = lambda item: item[1], reverse=True)
     mutations = { k:v for k,v in mutations }
+    gene_muts = sorted(gene_muts.items(), key = lambda item: item[1], reverse=True)
+    gene_muts = { k:v for k,v in gene_muts }
 
     print('2. effects')
+
     print('2.1 genes')
     for gene_name, count in genes.items():
         print('gene:', gene_name, 'count:', count)
+
     print('2.2 mutations')
     for mutation_name, count in mutations.items():
         print('mutation:', mutation_name, 'count:', count)
+
+    print('2.3 gene + mutations')
+    for gene_mut, count in gene_muts.items():
+        print('mutation:', gene_mut, 'count:', count)
+
+    return { 'drug_predictions': drug_predictions,
+             'genes': genes,
+             'mutations': mutations,
+             'gene_muts': gene_muts }
+
+def save_analysis(d, pipeline_run_uuid):
+    with open(f'{pipeline_run_uuid}.res.json', 'w') as f:
+        f.write(json.dumps(d, indent=4))
 
 def main():
     parser = argparse.ArgumentParser()
@@ -60,7 +86,8 @@ def main():
         with open(row['report_filename']) as f:
             sample_json[sample_name] = json.loads(f.read())
 
-    perform_analysis(sample_json)
+    a = perform_analysis(sample_json)
+    save_analysis(a, args.pipeline_run_uuid)
 
 if __name__ == "__main__":
     main()
