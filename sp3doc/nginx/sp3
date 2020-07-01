@@ -34,6 +34,9 @@ server {
 #        location / {
 #                proxy_pass http://localhost:11000/;
 #        }
+#
+#        # !! you must add these two for each site synced to the persistent store !!
+#
 #        location /files/e03386bb-f867-420f-8650-f8f58c64ca54 {
 #		 autoindex on;
 #		 alias /work/persistence/e03386bb-f867-420f-8650-f8f58c64ca54/work/output/;
