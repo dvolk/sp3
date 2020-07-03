@@ -83,6 +83,9 @@ def main():
     sample_json = dict()
     for row in res_rows:
         sample_name = row['sample_name']
+        if not pathlib.Path(row['report_filename']).is_file():
+            sys.stderr.write(f"report filename for {sample_name} doesn't exist: {row['report_filename']}. Are all the resistance reports finished?\n\n")
+            sys.exit(1)
         with open(row['report_filename']) as f:
             sample_json[sample_name] = json.loads(f.read())
 
