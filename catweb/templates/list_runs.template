@@ -1,7 +1,7 @@
 {% extends "base1.template" %}
 {% block content %}
   <h4>{{ stuff['display_name'] }}</h4>
-  <a href="/flow/{{ stuff['flow_name'] }}/new"><button type="button" class="btn btn-primary">New Run</button></a>
+  <a href="/fetch"><button type="button" class="btn btn-primary">New Run</button></a>
   <a href="/edit_flow_config/{{ stuff['flow_name'] }}"><button type="button" class="btn btn-info">Edit Config</button></a>
   <a href="/flow/{{ stuff['flow_name'] }}/nf_script"><button type="button" class="btn btn-info">View Script</button></a>
   {% if has_dagpng %}
