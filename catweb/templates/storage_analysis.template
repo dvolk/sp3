@@ -1,0 +1,49 @@
+{% extends "base1.template" %}
+
+{% block content %}
+<h4>Disk use</h4>
+
+{% if catspace_all_sorted %}
+
+<div>Total run usage: <strong>{{ "{:,}".format((total_used_run / 1000) | round | int) }}</strong> MB </div>
+<div>Total output usage: <strong>{{ "{:,}".format((total_used_output / 1000) | round | int) }}</strong> MB </div>
+
+<table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top: 10px">
+  <thead>
+    <th><a href='#'>Pipeline name</a></th>
+    <th><a href='#'>Pipeline run name</a></th>
+    <th><a href='#'>Run usage (MB)</a></th>
+    <th><a href='#'>Output usage (MB)</a></th>
+    <th><a href='#'>Total usage (MB)</a></th>
+  </thead>
+  <tbody>
+    {% for row in catspace_all_sorted %}
+    <tr>
+    <td>
+      {{ row['run']['workflow'] }}
+    </td>
+    <td>
+     <a href='/flow/{{ row['run']['workflow'] }}/details/{{ row['run']['run_uuid'] }}'> {{ row['run']['output_name'] }}</a>
+    </td>
+    <td>
+      {{ "{:,}".format((row['du_run_space'] / 1000) | round | int ) }}
+    </td>
+    <td>
+      {{ "{:,}".format((row['du_output_space'] / 1000) | round | int  ) }}
+    </td>
+     <td>
+      {{ "{:,}".format((row['total'] / 1000) | round | int  ) }}
+    </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p>Failed to read /db/catspace_result.txt</p>
+
+{% endif %}
+
+{% endblock %}
+    

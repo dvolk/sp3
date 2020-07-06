@@ -4,3 +4,5 @@ output_patterns:
     - '*/samtools_qc/samtools_qc.stats'
     - '*/speciation/*'
     - '*/basecall/*.consensus.fasta.gz'
+    - '*/basecall/*.basecall.vcf.gz'
+    - '*/basecall/.basecallstats.txt'
