@@ -20,7 +20,7 @@ param:
     - name: 'readpat'
       arg: '--readpat'
       type: input-list
-      desc: 'Input file pattern (*fastq.gz)'
+      desc: 'Nextflow input file pattern (e.g.: *.fastq.gz)'
     - name: 'demultiplex'
       type: switch
       desc: 'demultiplex mode'
