@@ -4,6 +4,7 @@ systemctl --user start catgrid
 systemctl --user start catreport
 systemctl --user start catstat
 systemctl --user start cattag
+systemctl --user start catpile
 systemctl --user start catwebapi
 systemctl --user start catwebui
 systemctl --user start resistanceapi
