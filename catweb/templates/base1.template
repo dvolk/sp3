@@ -51,7 +51,7 @@
 		<a class="nav-link" href="/cluster" style="font-size: 24px">Compute</a>
               </li>
 	      <li class="nav-item" style="margin-right: 20px">
-		<a class="nav-link" target="_blank" href="https://persistence.mmmoxford.uk/docs/" style="font-size: 24px">Document</a>
+		<a class="nav-link" target="_blank" href="https://sp3docs.mmmoxford.uk/" style="font-size: 24px">Document</a>
               </li>
 	      {% if is_admin %}
               <li class="nav-item" style="margin-right: 20px">
