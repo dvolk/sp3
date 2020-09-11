@@ -3,12 +3,13 @@ profiles:
     node_controller: node_controllers.test.TestNodeController
     scheduler: schedulers.catgrid.CatgridScheduler
     scaler: scalers.onebyone.OneByOneScaler
-    scheduler_params:
-      setup_script: scripts/test_node_setup.sh
+    scheduler_params: {}
     scaler_params:
       min_nodes: 0
       max_nodes: 1
-    node_controller_params: {}
+    node_controller_params:
+      setup_script: scripts/test_node_setup.sh
+
 
   - name: azure-catcloudtest
     node_controller: node_controllers.azure.AzureNodeController
@@ -30,14 +31,14 @@ profiles:
     scaler: scalers.onebyone.OneByOneScaler
     scheduler_params: {}
     scaler_params:
-      min_nodes: 0
-      max_nodes: 8
+      min_nodes: 7
+      max_nodes: 7
     node_controller_params:
       flavor: climb.group
       network_uuid: 895d68df-6cff-45a1-9399-c10109b8bfbd
       key_name: denis
       vol_size: 120
-      vol_image: Ubuntu-18.04-20181216
+      vol_image: e09bc162-1e18-447c-a577-e6b8af2cbc61
       setup_script: scripts/os_node_setup_cardiff.sh
 
   - name: gcp-test

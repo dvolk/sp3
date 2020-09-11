@@ -87,7 +87,10 @@ def main():
             sys.stderr.write(f"report filename for {sample_name} doesn't exist: {row['report_filename']}. Are all the resistance reports finished?\n\n")
             sys.exit(1)
         with open(row['report_filename']) as f:
-            sample_json[sample_name] = json.loads(f.read())
+            try:
+                sample_json[sample_name] = json.loads(f.read())
+            except Exception as e:
+                print(f"{row['report_filename']}: {str(e)}")
 
     a = perform_analysis(sample_json)
     save_analysis(a, args.pipeline_run_uuid)

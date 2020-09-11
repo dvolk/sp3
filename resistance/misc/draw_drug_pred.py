@@ -51,6 +51,8 @@ def main():
 
     print(Rs, Ss, Us)
 
+    plt.figure(figsize=(16, 10))
+
     p1 = plt.bar(drug_names, Rs, color='r')
     p2 = plt.bar(drug_names, Ss, bottom=Rs, color='g')
     p3 = plt.bar(drug_names, Us, bottom=Rs+Ss, color='b')
@@ -59,7 +61,7 @@ def main():
     plt.legend((p1[0], p2[0], p3[0]), ('Resistant', 'Sensitive', 'Unknown'))
     plt.xlabel("Drug")
     plt.ylabel("Count")
-    plt.show()
+    plt.savefig("combined.png", dpi=100)
 
 if __name__ == "__main__":
     main()
