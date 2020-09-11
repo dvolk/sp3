@@ -1,5 +1,10 @@
 <p>Report generated on: <strong>{{ report['resistance']['finished_epochtime'] }}</strong></p>
 
+{% if report['pick_reference']['data']['pick_taxid'] != "NC_000962.3" %}
+<p>This sample was mapped to a reference that was not made to work with the resistance processing.</p>
+<!-- <span style="filter: alpha(opacity=60); -moz-opacity: 0.6; opacity: 0.6;"> -->
+{% else %}
+
 <div class='row'>
   <div class='col-md-12'>
     <h5>Drugs</h5>
@@ -77,3 +82,5 @@
     </table>
   </div>
 </div>
+
+{% endif %}
