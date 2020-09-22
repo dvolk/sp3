@@ -79,12 +79,13 @@ def fetch_log(in_guid):
     glogger = logging.getLogger('fetch_logger')
     in_guid = str(pathlib.Path(in_guid).name) # anti-hacker protection
 
-    ret1 = ""
+    ret1 = "No log found"
     try:
         with open('logs/{0}.log'.format(in_guid)) as log:
             ret1 = log.read()
     except:
-        abort(404)
+        pass
+    
     ret2 = ""
     try:
         with open('logs/{0}.ena.log'.format(in_guid)) as log:
