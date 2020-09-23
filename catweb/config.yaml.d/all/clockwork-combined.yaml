@@ -1,9 +1,9 @@
-name: "Clockwork_combined"
-display_name: "Clockwork - combined with gvcf"
+name: "Clockwork_gvcf"
+display_name: "Clockwork with gvcf"
 script: "combined_gvcf.nf"
 show: yes
-root_dir: "clockworkcloud/"
-prog_dir: "clockworkcloud/"
+root_dir: "clockworkcloud-gvcf/"
+prog_dir: "clockworkcloud-gvcf/"
 output_dir: "output/"
 version: "0.1"
 description: "Clockwork with human removal, speciation, autoreference, report"
@@ -39,6 +39,16 @@ param:
       arg: '--readpat'
       type: input-reqr
       desc: "Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz)"
+    - name: 'save_rmdup_bam'
+      arg: '--save_rmdup_bam'
+      type: switch
+      desc: "Keep rmdup.bam file"
+      options: { 'no': 'false', 'yes (+ ~500MB output space used per sample)': 'true' }
+    - name: 'save_samtools_gvcf'
+      arg: '--save_samtools_gvcf'
+      type: switch
+      desc: "Keep samtools gvcf file"
+      options: { 'no': 'false', 'yes (+ ~500MB output space used per sample)': 'true' }
 
 output:
       parameter: "--output_dir"
