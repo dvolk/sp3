@@ -921,7 +921,7 @@ def upload_data():
 @flask_login.login_required
 def upload_data2(subfolder):
     file = request.files['file']
-    if 'fastq.gz' in file.filename:
+    if file.filename[-9:] == '.fastq.gz' or file.filename[-4:] == '.bam':
         rootpath = pathlib.Path(f'/data/inputs/users/{ get_user_dict()["name"] }')
         newpath = str(rootpath / subfolder)
         logger.warning(newpath)
