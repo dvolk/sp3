@@ -39,7 +39,7 @@ def get_run_disk_use(pipeline_run_uuid):
     try:
         du = subprocess.check_output(["du", "-s", shlex.quote(run_output_directory)])
         du_output_space = int(du.decode().strip().split('\t')[0])
-    except:
+    except Exception as e:
         logging.warning(f"couldn't determine output space for {pipeline_run_uuid}:")
         logging.warning(str(e))
         du_output_space = -1
