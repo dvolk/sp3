@@ -152,12 +152,17 @@ def run(vcf_file,
 
         MUTATIONS.reset_index(inplace=True)
 
-    # add GT_CONF
-    MUTATIONS.set_index(["GENE","POSITION"],inplace=True,verify_integrity=True)
-    VARIANT.set_index(["GENE","POSITION"],inplace=True,verify_integrity=False)
-    MUTATIONS=MUTATIONS.join(VARIANT[['GT_CONF']],how="inner")
-    MUTATIONS.reset_index(inplace=True)
-    VARIANT.reset_index(inplace=True)
+    try:
+        # add GT_CONF
+        MUTATIONS.set_index(["UNIQUEID","GENE","POSITION"],inplace=True,verify_integrity=True)
+        VARIANT.set_index(["UNIQUEID","GENE","POSITION"],inplace=True,verify_integrity=False)
+        MUTATIONS=MUTATIONS.join(VARIANT[['GT_CONF']],how="inner")
+        MUTATIONS.reset_index(inplace=True)
+        VARIANT.reset_index(inplace=True)
+    except Exception as e:
+        print("Couldn't join MUTATIONS and VARIANT table due to exception:")
+        print(str(e))
+        MUTATIONS['GT_CONF'] = None
 
         
     # by default assume wildtype behaviour so set all drug phenotypes to be susceptible

@@ -67,7 +67,7 @@
       <tr>
         <td>{{ item['gene_name'] }}_{{ item['mutation_name'] }}</td>
         <td>{{ item['ref'] }} →  {{ item['alt'] }}</td>
-	{% if 'gt_conf' in item %}
+	{% if 'gt_conf' in item and item['gt_conf'] %}
         <td>{{ "%.2f"|format(item['gt_conf']) }}</td>
 	{% else %}
         <td></td>
