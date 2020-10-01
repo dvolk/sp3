@@ -154,6 +154,12 @@ class User(flask_login.UserMixin):
 def user_loader(username):
     if username not in users:
         return
+
+    token = users[username]['token']
+    r = requests.get(f"http://127.0.0.1:13666/check_token/{token}").json()
+    if not r:
+        return
+
     user = User()
     user.id = username
     return user
@@ -182,14 +188,16 @@ def login():
         form_username = request.form['username']
         form_password = request.form['password']
         org_map = cfg.get("organisations")
+        token = None
 
         if auth == 'ldap':
             for ldap_domain, ldap_dict in auth_ldap.items():
                 if form_username in ldap_dict['authorized_users']:
                     auth_cfg = ldap_dict
                     ldap_host = auth_cfg['host']
-                    is_ok = authenticate.check_ldap_authentication(form_username, form_password, ldap_host)
-                    if is_ok:
+                    token = authenticate.check_ldap_authentication(form_username, form_password, ldap_host)
+                    logger.warning(token)
+                    if token:
                         logger.warning(f"user {form_username} verified for ldap host {ldap_host}")
                         break
                     else:
@@ -197,23 +205,6 @@ def login():
                         return redirect('/')
             else:
                 logger.warning(f"user {form_username} is not in ldap authorized_users list")
-                return redirect('/')
-
-        if auth == 'builtin':
-            '''
-            Check user authorization
-            '''
-            for u in auth_builtin['authorized_users']:
-                if u['username'] == form_username:
-                    password_hash = u['password_bcrypt_hash']
-                    if bcrypt.verify(form_password, password_hash.encode()):
-                        auth_cfg = auth_builtin
-                        break
-                    else:
-                        logger.warning(f"invalid credentials for builtin user {form_username}")
-                        return redirect('/login')
-            else:
-                logger.warning(f"user {form_username} not in builtin authorized_users list")
                 return redirect('/')
 
         # organisation stuff
@@ -251,6 +242,7 @@ def login():
             'name': form_username,
             'capabilities' : cap,
             'org': org,
+            'token': token,
             'upload_dirs': upload_dirs
         }
 
@@ -859,7 +851,7 @@ def storage_analysis():
         catspace_all_sorted = sorted(catspace_result, key=lambda row: row['du_run_space'] + row['du_output_space'], reverse=True)
     except Exception as e:
         logging.error(str(e))
-        catspace_all_sorted = None
+        catspace_all_sorted = list()
 
     for row in catspace_all_sorted:
         row['total'] = row['du_run_space'] + row['du_output_space']

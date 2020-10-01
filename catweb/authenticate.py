@@ -1,6 +1,9 @@
-from ldap3 import Connection
 import pathlib
 import logging
+import base64
+import uuid
+
+import requests
 
 def get_user_pipelines(username, user_pipeline_map):
     for usr in user_pipeline_map:
@@ -54,11 +57,14 @@ def check_ldap_authentication(form_username, form_password, host):
     '''
     Check user authorization
     '''
-    conn = Connection(host,
-                      user=form_username,
-                      password=form_password,
-                      read_only=True)
-    if conn.bind():
-        return True
-    else:
-        return False
+
+    username = base64.b64encode(form_username.encode()).decode()
+    password = base64.b64encode(form_password.encode()).decode()
+
+    r = requests.get(f"http://127.0.0.1:13666/check_user?username={username}&password={password}")
+
+    try:
+        token = str(uuid.UUID(r.text))
+        return token
+    except:
+        return None
