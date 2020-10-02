@@ -101,6 +101,29 @@ def check_token(token):
     logging.info(f"check_token()! token={token}")
     return json.dumps(is_token_valid(token))
 
+@app.route('/change_password/<token>/<new_password>')
+def change_password(token, new_password):
+    if not is_token_valid(token):
+        abort(403)
+
+    if len(new_password) < 12:
+        return "Password too short (minimum 12 characters)"
+
+    username = tokens[token]['username']
+
+    user = None
+    for u in state['users']:
+        if u['name'] == username:
+            user = u
+    else:
+        abort(503)
+
+    new_pw_hash = bcrypt.hash(new_password)
+    user['pw_hash'] = new_pw_hash
+
+    save_state()
+    return "OK"
+
 # --- main ---
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
