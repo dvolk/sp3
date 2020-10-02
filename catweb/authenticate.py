@@ -1,6 +1,5 @@
 import pathlib
 import logging
-import base64
 import uuid
 
 import requests
@@ -58,10 +57,8 @@ def check_ldap_authentication(form_username, form_password, host):
     Check user authorization
     '''
 
-    username = base64.b64encode(form_username.encode()).decode()
-    password = base64.b64encode(form_password.encode()).decode()
-
-    r = requests.get(f"http://127.0.0.1:13666/check_user?username={username}&password={password}")
+    r = requests.get(f"http://127.0.0.1:13666/check_user", params={'username': form_username,
+                                                                   'password': form_password })
 
     try:
         token = str(uuid.UUID(r.text))

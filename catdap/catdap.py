@@ -1,4 +1,3 @@
-import base64
 import uuid
 import logging
 import json
@@ -80,15 +79,8 @@ def check_user():
         if req_f not in request.args:
             return f"missing arg: {req_f}"
 
-    try:
-        username = base64.b64decode(request.args['username']).decode()
-        password = base64.b64decode(request.args['password']).decode()
-    except Exception as e:
-        logging.warning(f"parsing exception: {str(e)}")
-        return ""
-
-    username = username[0:255]
-    password = password[0:255]
+    username = request.args['username'][0:255]
+    password = request.args['password'][0:255]
 
     logging.info(f"check_user()! username={username}")
 
