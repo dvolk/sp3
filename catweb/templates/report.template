@@ -36,8 +36,12 @@
 
 {% if report['resistance'] %}
   <h3>Resistance</h3>
-
+  {% if report['resistance']['status'] == 'success' %}
   {% include 'report_templates/resistance.template' %}
+  {% else %}
+  <p>Resistance report generation failed. If you believe this is an error, please contact the administrators.</p>
+  <!-- {{ report['resistance'] }} -->
+  {% endif %}
 {% endif %}
 
 {% if report['relatedness'] %}
