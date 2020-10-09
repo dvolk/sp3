@@ -154,8 +154,8 @@ def run(vcf_file,
 
     try:
         # add GT_CONF
-        MUTATIONS.set_index(["UNIQUEID","GENE","POSITION"],inplace=True,verify_integrity=True)
-        VARIANT.set_index(["UNIQUEID","GENE","POSITION"],inplace=True,verify_integrity=False)
+        MUTATIONS.set_index(["GENE","POSITION"],inplace=True,verify_integrity=True)
+        VARIANT.set_index(["GENE","POSITION"],inplace=True,verify_integrity=False)
         MUTATIONS=MUTATIONS.join(VARIANT[['GT_CONF']],how="inner")
         MUTATIONS.reset_index(inplace=True)
         VARIANT.reset_index(inplace=True)
