@@ -151,7 +151,8 @@ def run(vcf_file,
         MUTATIONS.set_index(["UNIQUEID","GENE",'MUTATION'],inplace=True,verify_integrity=True)
 
         MUTATIONS.reset_index(inplace=True)
-
+    MUTATIONS.to_csv('/tmp/mutations.csv')
+    VARIANT.to_csv('/tmp/variant.csv')
     try:
         # add GT_CONF
         MUTATIONS.set_index(["GENE","POSITION"],inplace=True,verify_integrity=True)
