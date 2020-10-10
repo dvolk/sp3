@@ -1,20 +1,11 @@
-from ldap3 import Connection
 import pathlib
 import logging
+import uuid
 
-def get_user_pipelines(username, user_pipeline_map):
-    for usr in user_pipeline_map:
-        if usr['user'] == username:
-            if 'pipelines' in usr:
-                return usr['pipelines']
-    return list()
+import requests
 
 def get_org_pipelines(org_name, organisations):
-    for org in organisations:
-        if org['name'] == org_name:
-            if 'pipelines' in org:
-                return org['pipelines']
-    return list()
+    return organisations[org]['pipelines']
 
 def path_begins_with(p1, p2):
     if str(p1) >= str(p2):
@@ -37,28 +28,27 @@ def user_can_see_upload_dir(user_dict, p2):
             return True
     return False
 
-def check_organisation(username, organisations):
-    for org in organisations:
-        if username in org["users"]:
-            return org["name"]
-    return None
-
 def get_org_upload_dirs(org_name, organisations):
-    logging.warning(str(organisations))
-    for org in organisations:
-        if org["name"] == org_name:
-            return org["upload_dirs"]
-    return []
+    return organisations[org_name]["upload_dirs"]
 
-def check_ldap_authentication(form_username, form_password, host):
-    '''
-    Check user authorization
-    '''
-    conn = Connection(host,
-                      user=form_username,
-                      password=form_password,
-                      read_only=True)
-    if conn.bind():
-        return True
-    else:
-        return False
+def get_organisation(org_name):
+    return requests.get(f"http://127.0.0.1:13666/get_organisation",
+                        params={'group': 'catweb',
+                                'organisation': org_name}).json()['attributes']
+
+def attributes_from_user_token(token):
+    r = requests.get(f"http://127.0.0.1:13666/check_token/{token}").json()
+    if 'attributes' not in r:
+        return None
+    return r['attributes']
+
+def check_authentication(form_username, form_password):
+    r = requests.get(f"http://127.0.0.1:13666/check_user",
+                     params={'username': form_username,
+                             'password': form_password })
+
+    try:
+        token = str(uuid.UUID(r.text))
+        return token
+    except:
+        return None

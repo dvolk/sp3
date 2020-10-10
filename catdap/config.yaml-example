@@ -1,0 +1,11 @@
+users:
+  - name: denisv@ndm.local
+    password_hash: '$2b$12$Idn1hQThsalCJ4M8R3Ckfe2tulP5VKgmbIxvjqmO.SelFZ0WbLuC6'
+    attributes:
+      - admin
+
+  - name: fan@ndm.local
+    password_hash: '$2b$12$No3GXn0vdoqA44qS.U.ef.bh2Y4viiaSH.u2JbzZeJJ0GFgzKqBmm'
+    attributes:
+      - admin
+

@@ -73,8 +73,6 @@ def reload_cfg():
     global cfg
     cfg = config.Config()
     cfg.load(str(configFile))
-    global auth
-    auth = cfg.get('authentication')
     global contexts
     contexts = dict()
     for c in cfg.get('contexts'):
@@ -89,16 +87,6 @@ def reload_cfg():
         auth_builtin = cfg.get('auth_builtin')
     except KeyError:
         pass
-    global auth_ldap
-    auth_ldap = dict()
-    try:
-        for l in cfg.get('auth_ldap'):
-            auth_ldap[l['name']] = l
-    except KeyError:
-        pass
-    if not auth_ldap and not auth_builtin:
-        logging.error("you need to configure either built-in authentication or ldap")
-        sys.exit(1)
     global users
     users = dict()
 
@@ -154,13 +142,29 @@ class User(flask_login.UserMixin):
 def user_loader(username):
     if username not in users:
         return
+
+    token = users[username]['token']
+    attribs = authenticate.attributes_from_user_token(token)
+    if not attribs:
+        return
+    if 'catweb_user' not in attribs:
+        return
+    if 'requires_review' in attribs:
+        return
+
+    org_name = attribs['catweb_organisation']
+    org_data = authenticate.get_organisation(org_name)
+
     user = User()
     user.id = username
+    users[user.id]['attributes'] = attribs
+    users['org_name'] = org_name
+    users['org_data'] = org_data
     return user
 
 def is_admin():
     try:
-        return 'admin' in users[flask_login.current_user.id]['capabilities']
+        return 'catweb_admin' in users[flask_login.current_user.id]['attributes']
     except:
         return False
 
@@ -168,6 +172,24 @@ def is_admin():
 def inject_globals():
     return { 'catweb_version': cfg.get('catweb_version'),
              'is_admin': is_admin() }
+
+@app.route('/register_sp3_user', methods=["GET", "POST"])
+def register_sp3_user():
+    if request.method == "GET":
+        return render_template('register.template')
+    if request.method == "POST":
+        name = request.form['name']
+        job_title = request.form['job_title']
+        job_address = request.form['job_address']
+        referal = request.form['referal']
+        country = request.form['country']
+        email = request.form['email']
+        username = request.form['username']
+        password = request.form['password']
+        organisation = request.form['organisation']
+
+        requests.get("http://localhost:13666/add_user", params = request.form)
+        return redirect("/")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -181,50 +203,21 @@ def login():
 
         form_username = request.form['username']
         form_password = request.form['password']
-        org_map = cfg.get("organisations")
 
-        if auth == 'ldap':
-            for ldap_domain, ldap_dict in auth_ldap.items():
-                if form_username in ldap_dict['authorized_users']:
-                    auth_cfg = ldap_dict
-                    ldap_host = auth_cfg['host']
-                    is_ok = authenticate.check_ldap_authentication(form_username, form_password, ldap_host)
-                    if is_ok:
-                        logger.warning(f"user {form_username} verified for ldap host {ldap_host}")
-                        break
-                    else:
-                        logger.warning(f"invalid credentials for ldap user {form_username} host {ldap_host}")
-                        return redirect('/')
-            else:
-                logger.warning(f"user {form_username} is not in ldap authorized_users list")
-                return redirect('/')
+        token = authenticate.check_authentication(form_username, form_password)
 
-        if auth == 'builtin':
-            '''
-            Check user authorization
-            '''
-            for u in auth_builtin['authorized_users']:
-                if u['username'] == form_username:
-                    password_hash = u['password_bcrypt_hash']
-                    if bcrypt.verify(form_password, password_hash.encode()):
-                        auth_cfg = auth_builtin
-                        break
-                    else:
-                        logger.warning(f"invalid credentials for builtin user {form_username}")
-                        return redirect('/login')
-            else:
-                logger.warning(f"user {form_username} not in builtin authorized_users list")
-                return redirect('/')
+        if token:
+            logger.warning(f"user {form_username} verified")
+        else:
+            logger.warning(f"invalid credentials for user {form_username}")
+            return redirect('/')
+
+        attribs = authenticate.attributes_from_user_token(token)
 
         # organisation stuff
-        org = authenticate.check_organisation(form_username, org_map)
-        upload_dirs = []
-        if not org:
-            logger.warning(f"user {form_username} doesn't belong to any organisation")
-        else:
-            upload_dirs = authenticate.get_org_upload_dirs(org, org_map)
-            if not upload_dirs:
-                logger.warning(f"organisation {org} doesn't have any upload_dirs defined")
+        org_name = attribs['catweb_organisation']
+        org_data = authenticate.get_organisation(org_name)
+        upload_dirs = org_data['upload_dirs']
 
         user_upload_dir = pathlib.Path(f'/data/inputs/users/{ form_username }')
         if not user_upload_dir.exists():
@@ -232,8 +225,6 @@ def login():
 
         upload_dirs.append(str(user_upload_dir))
 
-        logger.warning(f"{form_username} - org: {org}")
-        logger.warning(f"{form_username} - upload_dirs: {upload_dirs}")
 
         '''
         User is authorized
@@ -242,17 +233,16 @@ def login():
         user.id = form_username
         flask_login.login_user(user)
 
-
-        cap = list()
-        if form_username in auth_cfg['admins']:
-            cap = ['admin']
-
         users[user.id] = {
             'name': form_username,
-            'capabilities' : cap,
-            'org': org,
-            'upload_dirs': upload_dirs
+            'org_name': org_name,
+            'org_data': org_data,
+            'token': token,
+            'upload_dirs': upload_dirs,
+            'attributes': attribs
         }
+
+        logger.warning(f"{form_username} - {users[user.id]}")
 
         next = request.form.get('next')
         logger.warning(f"next url: {next}")
@@ -272,12 +262,9 @@ def logout():
 def get_user_pipelines(username):
     ret = list()
     if is_admin():
-        ret = flows.keys()
+        return flows.keys()
     else:
-        u = get_user_dict()
-        ret += authenticate.get_user_pipelines(u['name'], cfg.get('user_pipeline_map'))
-        ret += authenticate.get_org_pipelines(u['org'], cfg.get('organisations'))
-    return ret
+        return get_user_dict()['org_data']['upload_dirs']
 
 # todo move this and similar to nflib.py
 @app.route('/')
@@ -327,43 +314,40 @@ def edit_flow_config(flow_name):
 
     return render_template('admin.template', config_yaml=config_content)
 
-@app.route('/admin', methods=['GET', 'POST'])
+@app.route('/admin_edit_user', methods=['GET', 'POST'])
+@flask_login.login_required
+def admin_edit_user():
+    if not is_admin():
+        return redirect('/')
+
+    username = request.args['username']
+
+    if request.method == 'GET':
+        user_data = json.dumps(requests.get('http://localhost:13666/get_user',
+                                            params={ 'username': username }).json(),
+                               indent=4)
+        return render_template('admin_edit_user.template',
+                               username=username,
+                               user_data=user_data)
+
+    if request.method == 'POST':
+        requests.get("http://localhost:13666/edit_user",
+                     params={ 'username': username,
+                              'user_data': request.form['user_data'] })
+
+        return redirect(f'/admin_edit_user?username={username}')
+
+@app.route('/admin')
 @flask_login.login_required
 def admin():
     if not is_admin():
         return redirect('/')
 
-    configFile = pathlib.Path("config.yaml")
-    if request.method == 'GET':
-        with open(str(configFile)) as f:
-            return render_template('admin.template', config_yaml=f.read())
-
-    if request.method == 'POST':
-        if request.form['config']:
-            old_cfg = cfg.config
-            new_cfg = request.form['config']
-            try:
-                cfg2 = config.Config()
-                cfg2.load_str(new_cfg)
-            except:
-                logger.warning("invalid config string")
-                return redirect("/admin")
-            try:
-                f = open(str(configFile), "w")
-                f.write(new_cfg)
-            except:
-                logger.warning("Couldn't write config.yaml file")
-                return redirect("/admin")
-            finally:
-                f.close()
-            try:
-                reload_cfg()
-            except:
-                logger.warning("couldn't reload config")
-                cfg.config = old_cfg
-                return redirect("/admin")
-
-        return redirect("/admin")
+    with open('config.yaml') as f:
+        user_list = requests.get("http://localhost:13666/get_users").json()
+        return render_template('admin.template',
+                               config_yaml=f.read(),
+                               user_list=user_list)
 
 @app.route('/flows')
 @flask_login.login_required
@@ -859,7 +843,7 @@ def storage_analysis():
         catspace_all_sorted = sorted(catspace_result, key=lambda row: row['du_run_space'] + row['du_output_space'], reverse=True)
     except Exception as e:
         logging.error(str(e))
-        catspace_all_sorted = None
+        catspace_all_sorted = list()
 
     for row in catspace_all_sorted:
         row['total'] = row['du_run_space'] + row['du_output_space']
