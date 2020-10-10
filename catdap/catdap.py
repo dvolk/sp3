@@ -174,11 +174,16 @@ def check_token(token):
         logging.info(f"check_token()! token={token},is_valid=false")
         return json.dumps({})
 
-@app.route('/change_password/<token>/<new_password>')
-def change_password(token, new_password):
+@app.route('/change_password/<token>')
+def change_password(token):
     logging.debug(f"change_password()! token={token}")
     if not is_token_valid(token):
         abort(403)
+
+    if 'new_password' not in request.args:
+        abort(404)
+
+    new_password = request.args['new_password']
 
     if len(new_password) < 12:
         return "Password too short (minimum 12 characters)"
