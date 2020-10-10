@@ -90,6 +90,7 @@ def get_user():
 def edit_user():
     username = request.args['username']
     state['users'][username] = json.loads(request.args['user_data'])
+    save_state()
     return "OK"
 
 @app.route('/add_user')
