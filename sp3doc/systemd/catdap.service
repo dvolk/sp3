@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Catdap API
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/catdap
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catdap/catdap.py

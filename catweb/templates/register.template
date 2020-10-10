@@ -9,7 +9,7 @@
 <form action='/register_sp3_user' method='POST'>
   <div class="input-group mb-3">
     <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">First and last name*</span>
+      <span class="input-group-text" id="basic-addon1">Full name*</span>
     </div>
     <input name="name" id="name" type=text
 	   class="form-control" aria-label="Name"
@@ -25,6 +25,23 @@
 	   aria-describedby="basic-addon1" >
   </div>
 
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Work email*</span>
+    </div>
+    <input name="email" id="email" type="email"
+	   class="form-control" aria-label="email"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Organisation*</span>
+    </div>
+    <input name="organisation" id="organisation" type=text
+	   class="form-control" aria-label="organisation"
+	   aria-describedby="basic-addon1" >
+  </div>
 
   <div class="input-group mb-3">
     <div class="input-group-prepend">
@@ -47,7 +64,7 @@
 
   <div class="input-group mb-3">
     <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Referal</span>
+      <span class="input-group-text" id="basic-addon1">Referral</span>
     </div>
     <input name="referal" id="referal" type=text
 	   class="form-control" aria-label="referal"
@@ -56,16 +73,7 @@
 
   <div class="input-group mb-3">
     <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Email*</span>
-    </div>
-    <input name="email" id="email" type=text
-	   class="form-control" aria-label="email"
-	   aria-describedby="basic-addon1" >
-  </div>
-
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Username*</span>
+      <span class="input-group-text" id="basic-addon1">Username*(only letters and numbers)</span>
     </div>
     <input name="username" id="username" type=text
 	   class="form-control" aria-label="username"
@@ -76,17 +84,8 @@
     <div class="input-group-prepend">
       <span class="input-group-text" id="basic-addon1">Password (minimum length: 12 characters)*</span>
     </div>
-    <input name="password" id="password" type=text
+    <input name="password" id="password" type="password"
 	   class="form-control" aria-label="password"
-	   aria-describedby="basic-addon1" >
-  </div>
-
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Organisation*</span>
-    </div>
-    <input name="organisation" id="organisation" type=text
-	   class="form-control" aria-label="organisation"
 	   aria-describedby="basic-addon1" >
   </div>
 

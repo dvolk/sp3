@@ -128,9 +128,8 @@ def add_user():
             'job_address': job_address,
             'referal': referal,
             'country': country,
-            'email': email
-        }
-     }
+            'email': email } }
+
     try:
         save_state()
         load_state()
