@@ -1,0 +1,98 @@
+{% extends "base1.template" %}
+{% block content %}
+
+
+<h2>Register a SP3 user account</h2>
+
+<p>* designates a mandatory field</p>
+
+<form action='/register_sp3_user' method='POST'>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">First and last name*</span>
+    </div>
+    <input name="name" id="name" type=text
+	   class="form-control" aria-label="Name"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Job title</span>
+    </div>
+    <input name="job_title" id="job_title" type=text
+	   class="form-control" aria-label="job_title"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Work address</span>
+    </div>
+    <input name="job_address" id="job_address" type=text
+	   class="form-control" aria-label="job_address"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Country</span>
+    </div>
+    <input name="country" id="country" type=text
+	   class="form-control" aria-label="country"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Referal</span>
+    </div>
+    <input name="referal" id="referal" type=text
+	   class="form-control" aria-label="referal"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Email*</span>
+    </div>
+    <input name="email" id="email" type=text
+	   class="form-control" aria-label="email"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Username*</span>
+    </div>
+    <input name="username" id="username" type=text
+	   class="form-control" aria-label="username"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Password (minimum length: 12 characters)*</span>
+    </div>
+    <input name="password" id="password" type=text
+	   class="form-control" aria-label="password"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Organisation*</span>
+    </div>
+    <input name="organisation" id="organisation" type=text
+	   class="form-control" aria-label="organisation"
+	   aria-describedby="basic-addon1" >
+  </div>
+
+<p>You will be emailed when your account is activated.</p>
+
+  <button style="margin-top: 5px;" id="submitButton" type="submit" class="btn btn-primary">Submit</button>
+
+</form>
+{% endblock %}

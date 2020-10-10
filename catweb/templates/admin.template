@@ -1,7 +1,11 @@
 {% extends "base1.template" %}
 {% block content %}
-<form method="POST" action="/admin">
-  <button disabled style="margin: 10px; margin-left: 0px" type="submit" type="button" class="btn btn-primary">Save</button>
+
+<h2>Edit user</h2>
+{% for user in user_list %}
+<p><a href="/admin_edit_user?username={{ user }}">{{ user }}</a></p>
+{% endfor %}
+
+<h2>Config</h2>
   <textarea style="font-family: monospace;" rows=20 class="form-control" name="config">{{ config_yaml }}</textarea>
-</form>
 {% endblock content %}
