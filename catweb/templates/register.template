@@ -73,7 +73,7 @@
 
   <div class="input-group mb-3">
     <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Username*(only letters and numbers)</span>
+      <span class="input-group-text" id="basic-addon1">Username (only letters and numbers)*</span>
     </div>
     <input name="username" id="username" type=text
 	   class="form-control" aria-label="username"
