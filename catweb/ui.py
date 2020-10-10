@@ -254,6 +254,31 @@ def login():
 
     assert False, "unreachable"
 
+@app.route('/password' , methods=['GET', 'POST'])
+@flask_login.login_required
+def change_pw():
+    username = flask_login.current_user.id
+    logger.debug(f'username: {username}')
+    token = users[username]["token"]
+
+    if request.method == 'GET':
+        logger.debug(f'username: {username}')
+        return render_template('password.template',
+        username = username)
+    else:
+        form_password1 = request.form['password1']
+        form_password2 = request.form['password2']
+
+        if form_password1 == form_password2:
+            res = requests.get(f'http://localhost:13666/change_password/{token}', params={'new_password':form_password1})
+            logger.debug(f'Call catdap changing password for {username}: {res}')
+            if res.text == 'OK':
+                return redirect('/')
+            else:
+                return redirect('/password')
+        else:
+            return redirect('/')
+
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
