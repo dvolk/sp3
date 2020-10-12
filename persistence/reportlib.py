@@ -82,6 +82,7 @@ def process_reports(report_data, catpile_resp, download_url):
         template_report_data['resistance'] = dict()       
         template_report_data['resistance']['data'] = report_data['resistance']['data']
         template_report_data['resistance']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['resistance']['finished_epochtime']))
+        template_report_data['resistance']['status'] = report_data['resistance']['status']
 
     if 'mykrobe_speciation' in report_data and 'data' in report_data['mykrobe_speciation']:
         template_report_data['mykrobe_speciation'] = dict()

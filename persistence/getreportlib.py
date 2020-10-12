@@ -62,12 +62,15 @@ def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
             with open(report_resistance_filepath) as f:
                 report_data['resistance']['data'] = json.loads(f.read())['data']
             report_data['resistance']['finished_epochtime'] = int(r[5])
+            report_data['resistance']['status'] = 'success'
+            report_data['resistance']['message'] = str()
             report_data['resistance']['data'] = resistance_help.resistance_postprocess(report_data)
 
         except Exception as e:
             logging.error("resistance report processing failed")
             logging.error(str(e))
-            report_data['resistance'] = dict()
+            report_data['resistance']['status'] = 'failure'
+            report_data['resistance']['message'] = str(e)
 
     '''
     end resistance report
