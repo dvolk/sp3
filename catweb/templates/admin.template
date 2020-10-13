@@ -23,7 +23,7 @@
       <td scope="row">{% if 'catweb_organisation' in user['attributes'] %}{{ user['attributes']['catweb_organisation'] }} {% else %}None{% endif %}</td>
       <td scope="row">{% if 'email' in user['attributes'] %}{{ user['attributes']['email'] }} {% else %}None{% endif %}</td>
       <td scope="row">{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>
-      <td scope="row">{% if 'requires_review' in user['attributes'] %}No{% else %}Yes{% endif %}</td>
+      <td scope="row">{% if 'requires_review' in user['attributes'] %}<span class="text-danger">No</span>{% else %}Yes{% endif %}</td>
       <td scope="row"><a href="/admin_edit_user?username={{ username }}">Edit</a></td>
     </tr>
     {% endfor %}
