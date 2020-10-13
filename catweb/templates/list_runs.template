@@ -7,6 +7,9 @@
   {% if has_dagpng %}
   <a href="/flow/{{ stuff['flow_name'] }}/dagpng"><button type="button" class="btn btn-info">View Graph</button></a>
   {% endif %}
+  {% if 'Clockwork' in stuff['flow_name'] %}
+  <a href="/cw_query/{{ stuff['flow_name'] }}"><button type="button" class="btn btn-primary">View TB Neighbourhood</button></a>
+  {% endif %}
   <br/>
 <table class="table table-hover table-sm" style="margin-top:10px">
   <thead>

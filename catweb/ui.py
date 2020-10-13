@@ -1228,8 +1228,48 @@ def get_report(run_uuid : str, dataset_id: str):
                            dataset_id=dataset_id,
                            report=template_report_data)
 
-
-
+@app.route('/cw_query/<pipeline_name>', methods=['GET', 'POST'])
+@flask_login.login_required
+def cw_query(pipeline_name):
+    org_name = ''
+    if 'Clockwork' in pipeline_name:
+        org_name = pipeline_name.split('-')[0]
+    
+    if request.method == 'GET':
+        return render_template('cw_query.template',
+                           organisation = org_name,
+                               pipeline_name = pipeline_name,
+                               distance = 12)
+       
+    if request.method == 'POST':
+        sample_name = request.form['sample_name']
+        distance = request.form['distance']
+        if '_' in sample_name and '-' in sample_name:
+            #curl http://localhost:5000/neighbours/6ecf6616-6d25-4a2d-9588-a9dc7f2c681a_ERR552831/12
+            res = requests.get(f'http://localhost:5000/neighbours/{sample_name}/{distance}')
+            logger.debug(f'catwalk neighbours: {res}')
+            if res.status_code == 200:
+                return render_template('cw_query.template',
+                           organisation = org_name,
+                           sample_name = sample_name,
+                           pipeline_name = pipeline_name,
+                               distance = distance,
+                               neighbours = res.json() )                
+            
+            else:
+                return render_template('cw_query.template',
+                           organisation = org_name,
+                           pipeline_name = pipeline_name,
+                           distance = 12,
+                              message = res.text)
+        else:
+            msg = f'Sample name {sample_name} is invalid, please follow the format and try again.'
+            return render_template('cw_query.template',
+                           organisation = org_name,
+                           pipeline_name = pipeline_name,
+                               distance = 12,
+                               message = msg )
+        
 @app.route('/get_cluster_stats')
 def proxy_get_cluster_stats():
     response = api_get_request('catstat_api', '/data')

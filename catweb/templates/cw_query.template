@@ -1,0 +1,30 @@
+{% extends 'base1.template' %}
+
+{% block content %}
+<div class="container">
+    <h4>TB Genetic Neighbours ({{ organisation }})</h4>
+    <hr />
+    <form action="/cw_query/{{ pipeline_name }}" method="post" role="form">
+    <div class="row">
+      <input type="text" placeholder="search via runid and sample name" class="form-input col-md-6" name="sample_name" id="sample_name" value="{{ sample_name }}"  />
+      <input class="form-input col-md-1" type="number" id="distance" name="distance" min="0" max="12" value="{{ distance }}" />
+      <input class="form-input col-md-2 btn btn-primary" type="submit" value="Search Neighbours" id="search_submit" />
+    </div>
+    <div class="row">
+      <span class="form-input col-md-6">eg. 6ecf6616-6d25-4a2d-9588-a9dc7f2c681a_ERR552831</span>
+      <span class="col-md-1">0-12</span>
+    </div>
+    </form>
+
+    <hr />
+    {% if message %}
+       <p>{{ message }}</p>
+    {% endif %}
+    {% if neighbours %}
+        <strong>{{ neighbours | length }} Neighbours Found</strong>	
+	{% for neighbour in neighbours%}
+	    <p> {{ neighbour }}</p>
+	{% endfor %}
+    {% endif %}	
+</div>
+{% endblock%}
