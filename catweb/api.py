@@ -69,13 +69,6 @@ def add_to_reference_cache():
 def get_reference_cache(ref_uuid):
     return make_api_response('success', data={'reference_json': db.get_reference_cache(ref_uuid) })
 
-@app.route('/slurm_status')
-def slurm_status():
-    '''
-    TODO
-    '''
-    return make_api_response('success')
-
 @app.route('/run/start', methods = ['POST'])
 def start_run():
     # Data to from nfweb.py is passed in here as json
