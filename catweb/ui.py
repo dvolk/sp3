@@ -381,6 +381,11 @@ def admin_edit_user():
 
         return redirect(f'/admin_edit_user?username={username}')
 
+@app.template_filter('epochtodate')
+def epochtodate(value):
+    t = time.localtime(int(value))
+    return f"{t.tm_mday}-{t.tm_mon}-{t.tm_year}"
+
 @app.route('/admin')
 @flask_login.login_required
 def admin():
@@ -388,10 +393,10 @@ def admin():
         return redirect('/')
 
     with open('config.yaml') as f:
-        user_list = requests.get("http://localhost:13666/get_users").json()
+        user_d = requests.get("http://localhost:13666/get_users").json()
         return render_template('admin.template',
                                config_yaml=f.read(),
-                               user_list=user_list)
+                               user_d=user_d)
 
 @app.route('/flows')
 @flask_login.login_required

@@ -1,10 +1,34 @@
 {% extends "base1.template" %}
 {% block content %}
 
-<h2>Edit user</h2>
-{% for user in user_list %}
-<p><a href="/admin_edit_user?username={{ user }}">{{ user }}</a></p>
-{% endfor %}
+<h2>Users</h2>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Username</th>
+      <th scope="col">Catweb user?</th>
+      <th scope="col">Catweb org</th>
+      <th scope="col">email</th>
+      <th scope="col">Added date</th>
+      <th scope="col">Activated</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for username, user in user_d.items() %}
+    <tr>
+      <td scope="row">{{ username }}</td>
+      <td scope="row">{% if 'catweb_user' in user['attributes'] %}{{ user['attributes']['catweb_user'] }} {% else %}False{% endif %}</td>
+      <td scope="row">{% if 'catweb_organisation' in user['attributes'] %}{{ user['attributes']['catweb_organisation'] }} {% else %}None{% endif %}</td>
+      <td scope="row">{% if 'email' in user['attributes'] %}{{ user['attributes']['email'] }} {% else %}None{% endif %}</td>
+      <td scope="row">{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>
+      <td scope="row">{% if 'requires_review' in user['attributes'] %}No{% else %}Yes{% endif %}</td>
+      <td scope="row"><a href="/admin_edit_user?username={{ username }}">Edit</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 <h2>Config</h2>
   <textarea style="font-family: monospace;" rows=20 class="form-control" name="config">{{ config_yaml }}</textarea>

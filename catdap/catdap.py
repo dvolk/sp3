@@ -79,7 +79,7 @@ def root():
 
 @app.route('/get_users')
 def get_users():
-    return json.dumps(list(state['users'].keys()))
+    return json.dumps(state['users'])
 
 @app.route('/get_user')
 def get_user():
