@@ -289,7 +289,7 @@ def get_user_pipelines(username):
     if is_admin():
         return flows.keys()
     else:
-        return get_user_dict()['org_data']['upload_dirs']
+        return get_user_dict()['org_data']['pipelines']
 
 # todo move this and similar to nflib.py
 @app.route('/')
