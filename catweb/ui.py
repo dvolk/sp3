@@ -230,8 +230,6 @@ def login():
         org_name = attribs['catweb_organisation']
         org_data = authenticate.get_organisation(org_name)
 
-        logging.warning(org_data)
-
         if not org_data:
             return redirect(url_for('login', m='no_org'))
         if not 'upload_dirs' in org_data:
