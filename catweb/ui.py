@@ -194,8 +194,17 @@ def register_sp3_user():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
+        msg = request.args.get('m')
+
+        msgs = { 'wrong_login': 'Supplied login credentials are incorrect.',
+                 'not_active': 'User account has not been activated. Please contact the administrators after 1 day.',
+                 'no_org': 'User is not in any organisation. Please contact the administrators.',
+                 'wrong_org': 'User belongs to organisation with invalid configuration. Please contact the administrators.' }
+
         return render_template('login.template',
-                               next=request.args.get('next'))
+                               next=request.args.get('next'),
+                               msgs=msgs,
+                               msg=msg)
     if request.method == 'POST':
         if not 'username' in request.form or not 'password' in request.form:
             logging.warning(f"form submitted without username or password")
@@ -210,15 +219,27 @@ def login():
             logger.warning(f"user {form_username} verified")
         else:
             logger.warning(f"invalid credentials for user {form_username}")
-            return redirect('/')
+            return redirect(url_for('login', m='wrong_login'))
 
         attribs = authenticate.attributes_from_user_token(token)
+
+        if 'requires_review' in attribs:
+            return redirect(url_for('login', m='not_active'))
 
         # organisation stuff
         org_name = attribs['catweb_organisation']
         org_data = authenticate.get_organisation(org_name)
-        upload_dirs = org_data['upload_dirs']
 
+        logging.warning(org_data)
+
+        if not org_data:
+            return redirect(url_for('login', m='no_org'))
+        if not 'upload_dirs' in org_data:
+            return redirect(url_for('login', m='wrong_org'))
+        if not 'pipelines' in org_data:
+            return redirect(url_for('login', m='wrong_org'))
+
+        upload_dirs = org_data['upload_dirs']
         user_upload_dir = pathlib.Path(f'/data/inputs/users/{ form_username }')
         if not user_upload_dir.exists():
             user_upload_dir.mkdir()
@@ -247,7 +268,7 @@ def login():
         next = request.form.get('next')
         logger.warning(f"next url: {next}")
 
-        if not next or url_parse(next).netloc != '':
+        if not next or next == "/None" or next == "None" or url_parse(next).netloc != '':
             next = '/'
 
         return redirect(next)

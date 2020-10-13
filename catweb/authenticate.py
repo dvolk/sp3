@@ -32,9 +32,12 @@ def get_org_upload_dirs(org_name, organisations):
     return organisations[org_name]["upload_dirs"]
 
 def get_organisation(org_name):
-    return requests.get(f"http://127.0.0.1:13666/get_organisation",
-                        params={'group': 'catweb',
-                                'organisation': org_name}).json()['attributes']
+    org_data = requests.get(f"http://127.0.0.1:13666/get_organisation",
+                            params={'group': 'catweb',
+                                    'organisation': org_name}).json()
+    if not org_data:
+        return None
+    return org_data['attributes']
 
 def attributes_from_user_token(token):
     r = requests.get(f"http://127.0.0.1:13666/check_token/{token}").json()

@@ -6,7 +6,11 @@
     <h4>Login Required</h4>
     <hr />
   <p><span style="padding: 10px; background-color: #fbb"><b>2020-10-10: Due to a switch of authentication mechanism, we require users to re-create accounts</b></span><p>
-  <p><span><b><a href="/register_sp3_user">Please click here to create your account</a></b></span></p>
+    <p><span><b><a href="/register_sp3_user">Please click here to create your account</a></b></span></p>
+    {% if msg %}
+    <span><h3 class='text-danger'>Error: {{ msgs[msg] }}</h3></span>
+    <br>
+    {% endif %}
   </div>
   <br>
   <div class="col-md-6">

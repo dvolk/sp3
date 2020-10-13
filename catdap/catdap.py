@@ -168,7 +168,7 @@ def check_user():
 def check_token(token):
     if is_token_valid(token):
         attributes = get_attributes_from_token(token)
-        logging.info(f"check_token()! token={token},is_valid=true,attributes={attributes}")
+        logging.info(f"check_token()! token={token},is_valid=true")
         return json.dumps({ "attributes": attributes })
     else:
         logging.info(f"check_token()! token={token},is_valid=false")
@@ -207,10 +207,16 @@ def change_password(token):
 
 @app.route('/get_organisation')
 def get_organisation():
+    ret = None
     group = request.args['group']
     org_name = request.args['organisation']
+
     logging.debug(f"get_organisation()! group={group} organisation={org_name}")
-    return state['organisations'][org_name]
+
+    if org_name in state['organisations']:
+        ret = state['organisations'][org_name]
+
+    return json.dumps(ret)
 
 # --- main ---
 
