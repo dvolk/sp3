@@ -2,14 +2,14 @@
 
 {% block content %}
 <div class="container">
-    <h4>TB Genetic Neighbours ({{ organisation }})</h4>
+    <h4>TB Genetic Neighbours</h4>
     <hr />
-    <form action="/cw_query/{{ pipeline_name }}" method="post" role="form">
+    <form action="/cw_query">
     <div class="row">
-      <input type="text" placeholder="run id, see sample below" class="form-input col-md-4" name="run_id" id="run_id" value="{{ run_id }}"  />
-      <input type="text" placeholder="sample name" class="form-input col-md-4" name="sample_name" id="sample_name" value="{{ sample_name }}"  />
-      <input class="form-input col-md-1" type="number" id="distance" name="distance" min="0" max="12" value="{{ distance }}" />
-      <input class="form-input col-md-3 btn btn-primary" type="submit" value="Search Neighbours" id="search_submit" />
+      <input name="run_id" type="text" placeholder="run id, see sample below" class="form-input col-md-4" id="run_id" value="{{ run_id }}"  />
+      <input name="sample_name" type="text" placeholder="sample name" class="form-input col-md-4" id="sample_name" value="{{ sample_name }}"  />
+      <input name="distance" class="form-input col-md-1" type="number" id="distance" min="0" max="12" value="{{ distance }}" />
+      <input type="submit" class="form-input col-md-3 btn btn-primary" value="Search Neighbours" id="search_submit" />
     </div>
     <div class="row">
       <span class="form-input col-md-4">eg. 6ecf6616-6d25-4a2d-9588-a9dc7f2c681a</span>

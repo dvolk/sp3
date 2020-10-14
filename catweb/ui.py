@@ -1228,26 +1228,21 @@ def get_report(run_uuid : str, dataset_id: str):
                            dataset_id=dataset_id,
                            report=template_report_data)
 
-@app.route('/cw_query/<pipeline_name>', methods=['GET', 'POST'])
+@app.route('/cw_query')
 @flask_login.login_required
-def cw_query(pipeline_name):
-    org_name = ''
+def cw_query():
     msg = ""
-    if 'Clockwork' in pipeline_name:
-        org_name = pipeline_name.split('-')[0]
-    
-    if request.method == 'GET':
+
+    run_id = request.args.get('run_id')
+    sample_name = request.args.get('sample_name')
+    distance = request.args.get('distance')
+
+    if not (run_id and sample_name and distance):
         return render_template('cw_query.template',
-                           organisation = org_name,
-                               pipeline_name = pipeline_name,
                                distance = 12)
-       
-    if request.method == 'POST':
+
+    else:
         # call persistence API to get run-name map
-        
-        run_id = request.form['run_id']
-        sample_name = request.form['sample_name']
-        distance = request.form['distance']
         if '-' in run_id:
             combine_name = run_id + '_' + sample_name
             res = requests.get(f'https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}')
@@ -1257,31 +1252,25 @@ def cw_query(pipeline_name):
                 neighbours = res.json()
                 return render_template('cw_query.template',
                                        neighbours_ok = True,
-                           all_runs = all_runs,
-                           organisation = org_name,
-                           run_id = run_id,            
-                           sample_name = sample_name,
-                           pipeline_name = pipeline_name,
-                               distance = distance,
-                               message = msg,
-                               neighbours = neighbours )                
-            
+                                       all_runs = all_runs,
+                                       run_id = run_id,
+                                       sample_name = sample_name,
+                                       distance = distance,
+                                       message = msg,
+                                       neighbours = neighbours )
+
             else:
                 return render_template('cw_query.template',
-                           organisation = org_name,
-                           run_id = run_id,            
-                           sample_name = sample_name,
-                           pipeline_name = pipeline_name,
-                              distance = 12,
-                              message = res.text)
+                                       run_id = run_id,
+                                       sample_name = sample_name,
+                                       distance = 12,
+                                       message = res.text)
         else:
             msg = f'Sample name {sample_name} is invalid, please follow the format and try again.'
             return render_template('cw_query.template',
-                           organisation = org_name,
-                           pipeline_name = pipeline_name,
-                               distance = 12,
-                               message = msg )
-        
+                                   distance = 12,
+                                   message = msg )
+
 @app.route('/get_cluster_stats')
 def proxy_get_cluster_stats():
     response = api_get_request('catstat_api', '/data')
