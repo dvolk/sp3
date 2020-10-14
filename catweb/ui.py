@@ -1232,6 +1232,7 @@ def get_report(run_uuid : str, dataset_id: str):
 @flask_login.login_required
 def cw_query(pipeline_name):
     org_name = ''
+    msg = ""
     if 'Clockwork' in pipeline_name:
         org_name = pipeline_name.split('-')[0]
     
@@ -1242,6 +1243,8 @@ def cw_query(pipeline_name):
                                distance = 12)
        
     if request.method == 'POST':
+        # call persistence API to get run-name map
+        
         run_id = request.form['run_id']
         sample_name = request.form['sample_name']
         distance = request.form['distance']
@@ -1251,22 +1254,18 @@ def cw_query(pipeline_name):
             res = requests.get(f'http://localhost:5000/neighbours/{combine_name}/{distance}')
             logger.debug(f'catwalk neighbours: {res}')
             if res.status_code == 200:
+                all_runs = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()
                 neighbours = res.json()
-                count = len(neighbours) 
-                if count == 0:
-                    msg = f'No neighbours found for sample: {sample_name}.'
-                if count == 1:
-                    msg = f'Found 1 neighbour for sample: {sample_name}.'
-                if count > 1:
-                    msg = f'Found {count} neighbours for sample: {sample_name}.'
                 return render_template('cw_query.template',
+                                       neighbours_ok = True,
+                           all_runs = all_runs,
                            organisation = org_name,
                            run_id = run_id,            
                            sample_name = sample_name,
                            pipeline_name = pipeline_name,
                                distance = distance,
                                message = msg,
-                               neighbours = res.json() )                
+                               neighbours = neighbours )                
             
             else:
                 return render_template('cw_query.template',
