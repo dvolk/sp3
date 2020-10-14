@@ -1250,11 +1250,10 @@ def cw_query(pipeline_name):
         distance = request.form['distance']
         if '-' in run_id:
             combine_name = run_id + '_' + sample_name
-            #curl http://localhost:5000/neighbours/6ecf6616-6d25-4a2d-9588-a9dc7f2c681a_ERR552831/12
-            res = requests.get(f'http://localhost:5000/neighbours/{combine_name}/{distance}')
-            logger.debug(f'catwalk neighbours: {res}')
+            res = requests.get(f'https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}')
             if res.status_code == 200:
                 all_runs = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()
+                logger.debug(f'catwalk neighbours: {res.text}')
                 neighbours = res.json()
                 return render_template('cw_query.template',
                                        neighbours_ok = True,

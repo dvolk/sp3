@@ -148,6 +148,39 @@ def get_instance(persistence_dir, instance_uuid):
 def root():
     return redirect('/login')
 
+# --- api ---
+
+runs_name_map_json_str = str()
+
+def make_runs_name_map():
+    runs_name_map = dict()
+    for instance in get_instances('/work/persistence'):
+        instance_id = instance['id']
+        with sqlite3.connect(f'/work/persistence/{instance_id}/db/catweb.sqlite') as con:
+            for row in con.execute("select run_uuid, output_name from nfruns"):
+                run_uuid = row[0]
+                run_name = row[1]
+
+                runs_name_map[run_uuid] = {
+                    'instance_name': instance['name'],
+                    'instance_id': instance_id,
+                    'run_name': run_name
+                }
+
+    global runs_name_map_json_str
+    runs_name_map_json_str = json.dumps(runs_name_map)
+
+make_runs_name_map()
+
+@app.route("/api_get_runs_name_map")
+def api_get_runs_name_map():
+    return runs_name_map_json_str
+
+@app.route("/api_cw_get_neighbours/<run_uuid_and_sample_name>/<snp_distance>")
+def api_cw_get_neighbours(run_uuid_and_sample_name, snp_distance):
+    return requests.get(f"http://localhost:5000/neighbours/{ run_uuid_and_sample_name }/{ snp_distance }").text
+
+# ---- ui ---
 @app.route('/list_instances')
 @flask_login.login_required
 def list_instances():
