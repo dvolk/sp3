@@ -1232,10 +1232,13 @@ def get_report(run_uuid : str, dataset_id: str):
 @flask_login.login_required
 def cw_query():
     msg = ""
+    all_runs = dict()
+    neighbours = list()
 
     run_id = request.args.get('run_id')
     sample_name = request.args.get('sample_name')
     distance = request.args.get('distance')
+    neighbours_ok = False
 
     if not (run_id and sample_name and distance):
         return render_template('cw_query.template',
@@ -1243,33 +1246,26 @@ def cw_query():
 
     else:
         # call persistence API to get run-name map
-        if '-' in run_id:
-            combine_name = run_id + '_' + sample_name
-            res = requests.get(f'https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}')
-            if res.status_code == 200:
-                all_runs = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()
-                logger.debug(f'catwalk neighbours: {res.text}')
-                neighbours = res.json()
-                return render_template('cw_query.template',
-                                       neighbours_ok = True,
-                                       all_runs = all_runs,
-                                       run_id = run_id,
-                                       sample_name = sample_name,
-                                       distance = distance,
-                                       message = msg,
-                                       neighbours = neighbours )
+        combine_name = run_id + '_' + sample_name
+        res = requests.get(f'https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}')
+        message = res.text
+        logger.debug(f'catwalk returned: {res.text}')
+        try:
+            neighbours = res.json()
+            neighbours_ok = True
+            all_runs = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()
+            message = ""
+        except:
+            pass
 
-            else:
-                return render_template('cw_query.template',
-                                       run_id = run_id,
-                                       sample_name = sample_name,
-                                       distance = 12,
-                                       message = res.text)
-        else:
-            msg = f'Sample name {sample_name} is invalid, please follow the format and try again.'
-            return render_template('cw_query.template',
-                                   distance = 12,
-                                   message = msg )
+        return render_template('cw_query.template',
+                               neighbours_ok = neighbours_ok,
+                               all_runs = all_runs,
+                               run_id = run_id,
+                               sample_name = sample_name,
+                               distance = distance,
+                               message = message,
+                               neighbours = neighbours )
 
 @app.route('/get_cluster_stats')
 def proxy_get_cluster_stats():

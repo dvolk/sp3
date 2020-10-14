@@ -6,15 +6,15 @@
     <hr />
     <form action="/cw_query">
     <div class="row">
-      <input name="run_id" type="text" placeholder="run id, see sample below" class="form-input col-md-4" id="run_id" value="{{ run_id }}"  />
-      <input name="sample_name" type="text" placeholder="sample name" class="form-input col-md-4" id="sample_name" value="{{ sample_name }}"  />
+      <input name="run_id" type="text" placeholder="run id, see example below" data-val-required="run id is required." class="form-input col-md-4" id="run_id" value="{{ run_id }}"  />
+      <input name="sample_name" type="text" placeholder="sample name" data-val-required="sample name is required." class="form-input col-md-4" id="sample_name" value="{{ sample_name }}"  />
       <input name="distance" class="form-input col-md-1" type="number" id="distance" min="0" max="12" value="{{ distance }}" />
       <input type="submit" class="form-input col-md-3 btn btn-primary" value="Search Neighbours" id="search_submit" />
     </div>
     <div class="row">
       <span class="form-input col-md-4">eg. 6ecf6616-6d25-4a2d-9588-a9dc7f2c681a</span>
       <span class="form-input col-md-4">eg. ERR552831</span>
-      <span class="col-md-1">0-12</span>
+      <span class="col-md-1">SNPs:0-12</span>
     </div>
     </form>
 
