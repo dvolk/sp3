@@ -6,25 +6,43 @@
     <hr />
     <form action="/cw_query/{{ pipeline_name }}" method="post" role="form">
     <div class="row">
-      <input type="text" placeholder="search via runid and sample name" class="form-input col-md-6" name="sample_name" id="sample_name" value="{{ sample_name }}"  />
+      <input type="text" placeholder="run id, see sample below" class="form-input col-md-5" name="run_id" id="run_id" value="{{ run_id }}"  />
+      <input type="text" placeholder="sample name" class="form-input col-md-2" name="sample_name" id="sample_name" value="{{ sample_name }}"  />
       <input class="form-input col-md-1" type="number" id="distance" name="distance" min="0" max="12" value="{{ distance }}" />
-      <input class="form-input col-md-2 btn btn-primary" type="submit" value="Search Neighbours" id="search_submit" />
+      <input class="form-input col-md-3 btn btn-primary" type="submit" value="Search Neighbours" id="search_submit" />
     </div>
     <div class="row">
-      <span class="form-input col-md-6">eg. 6ecf6616-6d25-4a2d-9588-a9dc7f2c681a_ERR552831</span>
+      <span class="form-input col-md-5">eg. 6ecf6616-6d25-4a2d-9588-a9dc7f2c681a</span>
+      <span class="form-input col-md-2">eg. ERR552831</span>
       <span class="col-md-1">0-12</span>
     </div>
     </form>
 
     <hr />
     {% if message %}
-       <p>{{ message }}</p>
+        <p>{{ message }}</p>		
     {% endif %}
-    {% if neighbours %}
-        <strong>{{ neighbours | length }} Neighbours Found</strong>	
-	{% for neighbour in neighbours%}
-	    <p> {{ neighbour }}</p>
+    {% if neighbours | length > 0 %}
+       <table class="table table-hover table-sm">
+	 <thead>
+	   <tr>
+	     <th>Run UUID</th>
+	     <th>Sample name</th>
+	     <th>SNP distance</th>
+	   </tr>
+	 </thead>
+	 <tbody>
+	   {% for neighbour in neighbours%}
+	   {% set run_uuid = neighbour[0][0:36] %}
+	   {% set sample_name = neighbour[0][37:] %}
+	   <tr>
+	     <td style="font-family: monospace">{{ run_uuid }}</td>
+	     <td style="font-family: monospace">{{ sample_name }}</td>
+	     <td>{{ neighbour[1] }}</td>
+	   </tr>
 	{% endfor %}
+	 </tbody>
+       </table>
     {% endif %}	
 </div>
 {% endblock%}

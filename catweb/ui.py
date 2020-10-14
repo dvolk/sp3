@@ -1242,25 +1242,39 @@ def cw_query(pipeline_name):
                                distance = 12)
        
     if request.method == 'POST':
+        run_id = request.form['run_id']
         sample_name = request.form['sample_name']
         distance = request.form['distance']
-        if '_' in sample_name and '-' in sample_name:
+        if '-' in run_id:
+            combine_name = run_id + '_' + sample_name
             #curl http://localhost:5000/neighbours/6ecf6616-6d25-4a2d-9588-a9dc7f2c681a_ERR552831/12
-            res = requests.get(f'http://localhost:5000/neighbours/{sample_name}/{distance}')
+            res = requests.get(f'http://localhost:5000/neighbours/{combine_name}/{distance}')
             logger.debug(f'catwalk neighbours: {res}')
             if res.status_code == 200:
+                neighbours = res.json()
+                count = len(neighbours) 
+                if count == 0:
+                    msg = f'No neighbours found for sample: {sample_name}.'
+                if count == 1:
+                    msg = f'Found 1 neighbour for sample: {sample_name}.'
+                if count > 1:
+                    msg = f'Found {count} neighbours for sample: {sample_name}.'
                 return render_template('cw_query.template',
                            organisation = org_name,
+                           run_id = run_id,            
                            sample_name = sample_name,
                            pipeline_name = pipeline_name,
                                distance = distance,
+                               message = msg,
                                neighbours = res.json() )                
             
             else:
                 return render_template('cw_query.template',
                            organisation = org_name,
+                           run_id = run_id,            
+                           sample_name = sample_name,
                            pipeline_name = pipeline_name,
-                           distance = 12,
+                              distance = 12,
                               message = res.text)
         else:
             msg = f'Sample name {sample_name} is invalid, please follow the format and try again.'
