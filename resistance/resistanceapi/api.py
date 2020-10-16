@@ -32,4 +32,4 @@ def flask_get_resistance_for_tb_sample(vcf_id):
     return get_resistance_for_tb_sample(vcf_id)
 
 if __name__ == "__main__":
-    app.run(port=8990, debug=True)
+    app.run(port=8990, debug=False)

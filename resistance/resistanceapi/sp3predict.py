@@ -105,8 +105,8 @@ def run(vcf_file,
 
         VARIANT['UNIQUEID']=sample_genome.name
 
-        # reorder the columns
-        VARIANT=VARIANT[['UNIQUEID','VARIANT','REF','ALT','GENOME_INDEX','GENE','ELEMENT_TYPE',"MUTATION_TYPE",'POSITION','NUCLEOTIDE_NUMBER','AMINO_ACID_NUMBER','ASSOCIATED_WITH_GENE','GT_CONF_PERCENTILE','IN_PROMOTER','IN_CDS','IS_SNP','IS_INDEL','IS_HET','IS_NULL','INDEL_LENGTH',"INDEL_1","INDEL_2","COVERAGE","HET_VARIANT_0","HET_VARIANT_1","HET_COVERAGE_0","HET_COVERAGE_1","HET_INDEL_LENGTH_0","HET_INDEL_LENGTH_1","HET_REF","HET_ALT_0","HET_ALT_1","GT_CONF"]]
+        assert 'VARIANT' in VARIANT.columns, "VARIANT not in VARIANT table!"
+        assert 'IS_SNP' in VARIANT.columns, "IS_SNP not in VARIANT table!"
 
         # set the index
         VARIANT.set_index(['UNIQUEID','VARIANT','IS_SNP'],inplace=True,verify_integrity=True)
@@ -144,9 +144,9 @@ def run(vcf_file,
                                      'IS_NULL':'bool',\
                                      'NUMBER_NUCLEOTIDE_CHANGES':'int'})
 
-        # reorder the columns
-        # MUTATIONS=MUTATIONS[["UNIQUEID","GENE","MUTATION","POSITION","SITEID","MUTATION_TYPE","ELEMENT_TYPE","AMINO_ACID_NUMBER","NUCLEOTIDE_NUMBER","IN_PROMOTER","IN_CDS","IS_SYNONYMOUS","IS_NONSYNONYMOUS","IS_HET","IS_INDEL","IS_NULL","IS_SNP","REF","ALT","NUMBER_NUCLEOTIDE_CHANGES","INDEL_LENGTH","INDEL_1","INDEL_2"]]
-        MUTATIONS=MUTATIONS[["UNIQUEID",'GENE','MUTATION','POSITION','AMINO_ACID_NUMBER','GENOME_INDEX','NUCLEOTIDE_NUMBER','REF','ALT','IS_SNP','IS_INDEL','IN_CDS','IN_PROMOTER','IS_SYNONYMOUS','IS_NONSYNONYMOUS','IS_HET','IS_NULL','ELEMENT_TYPE','MUTATION_TYPE','INDEL_LENGTH','INDEL_1','INDEL_2',"NUMBER_NUCLEOTIDE_CHANGES"]]
+        assert 'GENE' in MUTATIONS.columns, 'GENE not in MUTATIONS table'
+        assert 'MUTATION' in MUTATIONS.columns, 'MUTATION not in MUTATIONS table'
+
         # set the index
         MUTATIONS.set_index(["UNIQUEID","GENE",'MUTATION'],inplace=True,verify_integrity=True)
 
