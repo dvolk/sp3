@@ -25,7 +25,7 @@ class Gene(object):
         # assert numpy.issubdtype(numbering.dtype.type,numpy.float64), gene_name+": gene numbering must be a Numpy array of integers!"
 
         sequence=numpy.char.lower(sequence)
-        assert numpy.count_nonzero(numpy.isin(sequence,['a','t','c','g','x','z']))==len(sequence), gene_name+": sequence can only contain a,t,c,g,z,x"
+        assert numpy.count_nonzero(numpy.isin(sequence,['a','t','c','g','x','z','o']))==len(sequence), gene_name+": sequence can only contain a,t,c,g,z,x"
 
         promoter_mask=numbering<0
         cds_mask=numbering>0
@@ -40,6 +40,7 @@ class Gene(object):
             self.index=index
             self.is_cds=cds_mask
             self.is_promoter=promoter_mask
+            # self.is_filter_fail=is_filter_fail
         else:
             self.on_noncoding_strand=True
             self.sequence=sequence[::-1]
@@ -50,6 +51,7 @@ class Gene(object):
             self.index=index[::-1]
             self.is_cds=cds_mask[::-1]
             self.is_promoter=promoter_mask[::-1]
+            # self.is_filter_fail=is_filter_fail[::-1]
 
         self.cds_index_start=numpy.min(self.index[self.is_cds])
         self.cds_index_end=numpy.max(self.index[self.is_cds])
@@ -99,8 +101,10 @@ class Gene(object):
 
     def _setup_conversion_dicts(self):
 
-        bases = ['t', 'c', 'a', 'g', 'x', 'z']
-        aminoacids = 'FFLLXZSSSSXZYY!!XZCC!WXZXXXXXXZZZZXZLLLLXZPPPPXZHHQQXZRRRRXZXXXXXXZZZZXZIIIMXZTTTTXZNNKKXZSSRRXZXXXXXXZZZZXZVVVVXZAAAAXZDDEEXZGGGGXZXXXXXXZZZZXZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXZZZZXZZZZZXZZZZZXZZZZZXZXXXXXXZZZZXZ'
+        bases = ['t', 'c', 'a', 'g', 'x', 'z', 'o']
+        # aminoacids = 'FFLLXZSSSSXZYY!!XZCC!WXZXXXXXXZZZZXZLLLLXZPPPPXZHHQQXZRRRRXZXXXXXXZZZZXZIIIMXZTTTTXZNNKKXZSSRRXZXXXXXXZZZZXZVVVVXZAAAAXZDDEEXZGGGGXZXXXXXXZZZZXZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXZZZZXZZZZZXZZZZZXZZZZZXZXXXXXXZZZZXZ'
+        # aminoacids = 'FFLLXZOSSSSXZOYY!!XZOCC!WXZOXXXXXXOZZZZXZOOOOOOOOLLLLXZOPPPPXZOHHQQXZORRRRXZOXXXXXXOZZZZXZOOOOOOOOIIIMXZOTTTTXZONNKKXZOSSRRXZOXXXXXXOZZZZXZOOOOOOOOVVVVXZOAAAAXZODDEEXZOGGGGXZOXXXXXXOZZZZXZOOOOOOOOXXXXXXOXXXXXXOXXXXXXOXXXXXXOXXXXXXOXXXXXXOOOOOOOOZZZZXZOZZZZXZOZZZZXZOZZZZXZOXXXXXXOZZZZXZOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'
+        aminoacids = 'FFLLXZOSSSSXZOYY!!XZOCC!WXZOXXXXXXXZZZZXZOOOOOXOOLLLLXZOPPPPXZOHHQQXZORRRRXZOXXXXXXXZZZZXZOOOOOXOOIIIMXZOTTTTXZONNKKXZOSSRRXZOXXXXXXXZZZZXZOOOOOXOOVVVVXZOAAAAXZODDEEXZOGGGGXZOXXXXXXXZZZZXZOOOOOXOOXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXZZZZXZOZZZZXZOZZZZXZOZZZZXZOXXXXXXXZZZZXZOOOOOXOOOOOOXOOOOOOXOOOOOOXOOOOOOXOOXXXXXXXOOOOXOOOOOOXOO'
         all_codons = numpy.array([a+b+c for a in bases for b in bases for c in bases])
         self.codon_to_amino_acid = dict(zip(all_codons, aminoacids))
         # self.amino_acids_of_codons=numpy.array([self.codon_to_amino_acid[i] for i in all_codons])
@@ -206,7 +210,7 @@ class Gene(object):
         assert self.codes_protein==other.codes_protein, "both genes must be identical!"
 
         MUTATIONS_dict={}
-        MUTATIONS_columns=['GENE','MUTATION','REF','ALT','POSITION','AMINO_ACID_NUMBER','GENOME_INDEX','NUCLEOTIDE_NUMBER','IS_SNP','IS_INDEL','IN_CDS','IN_PROMOTER','ELEMENT_TYPE','MUTATION_TYPE','INDEL_LENGTH','INDEL_1','INDEL_2']
+        MUTATIONS_columns=['GENE','MUTATION','REF','ALT','POSITION','AMINO_ACID_NUMBER','GENOME_INDEX','NUCLEOTIDE_NUMBER','IS_SNP','IS_INDEL','IS_NULL','IS_FILTER_PASS','IN_CDS','IN_PROMOTER','ELEMENT_TYPE','MUTATION_TYPE','INDEL_LENGTH','INDEL_1','INDEL_2']
         for cols in MUTATIONS_columns:
             MUTATIONS_dict[cols]=[]
 
@@ -233,13 +237,21 @@ class Gene(object):
                 MUTATIONS_dict['GENOME_INDEX'].append(0)
                 MUTATIONS_dict['IS_SNP'].append(True)
                 MUTATIONS_dict['IS_INDEL'].append(False)
+                if a=='X':
+                    MUTATIONS_dict['IS_NULL'].append(True)
+                else:
+                    MUTATIONS_dict['IS_NULL'].append(False)
+                if a=='O':
+                    MUTATIONS_dict['IS_FILTER_PASS'].append(False)
+                else:
+                    MUTATIONS_dict['IS_FILTER_PASS'].append(True)
                 MUTATIONS_dict['IN_CDS'].append(True)
                 MUTATIONS_dict['IN_PROMOTER'].append(False)
                 MUTATIONS_dict['INDEL_LENGTH'].append(0)
                 MUTATIONS_dict['ELEMENT_TYPE'].append(self.gene_type)
                 MUTATIONS_dict['MUTATION_TYPE'].append('AAM')
-                MUTATIONS_dict['INDEL_1'].append(None)
-                MUTATIONS_dict['INDEL_2'].append(None)
+                MUTATIONS_dict['INDEL_1'].append('')
+                MUTATIONS_dict['INDEL_2'].append('')
 
             mask=(self.sequence!=other.sequence) & self.is_promoter
             pos=self.numbering[mask]
@@ -258,13 +270,21 @@ class Gene(object):
                 MUTATIONS_dict['GENOME_INDEX'].append(i)
                 MUTATIONS_dict['IS_SNP'].append(True)
                 MUTATIONS_dict['IS_INDEL'].append(False)
+                if a=='x':
+                    MUTATIONS_dict['IS_NULL'].append(True)
+                else:
+                    MUTATIONS_dict['IS_NULL'].append(False)
+                if a=='o':
+                    MUTATIONS_dict['IS_FILTER_PASS'].append(False)
+                else:
+                    MUTATIONS_dict['IS_FILTER_PASS'].append(True)
                 MUTATIONS_dict['IN_CDS'].append(False)
                 MUTATIONS_dict['IN_PROMOTER'].append(True)
                 MUTATIONS_dict['INDEL_LENGTH'].append(0)
                 MUTATIONS_dict['ELEMENT_TYPE'].append(self.gene_type)
                 MUTATIONS_dict['MUTATION_TYPE'].append('SNP')
-                MUTATIONS_dict['INDEL_1'].append(None)
-                MUTATIONS_dict['INDEL_2'].append(None)
+                MUTATIONS_dict['INDEL_1'].append('')
+                MUTATIONS_dict['INDEL_2'].append('')
 
         else:
             mask=self.sequence!=other.sequence
@@ -272,6 +292,7 @@ class Gene(object):
             ref=other.sequence[mask]
             alt=self.sequence[mask]
             idx=self.index[mask]
+            # filter_fail=self.is_filter_fail[mask]
             for (r,p,a,i) in zip(ref,pos,alt,idx):
                 if p<0:
                     is_promoter=True
@@ -290,13 +311,21 @@ class Gene(object):
                 MUTATIONS_dict['GENOME_INDEX'].append(i)
                 MUTATIONS_dict['IS_SNP'].append(True)
                 MUTATIONS_dict['IS_INDEL'].append(False)
+                if a=='x':
+                    MUTATIONS_dict['IS_NULL'].append(True)
+                else:
+                    MUTATIONS_dict['IS_NULL'].append(False)
+                if a=='o':
+                    MUTATIONS_dict['IS_FILTER_PASS'].append(False)
+                else:
+                    MUTATIONS_dict['IS_FILTER_PASS'].append(True)
                 MUTATIONS_dict['IN_CDS'].append(is_cds)
                 MUTATIONS_dict['IN_PROMOTER'].append(is_promoter)
                 MUTATIONS_dict['INDEL_LENGTH'].append(0)
                 MUTATIONS_dict['ELEMENT_TYPE'].append(self.gene_type)
                 MUTATIONS_dict['MUTATION_TYPE'].append('SNP')
-                MUTATIONS_dict['INDEL_1'].append(None)
-                MUTATIONS_dict['INDEL_2'].append(None)
+                MUTATIONS_dict['INDEL_1'].append('')
+                MUTATIONS_dict['INDEL_2'].append('')
 
 
         mask=self.is_indel
@@ -321,14 +350,16 @@ class Gene(object):
                 mut2=mut1+"_"+str(-1*l)
             MUTATIONS_dict['GENE'].append(self.gene_name)
             MUTATIONS_dict['MUTATION'].append(mut0)
-            MUTATIONS_dict['REF'].append(None)
-            MUTATIONS_dict['ALT'].append(None)
+            MUTATIONS_dict['REF'].append('')
+            MUTATIONS_dict['ALT'].append('')
             MUTATIONS_dict['POSITION'].append(p)
             MUTATIONS_dict['AMINO_ACID_NUMBER'].append(n)
             MUTATIONS_dict['NUCLEOTIDE_NUMBER'].append(p)
             MUTATIONS_dict['GENOME_INDEX'].append(i)
             MUTATIONS_dict['IS_SNP'].append(False)
             MUTATIONS_dict['IS_INDEL'].append(True)
+            MUTATIONS_dict['IS_NULL'].append(False)
+            MUTATIONS_dict['IS_FILTER_PASS'].append(True)
             MUTATIONS_dict['IN_CDS'].append(is_cds)
             MUTATIONS_dict['IN_PROMOTER'].append(is_promoter)
             MUTATIONS_dict['INDEL_LENGTH'].append(l)
@@ -353,6 +384,8 @@ class Gene(object):
                                                     'GENOME_INDEX':'float',\
                                                     'IS_SNP':'bool',\
                                                     'IS_INDEL':'bool',\
+                                                    'IS_NULL':'bool',\
+                                                    'IS_FILTER_PASS':'bool',\
                                                     'IN_CDS':'bool',\
                                                     'IN_PROMOTER':'bool',\
                                                     'INDEL_LENGTH':'float',\
@@ -361,11 +394,11 @@ class Gene(object):
                                                     'INDEL_1':'str',\
                                                     'INDEL_2':'str'})
 
-            # MUTATIONS_table=MUTATIONS_table.replace({   'POSITION':0,\
-            #                                             'NUCLEOTIDE_NUMBER':0,\
-            #                                             'AMINO_ACID_NUMBER':0,\
-            #                                             'GENOME_INDEX':0,\
-            #                                             'INDEL_LENGTH':0  }, numpy.nan)
+            MUTATIONS_table=MUTATIONS_table.replace({   'POSITION':0,\
+                                                        'NUCLEOTIDE_NUMBER':0,\
+                                                        'AMINO_ACID_NUMBER':0,\
+                                                        'GENOME_INDEX':0,\
+                                                        'INDEL_LENGTH':0  }, numpy.nan)
 
             return(MUTATIONS_table)
 
@@ -441,6 +474,6 @@ class Gene(object):
         assert before==self.sequence[mask][0], "base in genome is "+self.sequence[mask][0]+" but specified base is "+before
 
         # check that the base to be mutated to is valid (z=het, ?=any other base according to the grammar)
-        assert after in ['c','t','g','a','?','z'], after+" is not a valid nucleotide!"
+        assert after in ['c','t','g','a','?','z','x','o'], after+" is not a valid nucleotide!"
 
         return True
