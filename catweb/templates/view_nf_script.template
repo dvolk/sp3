@@ -1,0 +1,6 @@
+{% extends "base1.template" %}
+{% block content %}
+
+<h2>Nextflow script</h2>
+  <textarea style="font-family: monospace;" rows=20 class="form-control" name="config">{{ config_yaml }}</textarea>
+{% endblock content %}

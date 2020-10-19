@@ -347,7 +347,7 @@ def view_nf_script(flow_name):
 
     config_content = response['nf_script_txt']
 
-    return render_template('admin.template', config_yaml=config_content)
+    return render_template('view_nf_script.template', config_yaml=config_content)
 
 @app.route('/edit_flow_config/<flow_name>')
 @flask_login.login_required
@@ -356,7 +356,7 @@ def edit_flow_config(flow_name):
 
     config_content = response['config_content']
 
-    return render_template('admin.template', config_yaml=config_content)
+    return render_template('view_flow_config.template', config_yaml=config_content)
 
 @app.route('/admin_edit_user', methods=['GET', 'POST'])
 @flask_login.login_required
