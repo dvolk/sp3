@@ -74,7 +74,7 @@ if __name__ == "__main__":
             print("Instantiating a Resistance Catalogue..")
 
         # instantiate a Resistance Catalogue instance by passing a text file
-        resistance_catalogue=piezo.ResistanceCatalogue(options.catalogue_file)
+        resistance_catalogue=piezo.ResistanceCatalogue(options.catalogue_file, prediction_subset_only=True)
 
     if options.debug:
         print("Creating a sample Genome object by copying the reference Genome object...")

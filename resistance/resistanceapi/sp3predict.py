@@ -69,7 +69,7 @@ def run(vcf_file,
             print("Instantiating a Resistance Catalogue..")
 
         # instantiate a Resistance Catalogue instance by passing a text file
-        resistance_catalogue=piezo.ResistanceCatalogue(catalogue_file)
+        resistance_catalogue=piezo.ResistanceCatalogue(catalogue_file, prediction_subset_only=True)
 
     if debug:
         print("Creating a sample Genome object by copying the reference Genome object...")
