@@ -1,0 +1,24 @@
+{% extends "base1.template" %}
+{% block content %}
+
+<h2>SP3 Blog</h2>
+<br>
+
+{% if is_admin %}<h3><a href="/blog/new">Create a new post</a></h3>{% endif %}
+
+{% for post in posts %}
+
+<h3><a href="/blog/post/{{ post[0] }}">{{ post[2] }}</a></h3>
+<small>
+  <p>Posted on {{ post[3]|epochtodate }} by {{ post[1] }} {% if is_admin %} <a href="/blog/edit/{{ post[0] }}">Edit</a> {% endif %}</p>
+</small>
+
+<div>{{ post[4] }}</div>
+
+<!-- <p><a href="/blog/{ post[0]}">Comments</a></p> -->
+
+<hr>
+
+{% endfor %}
+
+{% endblock %}

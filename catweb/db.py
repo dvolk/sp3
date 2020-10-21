@@ -3,6 +3,7 @@ import time
 import json
 import logging
 import copy
+import uuid
 
 logger = logging.getLogger('api')
 
@@ -23,6 +24,9 @@ def setup_db(db_target):
         #
         #
         con.execute("CREATE TABLE if not exists reference_cache (uuid primary key not null, reference_json)")
+
+        con.execute("CREATE TABLE if not exists blog_posts(post_uuid primary key not null, post_author, post_time, post_title, post_body)")
+        con.execute("CREATE TABLE if not exists blog_comments(comment_uuid primary key not null, comment_author, comment_time, comment_body)")
     return con
 
 def add_to_reference_cache(ref_uuid, reference_json):
@@ -133,4 +137,33 @@ def insert_run(s, run_uuid):
     con.execute("delete from nfruns where run_uuid = ?", (run_uuid,))
     print ("entering actual run")
     con.execute("insert into nfruns values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", s)
+    con.commit()
+
+# --- blog ---
+#        con.execute("CREATE TABLE if not exists blog_posts(post_uuid primary key not null, post_author, post_time, post_title, post_body)")
+#        con.execute("CREATE TABLE if not exists blog_comments(comment_uuid primary key not null, comment_author, comment_time, comment_body)")
+
+
+def get_blog_posts():
+    return con.execute("select * from blog_posts order by post_time desc").fetchall()
+
+def get_blog_post(post_id):
+    return con.execute("select * from blog_posts where post_uuid = ?", (post_id,)).fetchall()
+
+def new_blog_post(data):
+    post_uuid = str(uuid.uuid4())
+    post_time = str(int(time.time()))
+
+    sql_data = (post_uuid,
+                data['author'],
+                data['title'],
+                post_time,
+                data['body'])
+
+    con.execute("insert into blog_posts values (?, ?, ?, ?, ?)", sql_data)
+    con.commit()
+
+def edit_blog_post(post_id, data):
+    logger.warning(data)
+    con.execute("update blog_posts set post_title = ?, post_body = ? where post_uuid = ?", (data['title'], data['body'], post_id))
     con.commit()

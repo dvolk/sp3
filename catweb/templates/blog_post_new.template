@@ -1,0 +1,20 @@
+{% extends "base1.template" %}
+{% block content %}
+
+<form action='/blog/new' method='POST'>
+
+  <div class="input-group">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Title</span>
+    </div>
+    <input name="title" type=text class="form-control" required>
+  </div>
+  <br/>
+
+  <textarea rows=20 class="form-control" name="body" id="body"></textarea>
+
+  <button style="margin-top: 5px;" id="submitButton" type="submit"
+	  class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}

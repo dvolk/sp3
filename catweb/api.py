@@ -455,5 +455,27 @@ def get_dagdot(flow_name, run_uuid):
 
     return make_api_response('success', data={'log': content})
 
+# --- blog ---
+
+@app.route('/get_posts')
+def get_posts():
+    return make_api_response('success', data={'posts': db.get_blog_posts()})
+
+@app.route('/get_post/<post_id>')
+def get_post(post_id):
+    return make_api_response('success', data={'post': db.get_blog_post(post_id)})
+
+@app.route('/new_post', methods=['POST'])
+def new_post():
+    logger.warning(request.json)
+    db.new_blog_post(request.json)
+    return make_api_response('success')
+
+@app.route('/edit_post/<post_id>', methods=['POST'])
+def edit_post(post_id):
+    logger.warning(request.json)
+    db.edit_blog_post(post_id, request.json)
+    return make_api_response('success')
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=7100)
