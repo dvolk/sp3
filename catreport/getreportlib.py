@@ -60,10 +60,11 @@ def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
         logging.warning(report_resistance_filepath)
         try:
             with open(report_resistance_filepath) as f:
-                report_data['resistance']['data'] = json.loads(f.read())['data']
+                file_json_content = json.loads(f.read())
             report_data['resistance']['finished_epochtime'] = int(r[5])
             report_data['resistance']['status'] = 'success'
-            report_data['resistance']['message'] = str()
+            report_data['resistance']['message'] = file_json_content['message']
+            report_data['resistance']['data'] = file_json_content['data']
             report_data['resistance']['data'] = resistance_help.resistance_postprocess(report_data)
 
         except Exception as e:

@@ -21,7 +21,7 @@ def get_resistance_for_tb_sample(vcf_id):
                                                             resistanceConfig['catalogue_file'])
         return json.dumps({ 'status': 'success',
                             'data': rs,
-                            'message': '' })
+                            'message': {'config': resistanceConfig } })
     except Exception as e:
         return json.dumps({ 'status': 'failure',
                             'data': '',

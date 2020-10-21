@@ -81,6 +81,7 @@ def process_reports(report_data, catpile_resp, download_url):
     if 'resistance' in report_data and 'data' in report_data['resistance']:
         template_report_data['resistance'] = dict()       
         template_report_data['resistance']['data'] = report_data['resistance']['data']
+        template_report_data['resistance']['message'] = report_data['resistance']['message']
         template_report_data['resistance']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['resistance']['finished_epochtime']))
         template_report_data['resistance']['status'] = report_data['resistance']['status']
 
