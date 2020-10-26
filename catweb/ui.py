@@ -26,7 +26,6 @@ import flask_login
 from passlib.hash import bcrypt
 from werkzeug.utils import secure_filename
 from werkzeug.urls import url_parse
-import markdown2
 
 import authenticate
 import nflib
@@ -1216,6 +1215,7 @@ def fetch_details(guid):
 @app.route('/flow/<run_uuid>/<dataset_id>/report')
 @flask_login.login_required
 def get_report(run_uuid : str, dataset_id: str):
+    # TODO add API config
     resp = api_get_request('report_api', f'/report/{run_uuid}/{dataset_id}')
     catpile_resp = api_get_request('catpile_api', f'/get_sp3_data_for_run_sample/{run_uuid}/{dataset_id}')
     report_data = resp['report_data'] # data in from catreport
@@ -1272,72 +1272,6 @@ def proxy_get_cluster_stats():
     response = api_get_request('catstat_api', '/data')
     return json.dumps(response)
 
-# --- blog ---
-
-@app.template_filter('epochtodate')
-def epochtodate(value):
-    t = time.localtime(int(value))
-    if t.tm_min < 10:
-        t_min_str = "0" + str(t.tm_min)
-    else:
-        t_min_str = str(t.tm_min)
-    return f"{t.tm_mday}-{t.tm_mon}-{t.tm_year} {t.tm_hour}:{t_min_str}"
-
-@app.template_filter('to_markdown')
-def to_markdown(value):
-    return markdown2.markdown(value)
-
-@app.route('/blog')
-@flask_login.login_required
-def blog():
-    posts = api_get_request('nfweb_api', '/get_posts')['posts']
-    for post in posts:
-        post[4] = post[4].replace('\\n', '\n')
-        post[4] = markdown2.markdown(post[4])
-    logger.warning(posts)
-    return render_template('blog.template', posts=posts)
-
-@app.route('/blog/post/<post_id>')
-@flask_login.login_required
-def blog_page(post_id):
-    post = api_get_request('nfweb_api', f'/get_post/{ post_id }')['post'][0]
-    logger.warning(post)
-    post[4] = markdown2.markdown(post[4])
-    return render_template('blog_post.template', post=post)
-
-@app.route('/blog/new', methods=["GET", "POST"])
-@flask_login.login_required
-def blog_new():
-    if not is_admin():
-        return redirect('/blog')
-    if request.method == "GET":
-        return render_template("blog_post_new.template")
-    if request.method == "POST":
-        data = { 'author': flask_login.current_user.id,
-                 'title': request.form.get("title"),
-                 'body': request.form.get("body")
-                 }
-        logger.warning(data)
-        api_post_request('nfweb_api', "/new_post", data_json=data)
-        return redirect(url_for('blog'))
-
-@app.route('/blog/edit/<post_id>', methods=["GET", "POST"])
-@flask_login.login_required
-def blog_edit(post_id):
-    if not is_admin():
-        return redirect('/blog')
-    if request.method == "GET":
-        post = api_get_request('nfweb_api', f'/get_post/{ post_id }')['post'][0]
-        return render_template("blog_post_edit.template", post=post)
-    if request.method == "POST":
-        data = { 'title': request.form.get("title"),
-                 'body': request.form.get("body")
-                 }
-        logger.warning(data)
-        api_post_request('nfweb_api', f"/edit_post/{ post_id }", data_json=data)
-        return redirect(url_for('blog'))
-
-# --- running ---
 
 def main():
     app.run(port=7000)
