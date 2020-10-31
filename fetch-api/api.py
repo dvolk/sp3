@@ -147,13 +147,12 @@ def fetch_new(fetch_kind):
         name = samples[0] + '_' + samples[len(samples)-1]
 
         data['fetch_name'] = name
-
         glogger = logging.getLogger('fetch_logger')
         glogger.warning(f'samples: {samples}')
         glogger.warning(f'data :{data}')
 
-        for sample in samples:
-            ret = ena1.api.ena_new(sample, data)
+        ret = ena1.api.ena2_new(samples, data) # <-- only picks up ena1 jobs from the queue
+        glogger.warning(f'ret: {ret}')
         return ret
 
     if fetch_kind == 'local1':

@@ -13,6 +13,26 @@ from api import queue
 import util
 from config import config
 import ena1.fetcher
+import datetime
+
+def ena2_new(in_accession_list, request_args):
+    glogger = logging.getLogger("fetch_logger")
+    glogger.debug(f'in_accession_list: {in_accession_list}')
+    glogger.debug(f'request_args: {request_args}')
+
+    def pred_always_rerun(rows):
+        return None
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    guid = str(uuid.uuid4())
+    ret = queue.push('ena2', timestamp, guid, json.dumps(in_accession_list), pred_always_rerun)
+
+    if ret:
+        glogger.info("returning existing run")
+        return json.dumps(util.make_api_response('success', data={ 'existing': ret }))
+    else:
+        glogger.info("returning new run")
+        ret_data = { 'guid': guid }
+        return json.dumps(util.make_api_response('success', data=ret_data))
 
 def ena_new(in_accession, request_args):
     glogger = logging.getLogger("fetch_logger")
@@ -126,7 +146,7 @@ def ena_delete(in_guid):
         except FileNotFoundError:
             glogger.warning("delete fetch guid {0} file {1} doesn't exist".format(in_guid, s))
             not_found[f] = str(s)
-            
+
     queue.set_val(in_guid, 'status', 'deleted')
 
     return json.dumps(util.make_api_response('success', data={ 'deleted': deleted, 'not_found': not_found }))
