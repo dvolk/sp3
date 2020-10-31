@@ -20,7 +20,7 @@
 <p>{{ source['description'] }}</p>
 <hr/>
 
-<form action="/fetch_new" method="get">
+<form action="/fetch_new" method="post">
   <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
  
 {% if not paths %}

@@ -121,12 +121,26 @@ def describe():
     }
     return json.dumps(util.make_api_response('success', data= { 'sources': sources }))
 
-@app.route('/api/fetch/ena1/new/<in_accession_b>')
-def ena1_new(in_accession_b):
-    in_accession = base64.b16decode(in_accession_b).decode('utf-8')
+@app.route('/api/fetch/<fetch_kind>/new', methods=['POST'])
+def fetch_new(fetch_kind):
+    data = request.json
+    fetch_name = data['fetch_name']
 
-    ret = ena1.api.ena_new(in_accession, request.args)
-    return ret
+    if fetch_kind == 'ena1':
+        ret = ena1.api.ena_new(fetch_name, data)
+        return ret
+
+    if fetch_kind == 'ena2':
+
+        # your code here
+
+        ret = ena1.api.ena_new(fetch_name, data)
+        return ret
+
+    if fetch_kind == 'local1':
+        ret = local1.api.local1_new(fetch_name, data)
+        try_register_sp3data(ret, fetch_name)
+        return ret
 
 @app.route('/api/fetch/ena1/delete/<in_guid>')
 def ena1_delete(in_guid):
@@ -145,17 +159,6 @@ def try_register_sp3data(args, in_accession):
     except Exception as e:
         glogger = logging.getLogger('fetch_logger')
         glogger.warning("catpile error: {str(e)}")
-
-@app.route('/api/fetch/local1/new/<in_accession_b>')
-def local1_new(in_accession_b):
-    in_accession = base64.b16decode(in_accession_b).decode('utf-8')
-
-    ret = local1.api.local1_new(in_accession, request.args)
-
-    try_register_sp3data(ret, in_accession)
-
-    return ret
-
 
 @app.route('/api/fetch/local1/delete/<in_guid>')
 def local1_delete(in_guid):

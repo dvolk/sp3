@@ -1063,19 +1063,18 @@ def fetch():
 
     return render_template('fetch.template', fetches=fetches, sources=sources)
 
-@app.route('/fetch_new')
+@app.route('/fetch_new', methods=['POST'])
 @flask_login.login_required
 def fetch_new():
-    fetch_name = request.args.get("fetch_name")
-    fetch_range = request.args.get("fetch_range")
-    fetch_kind = request.args.get("fetch_kind")
-    fetch_method = request.args.get("fetch_method")
+    fetch_name = request.form.get("fetch_name")
+    fetch_range = request.form.get("fetch_range")
+    fetch_kind = request.form.get("fetch_kind")
+    fetch_method = request.form.get("fetch_method")
 
-    # base16 encode path to avoid / in url
-    fetch_name_b = base64.b16encode(bytes(fetch_name, encoding='utf-8')).decode('utf-8')
-
-    url = f"/api/fetch/{fetch_kind}/new/{fetch_name_b}?fetch_range={fetch_range}&fetch_method={fetch_method}"
-    api_get_request('fetch_api', url)
+    api_post_request('fetch_api', f'/api/fetch/{fetch_kind}/new',
+                     { 'fetch_name': fetch_name,
+                       'fetch_range': fetch_range,
+                       'fetch_method': fetch_method })
 
     return redirect('/fetch')
 
