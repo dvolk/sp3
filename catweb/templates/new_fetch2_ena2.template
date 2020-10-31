@@ -1,0 +1,18 @@
+{% extends "base1.template" %}
+{% block content %}
+
+<h4>{{ source['display_name'] }}</h4>
+<p>{{ source['description'] }}</p>
+<hr/>
+
+<p>Paste accession numbers in the text box below, one row per accession, suggest maxinum 500 samples.</p>
+<form action="/fetch_new" method="post">
+  <textarea style="font-family: monospace;" rows=20 class="form-control" name="fetch_name" id="fetch_name">
+  </textarea>
+  <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
+  <p>Your data will be available at downloaded path</p>
+  <div class="input-group ">
+    <button type="Submit" class="btn btn-primary">Start Fetch</button>
+  </div>
+</form>
+{% endblock content %}

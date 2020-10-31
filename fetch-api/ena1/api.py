@@ -136,7 +136,7 @@ t = None
 def ena1_api_start():
     glogger = logging.getLogger("fetch_logger")
     glogger.info("ena_api_start()")
-    number_of_threads = 1
+    number_of_threads = 10
     for i in range(0, number_of_threads):
         t = ena1.fetcher.ENA_Fetcher(i, queue, glogger)
         t.start()

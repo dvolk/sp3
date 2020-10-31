@@ -1023,6 +1023,14 @@ def fetch_data2(fetch_kind):
                                data_kind=in_data_kind,
                                data_identifier=in_data_identifier,
                                paths=paths)
+    if fetch_kind == 'ena2':
+        return render_template('new_fetch2_ena2.template',
+                               source=source,
+                               fetch_kind=fetch_kind,
+                               data_kind=in_data_kind,
+                               data_identifier=in_data_identifier,
+                               paths=paths)
+
     if fetch_kind == 'local1':
         return render_template('new_fetch2_local1.template',
                                source=source,

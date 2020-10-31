@@ -85,7 +85,7 @@ def fetch_log(in_guid):
             ret1 = log.read()
     except:
         pass
-    
+
     ret2 = ""
     try:
         with open('logs/{0}.ena.log'.format(in_guid)) as log:
@@ -97,9 +97,19 @@ def fetch_log(in_guid):
 @app.route('/api/fetch/describe')
 def describe():
     sources = {
+        'ena2':
+        {
+            'display_name': 'ENA - list of sample accessions',
+            'description': 'Fetch paired fastq SRA reads from the ENA.',
+            'data_identifier_display_name': 'Accession',
+            'data_filter_display_name': 'Filter',
+            'flatten_directory': config.get('ena_flatten_dir'),
+            'has_data_filter': 'no',
+            'fetch_methods': None
+        },
         'ena1':
         {
-            'display_name': 'ENA',
+            'display_name': 'ENA - one project or accession',
             'description': 'Fetch paired fastq SRA reads from the ENA.',
             'data_identifier_display_name': 'Accession',
             'data_filter_display_name': 'Filter',
@@ -131,10 +141,19 @@ def fetch_new(fetch_kind):
         return ret
 
     if fetch_kind == 'ena2':
+        rows  = fetch_name.split('\r\n')
 
-        # your code here
+        samples = [x.strip() for x in rows if len(x.strip()) == 9]
+        name = samples[0] + '_' + samples[len(samples)-1]
 
-        ret = ena1.api.ena_new(fetch_name, data)
+        data['fetch_name'] = name
+
+        glogger = logging.getLogger('fetch_logger')
+        glogger.warning(f'samples: {samples}')
+        glogger.warning(f'data :{data}')
+
+        for sample in samples:
+            ret = ena1.api.ena_new(sample, data)
         return ret
 
     if fetch_kind == 'local1':
