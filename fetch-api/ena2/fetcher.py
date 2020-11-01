@@ -34,13 +34,13 @@ class ENA_Fetcher(threading.Thread):
         Main thread loop
         '''
         while True:
-            guid, accession, data = self.queue.pop('ena2')
+            guid, name, accessions  = self.queue.pop('ena2')
 
             tlogger_handlers = self.setup_tlogger(guid)
 
-            self.tlogger.info("started on {0} thread id {1}".format(accession, self.thread_index))
-
-            resp = self.download_files(accession, guid, data)
+            self.tlogger.info("started on {0} thread id {1}".format(name, self.thread_index))
+            for accession in accessions:
+                resp = self.download_files(accession, guid, data)
 
             self.queue.set_val(guid, "status", resp['status'])
 
