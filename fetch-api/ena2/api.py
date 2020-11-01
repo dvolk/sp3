@@ -15,16 +15,16 @@ from config import config
 import ena2.fetcher
 import datetime
 
-def ena2_new(in_accession_list, request_args):
+def ena2_new(guid, request_args):
     glogger = logging.getLogger("fetch_logger")
-    glogger.debug(f'in_accession_list: {in_accession_list}')
+    samples = request_args['fetch_range']
+    name = request_args['fetch_name']
+    glogger.debug(f'samples: {samples}')
     glogger.debug(f'request_args: {request_args}')
 
     def pred_always_rerun(rows):
         return None
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    guid = str(uuid.uuid4())
-    ret = queue.push('ena2', timestamp, guid, json.dumps(in_accession_list), pred_always_rerun)
+    ret = queue.push('ena2', name , guid, json.dumps(request_args), pred_always_rerun)
 
     if ret:
         glogger.info("returning existing run")
@@ -101,7 +101,7 @@ t = None
 def ena2_api_start():
     glogger = logging.getLogger("fetch_logger")
     glogger.info("ena_api_start()")
-    number_of_threads = 10
+    number_of_threads = 1
     for i in range(0, number_of_threads):
         t = ena2.fetcher.ENA_Fetcher(i, queue, glogger)
         t.start()

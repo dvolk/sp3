@@ -146,16 +146,16 @@ def fetch_new(fetch_kind):
 
     if fetch_kind == 'ena2':
         rows  = fetch_name.split('\r\n')
+        samples = [x.strip() for x in rows if ('ERR' in x or 'SRR' in x)]
 
-        samples = [x.strip() for x in rows if len(x.strip()) == 9]
-        name = samples[0] + '_' + samples[len(samples)-1]
-
-        data['fetch_name'] = name
         glogger = logging.getLogger('fetch_logger')
         glogger.warning(f'samples: {samples}')
         glogger.warning(f'data :{data}')
-
-        ret = ena2.api.ena2_new(samples, data) 
+        import datetime
+        data['fetch_name'] = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        data['fetch_range'] = samples
+        guid = str(uuid.uuid4())
+        ret = ena2.api.ena2_new(guid, data) 
         glogger.warning(f'ret: {ret}')
         return ret
 

@@ -34,19 +34,22 @@ class ENA_Fetcher(threading.Thread):
         Main thread loop
         '''
         while True:
-            guid, name, accessions  = self.queue.pop('ena2')
-
+            guid, name, data  = self.queue.pop('ena2')
+            data = json.loads(data)
+            samples = json.loads(data['fetch_range'])
             tlogger_handlers = self.setup_tlogger(guid)
 
-            self.tlogger.info("started on {0} thread id {1}".format(name, self.thread_index))
-            for accession in accessions:
-                resp = self.download_files(accession, guid, data)
+            self.tlogger.info("started on {0} thread id {1}".format(samples[0], self.thread_index))
 
+            resp = self.download_files(samples[0], guid, data)
+
+            self.tlogger.info(resp['status'])
             self.queue.set_val(guid, "status", resp['status'])
 
-            self.tlogger.info("done with {0}. status: {1}".format(accession, resp['status']))
+            self.tlogger.info("done with {0}. status: {1}".format(samples[0], resp['status']))
 
             self.detach_tlogger_handlers(tlogger_handlers)
+
 
         self.glogger.error("thread {0} exited loop".format(self.thread_index))
 
@@ -193,15 +196,11 @@ class ENA_Fetcher(threading.Thread):
             return util.make_api_response(status='failure')
 
     def download_files(self, accession, guid, data):
+        self.tlogger.info("hello?") #### at least this should be shown?
         '''
         Download files for accession
         '''
         data = json.loads(data)
-
-        resp = self.get_metadata(accession, guid)
-        if resp['status'] != 'success':
-            return util.make_api_response(status='failure', details={'missing': 'metadata'})
-        tbl = resp['data']
 
         resp = self.get_files(tbl, data['fetch_range'])
         if resp['status'] != 'success': return resp
