@@ -15,50 +15,16 @@ from config import config
 import ena1.fetcher
 import datetime
 
-def ena_new(in_accession, request_args):
+def ena2_new(in_accession_list, request_args):
     glogger = logging.getLogger("fetch_logger")
-
-    in_accession = str(pathlib.Path(in_accession).name)
-
-    fetch_type = request_args.get('fetch_type')
-    fetch_rerun = request_args.get('fetch_rerun')
-    fetch_range = request_args.get('fetch_range')
-
-    if not fetch_type: fetch_type = "all"
-    if not fetch_rerun: fetch_rerun = "false"
-    if not fetch_range: fetch_range = ""
-
-    data = { 'fetch_type': fetch_type,
-             'fetch_rerun': fetch_rerun,
-             'fetch_range': fetch_range }
-
-    glogger.info(data)
+    glogger.debug(f'in_accession_list: {in_accession_list}')
+    glogger.debug(f'request_args: {request_args}')
 
     def pred_always_rerun(rows):
         return None
-
-    def pred(rows):
-        """
-        iterate over existing rows for accession and try to find a run
-        that satisfies current fetch requirements. If found return
-        satisfying run, otherwise return None
-
-        TODO merge all ranges from all rows and subset that range
-        """
-        if fetch_rerun == "true":
-            return None
-        for row in rows:
-            # guid, status, name, data, progress, total, started, finished
-            data = json.loads(row[3])
-            if data['fetch_type'] == 'all':
-                if util.range_str_is_subset(fetch_range, data['fetch_range']):
-                    return row
-            if fetch_type == 'metadata' and data['fetch_type'] == 'metadata':
-                return row
-        return None
-
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     guid = str(uuid.uuid4())
-    ret = queue.push('ena1', in_accession, guid, json.dumps(data), pred_always_rerun)
+    ret = queue.push('ena2', timestamp, guid, json.dumps(in_accession_list), pred_always_rerun)
 
     if ret:
         glogger.info("returning existing run")
@@ -66,16 +32,14 @@ def ena_new(in_accession, request_args):
     else:
         glogger.info("returning new run")
         ret_data = { 'guid': guid }
-        ret_data.update(data)
         return json.dumps(util.make_api_response('success', data=ret_data))
 
-#
 # TODO Should it be async?
 # TODO Error checking
 # TODO don't process failed fetches
 # TODO mark/move deleted fetches
 #
-def ena_delete(in_guid):
+def ena2_delete(in_guid):
     '''
     delete all files in the given guid that aren't in any other fetch guid
     '''
@@ -134,10 +98,10 @@ def ena_delete(in_guid):
 
 t = None
 
-def ena1_api_start():
+def ena2_api_start():
     glogger = logging.getLogger("fetch_logger")
     glogger.info("ena_api_start()")
-    number_of_threads = 1
+    number_of_threads = 10
     for i in range(0, number_of_threads):
         t = ena1.fetcher.ENA_Fetcher(i, queue, glogger)
         t.start()

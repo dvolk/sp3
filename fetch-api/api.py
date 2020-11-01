@@ -151,7 +151,7 @@ def fetch_new(fetch_kind):
         glogger.warning(f'samples: {samples}')
         glogger.warning(f'data :{data}')
 
-        ret = ena1.api.ena2_new(samples, data) # <-- only picks up ena1 jobs from the queue
+        ret = ena2.api.ena2_new(samples, data) 
         glogger.warning(f'ret: {ret}')
         return ret
 
