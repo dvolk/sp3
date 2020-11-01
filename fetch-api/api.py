@@ -29,6 +29,10 @@ import ena1.api
 import ena1.fetcher
 import ena1.flatten
 
+import ena2.api
+import ena2.fetcher
+import ena2.flatten
+
 import local1.api
 import local1.fetcher
 import local1.flatten
@@ -191,6 +195,7 @@ def main():
     glogger.info("starting")
 
     ena1.api.ena1_api_start()
+    ena2.api.ena2_api_start()
     local1.api.local1_api_start()
 
     app.run(host='127.0.0.1', port=7200, debug=False)

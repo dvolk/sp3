@@ -16,7 +16,7 @@ import json
 
 import util
 from config import config
-import ena1.flatten
+import ena2.flatten
 
 class ENA_Fetcher(threading.Thread):
     def __init__(self, thread_index, queue, glogger):
@@ -245,7 +245,7 @@ class ENA_Fetcher(threading.Thread):
         self.queue.set_val(guid, "data", json.dumps(data))
         
         flatten_dir = config.get('ena_flatten_dir')
-        r = ena1.flatten.flatten(guid, flatten_dir, guid, self.tlogger)
+        r = ena2.flatten.flatten(guid, flatten_dir, guid, self.tlogger)
 
         status = 'success'
         if 'stop' in data_:

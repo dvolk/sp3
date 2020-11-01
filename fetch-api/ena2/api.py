@@ -12,7 +12,7 @@ from flask import Flask, abort, request
 from api import queue
 import util
 from config import config
-import ena1.fetcher
+import ena2.fetcher
 import datetime
 
 def ena2_new(in_accession_list, request_args):
@@ -103,7 +103,7 @@ def ena2_api_start():
     glogger.info("ena_api_start()")
     number_of_threads = 10
     for i in range(0, number_of_threads):
-        t = ena1.fetcher.ENA_Fetcher(i, queue, glogger)
+        t = ena2.fetcher.ENA_Fetcher(i, queue, glogger)
         t.start()
 
 def stop_download():
