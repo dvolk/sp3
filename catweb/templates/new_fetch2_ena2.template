@@ -9,7 +9,7 @@
 <form action="/fetch_new" method="post">
   <textarea style="font-family: monospace;" rows=20 class="form-control" name="fetch_samples" id="fetch_samples">
   </textarea>
-  <input type="hidden" id="fetch_name" name="fetch_kind" value="ENA_batch">
+  <input type="hidden" id="fetch_name" name="fetch_name" value="ENA_batch">
   <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
   <input type="hidden" id="fetch_type" name="fetch_type" value="all">
   <input type="hidden" id="fetch_range" name="fetch_range" value="">

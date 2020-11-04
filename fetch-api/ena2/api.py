@@ -25,9 +25,25 @@ def ena2_new(guid, request_args):
     fetch_samples = request_args['fetch_samples']
     glogger.debug(f'fetch_samples: {fetch_samples}')
 
+    fetch_type = request_args.get('fetch_type')
+    fetch_rerun = request_args.get('fetch_rerun')
+    fetch_range = request_args.get('fetch_range')
+    fetch_samples = request_args.get('fetch_samples')
+
+    if not fetch_type: fetch_type = "all"
+    if not fetch_rerun: fetch_rerun = "false"
+    if not fetch_range: fetch_range = ""
+    if not fetch_samples: fetch_samples = list()
+
+    data = { 'fetch_type': fetch_type,
+             'fetch_rerun': fetch_rerun,
+             'fetch_range': fetch_range,
+             'fetch_samples': fetch_samples }
+
     def pred_always_rerun(rows):
         return None
-    ret = queue.push('ena2', fetch_name , guid, json.dumps(request_args), pred_always_rerun)
+
+    ret = queue.push('ena2', fetch_name , guid, json.dumps(data), pred_always_rerun)
 
     if ret:
         glogger.info("returning existing run")

@@ -1078,11 +1078,14 @@ def fetch_new():
     fetch_range = request.form.get("fetch_range")
     fetch_kind = request.form.get("fetch_kind")
     fetch_method = request.form.get("fetch_method")
+    fetch_samples = request.form.get("fetch_samples")
 
     api_post_request('fetch_api', f'/api/fetch/{fetch_kind}/new',
                      { 'fetch_name': fetch_name,
                        'fetch_range': fetch_range,
-                       'fetch_method': fetch_method })
+                       'fetch_method': fetch_method,
+                       'fetch_samples': fetch_samples
+                    })
 
     return redirect('/fetch')
 

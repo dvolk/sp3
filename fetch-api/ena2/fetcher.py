@@ -35,8 +35,9 @@ class ENA_Fetcher(threading.Thread):
         '''
         while True:
             guid, name, data  = self.queue.pop('ena2')
-            
-            fetch_samples = data['fetch_samples'])
+            data2 = json.loads(data)
+
+            fetch_samples = data2['fetch_samples']
 
             tlogger_handlers = self.setup_tlogger(guid)
 
@@ -197,11 +198,15 @@ class ENA_Fetcher(threading.Thread):
             return util.make_api_response(status='failure')
 
     def download_files(self, accession, guid, data):
-        self.tlogger.info("hello?") #### at least this should be shown?
         '''
         Download files for accession
         '''
         data = json.loads(data)
+
+        resp = self.get_metadata(accession, guid)
+        if resp['status'] != 'success':
+            return util.make_api_response(status='failure', details={'missing': 'metadata'})
+        tbl = resp['data']
 
         resp = self.get_files(tbl, data['fetch_range'])
         if resp['status'] != 'success': return resp
@@ -260,7 +265,7 @@ class ENA_Fetcher(threading.Thread):
         if self.download_thread:
             self.tlogger.debug("terminating download thread")
             self.download_thread.stop()
-    
+
     def setup_tlogger(self, guid):
         '''
         Setup the thread-local logger. A new logger is created for each

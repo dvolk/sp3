@@ -15,6 +15,7 @@ import uuid
 import json
 import pathlib
 import base64
+import datetime
 
 import requests
 from flask import Flask, abort, request
@@ -145,22 +146,28 @@ def fetch_new(fetch_kind):
         return ret
 
     if fetch_kind == 'ena2':
+        glogger = logging.getLogger('fetch_logger')
+        glogger.warning(f'data :{data}')
+
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         fetch_name = fetch_name + '_' + timestamp
         fetch_samples  = data['fetch_samples']
+
+        glogger.warning(f'fetch_name: {fetch_name}')
+        glogger.warning(f'fetch_samples: {fetch_samples}')
+
         rows  = fetch_samples.split('\r\n')
         samples = [x.strip() for x in rows if ('ERR' in x or 'SRR' in x)]
 
         glogger = logging.getLogger('fetch_logger')
-        glogger.warning(f'data :{data}')
+        glogger.warning(f'data: {data}')
         glogger.warning(f'fetch_name: {fetch_name}')
         glogger.warning(f'fetch_samples: {samples}')
 
-        import datetime
         data['fetch_name'] = fetch_name
-        data['fetch_samples'] = json.dumps(samples)
-        guid = str(uuid.uuid4())
-        ret = ena2.api.ena2_new(guid, data) 
+        data['fetch_samples'] = samples
+
+        ret = ena2.api.ena2_new(fetch_name, data)
         glogger.warning(f'ret: {ret}')
         return ret
 

@@ -14,7 +14,7 @@ def path_begins_with(p1, p2):
     return False
 
 def is_public_fetch_source(kind):
-    public_fetch_sources = ['ena1']
+    public_fetch_sources = ['ena1', 'ena2']
 
     return kind in public_fetch_sources
 
