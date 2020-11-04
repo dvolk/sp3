@@ -35,13 +35,14 @@ class ENA_Fetcher(threading.Thread):
         '''
         while True:
             guid, name, data  = self.queue.pop('ena2')
-            data = json.loads(data)
-            samples = json.loads(data['fetch_range'])
+            
+            fetch_samples = data['fetch_samples'])
+
             tlogger_handlers = self.setup_tlogger(guid)
 
-            self.tlogger.info("started on {0} thread id {1}".format(samples[0], self.thread_index))
+            self.tlogger.info("started on {0} thread id {1}".format(fetch_samples[0], self.thread_index))
 
-            resp = self.download_files(samples[0], guid, data)
+            resp = self.download_files(fetch_samples[0], guid, data)
 
             self.tlogger.info(resp['status'])
             self.queue.set_val(guid, "status", resp['status'])

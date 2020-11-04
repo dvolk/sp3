@@ -145,15 +145,20 @@ def fetch_new(fetch_kind):
         return ret
 
     if fetch_kind == 'ena2':
-        rows  = fetch_name.split('\r\n')
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        fetch_name = fetch_name + '_' + timestamp
+        fetch_samples  = data['fetch_samples']
+        rows  = fetch_samples.split('\r\n')
         samples = [x.strip() for x in rows if ('ERR' in x or 'SRR' in x)]
 
         glogger = logging.getLogger('fetch_logger')
-        glogger.warning(f'samples: {samples}')
         glogger.warning(f'data :{data}')
+        glogger.warning(f'fetch_name: {fetch_name}')
+        glogger.warning(f'fetch_samples: {samples}')
+
         import datetime
-        data['fetch_name'] = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        data['fetch_range'] = samples
+        data['fetch_name'] = fetch_name
+        data['fetch_samples'] = json.dumps(samples)
         guid = str(uuid.uuid4())
         ret = ena2.api.ena2_new(guid, data) 
         glogger.warning(f'ret: {ret}')

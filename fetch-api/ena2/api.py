@@ -17,14 +17,17 @@ import datetime
 
 def ena2_new(guid, request_args):
     glogger = logging.getLogger("fetch_logger")
-    samples = request_args['fetch_range']
-    name = request_args['fetch_name']
-    glogger.debug(f'samples: {samples}')
     glogger.debug(f'request_args: {request_args}')
+
+    fetch_name = request_args['fetch_name']
+    glogger.debug(f'fetch_name: {fetch_name}')
+
+    fetch_samples = request_args['fetch_samples']
+    glogger.debug(f'fetch_samples: {fetch_samples}')
 
     def pred_always_rerun(rows):
         return None
-    ret = queue.push('ena2', name , guid, json.dumps(request_args), pred_always_rerun)
+    ret = queue.push('ena2', fetch_name , guid, json.dumps(request_args), pred_always_rerun)
 
     if ret:
         glogger.info("returning existing run")
