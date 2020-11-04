@@ -41,14 +41,14 @@ class ENA_Fetcher(threading.Thread):
 
             tlogger_handlers = self.setup_tlogger(guid)
 
-            self.tlogger.info("started on {0} thread id {1}".format(fetch_samples[0], self.thread_index))
+            self.tlogger.info("started on {0} thread id {1}".format(fetch_samples, self.thread_index))
 
-            resp = self.download_files(fetch_samples[0], guid, data)
+            resp = self.download_files(fetch_samples, guid, data)
 
             self.tlogger.info(resp['status'])
             self.queue.set_val(guid, "status", resp['status'])
 
-            self.tlogger.info("done with {0}. status: {1}".format(samples[0], resp['status']))
+            self.tlogger.info("done with {0}. status: {1}".format(fetch_samples, resp['status']))
 
             self.detach_tlogger_handlers(tlogger_handlers)
 
@@ -128,7 +128,7 @@ class ENA_Fetcher(threading.Thread):
 
         return util.make_api_response(status='success', details={ 'bad_files': bad_files }, data=ok_files)
 
-    def download_file(self, ftp_url, ftp_md5, tbl):
+    def download_file(self, ftp_url, ftp_md5):
         '''
         Download one file from ENA over ftp and check its md5
         '''
@@ -197,27 +197,36 @@ class ENA_Fetcher(threading.Thread):
             self.tlogger.warning("md5 does not match")
             return util.make_api_response(status='failure')
 
-    def download_files(self, accession, guid, data):
+    def download_files(self, accessions, guid, data):
         '''
         Download files for accession
         '''
         data = json.loads(data)
+        data['bad_files'] = list()
+        data['ok_files_fastq_ftp'] = list()
+        data['ok_files_fastq_md5'] = list()
+        data['ok_files_len'] = 0
+        data['bad_files_len'] = 0
+        bad_files = list()
+        ok_files = list()
 
-        resp = self.get_metadata(accession, guid)
-        if resp['status'] != 'success':
-            return util.make_api_response(status='failure', details={'missing': 'metadata'})
-        tbl = resp['data']
+        for accession in accessions:
+            resp = self.get_metadata(accession, guid)
+            if resp['status'] != 'success':
+                return util.make_api_response(status='failure', details={'missing': 'metadata'})
 
-        resp = self.get_files(tbl, data['fetch_range'])
-        if resp['status'] != 'success': return resp
-        bad_files = resp['details']['bad_files']
-        ok_files = resp['data']
+            tbl = resp['data']
+            resp = self.get_files(tbl, data['fetch_range'])
+            if resp['status'] != 'success': return resp
 
-        data['bad_files'] = bad_files
-        data['ok_files_fastq_ftp'] = [x[0] for x in ok_files]
-        data['ok_files_fastq_md5'] = [x[1] for x in ok_files]
-        data['ok_files_len'] = len(ok_files)
-        data['bad_files_len'] = len(bad_files)
+            bad_files += resp['details']['bad_files']
+            ok_files += resp['data']
+
+            data['bad_files'] += bad_files
+            data['ok_files_fastq_ftp'] += [x[0] for x in ok_files]
+            data['ok_files_fastq_md5'] += [x[1] for x in ok_files]
+            data['ok_files_len'] += len(ok_files)
+            data['bad_files_len'] += len(bad_files)
 
         self.queue.set_val(guid, "data", json.dumps(data))
         self.queue.set_val(guid, "total", len(ok_files))
@@ -237,7 +246,7 @@ class ENA_Fetcher(threading.Thread):
                     self.tlogger.info("stopping download")
                     break
 
-                resp = self.download_file(fastq_ftp, fastq_md5, tbl)
+                resp = self.download_file(fastq_ftp, fastq_md5)
                 if resp['status'] == 'success':
                     ok_download_files.append(fastq_ftp)
                 else:

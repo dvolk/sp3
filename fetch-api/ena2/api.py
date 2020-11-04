@@ -58,7 +58,7 @@ def ena2_new(guid, request_args):
 # TODO don't process failed fetches
 # TODO mark/move deleted fetches
 #
-def ena2_delete(in_guid):
+def ena_delete(in_guid):
     '''
     delete all files in the given guid that aren't in any other fetch guid
     '''
