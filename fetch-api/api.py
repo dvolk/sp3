@@ -153,10 +153,12 @@ def fetch_new(fetch_kind):
         rows  = fetch_samples.split('\r\n')
         samples = [x.strip() for x in rows if ('ERR' in x or 'SRR' in x)]
 
-        data['fetch_name'] = fetch_name
-        data['fetch_samples'] = samples
-
-        ret = ena2.api.ena2_new(fetch_name, data)
+        if len(samples) > 0:
+            data['fetch_name'] = fetch_name
+            data['fetch_samples'] = samples
+            ret = ena2.api.ena2_new(fetch_name, data)
+        else:
+           return json.dumps(util.make_api_response('success', {'message': 'No accessions detected.'}, data= {}))
         return ret
 
     if fetch_kind == 'local1':
