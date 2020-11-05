@@ -1177,10 +1177,12 @@ def fetch_details(guid):
 
     ret2 = api_get_request('fetch_api', '/api/fetch/log/{0}'.format(guid))
 
+    fetch_samples = []
     if ret1:
         accession = ret1['name']
         logger.debug(ret1)
         fetch_range = json.loads(ret1['data'])['fetch_range']
+        fetch_samples = json.loads(ret1['data'])['fetch_samples']
         status = ret1['status']
         progress = ret1['progress']
         total = ret1['total']
@@ -1213,6 +1215,7 @@ def fetch_details(guid):
                            guid=guid,
                            name=accession,
                            fetch_range=fetch_range,
+                           fetch_samples=fetch_samples,
                            status=status,
                            progress=progress,
                            total=total,

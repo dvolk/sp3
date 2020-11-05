@@ -6,6 +6,7 @@
 <p>Fetch UUID: {{ guid }}</p>
 <p>Accession: {{ name }}</p>
 <p>Fetch range: {{ fetch_range }}</p>
+<p>Fetch samples: {{ fetch_samples }}</p>
 <p>Status: {{ status }}</p>
 <p>Progress: {{ progress }} / {{ total }}</p>
 <p>Pipeline input dir: {{ input_dir }}</p>
