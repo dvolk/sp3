@@ -127,7 +127,7 @@ def run(vcf_file,
                 MUTATIONS=pandas.concat([MUTATIONS,mutations])
             else:
                 MUTATIONS=mutations
-    
+
     if MUTATIONS is not None:
 
         # define some Boolean columns for ease of analysis
@@ -151,26 +151,30 @@ def run(vcf_file,
         MUTATIONS.set_index(["UNIQUEID","GENE",'MUTATION'],inplace=True,verify_integrity=True)
 
         MUTATIONS.reset_index(inplace=True)
-    MUTATIONS.to_csv('/tmp/mutations.csv')
-    VARIANT.to_csv('/tmp/variant.csv')
-    try:
-        # add GT_CONF
-        MUTATIONS.set_index(["GENE","POSITION"],inplace=True,verify_integrity=True)
-        VARIANT.set_index(["GENE","POSITION"],inplace=True,verify_integrity=False)
-        MUTATIONS=MUTATIONS.join(VARIANT[['GT_CONF']],how="inner")
-        MUTATIONS.reset_index(inplace=True)
-        VARIANT.reset_index(inplace=True)
-    except Exception as e:
-        print("Couldn't join MUTATIONS and VARIANT table due to exception:")
-        print(str(e))
-        MUTATIONS['GT_CONF'] = None
+        MUTATIONS.to_csv('/tmp/mutations.csv')
+        VARIANT.to_csv('/tmp/variant.csv')
 
-        
+        try:
+        # add GT_CONF
+            MUTATIONS.set_index(["GENE","POSITION"],inplace=True,verify_integrity=True)
+            VARIANT.set_index(["GENE","POSITION"],inplace=True,verify_integrity=False)
+            MUTATIONS=MUTATIONS.join(VARIANT[['GT_CONF']],how="inner")
+            MUTATIONS.reset_index(inplace=True)
+            VARIANT.reset_index(inplace=True)
+        except Exception as e:
+            print("Couldn't join MUTATIONS and VARIANT table due to exception:")
+            print(str(e))
+            MUTATIONS['GT_CONF'] = None
+
+
     # by default assume wildtype behaviour so set all drug phenotypes to be susceptible
     phenotype={}
     for drug in resistance_catalogue.catalogue.drugs:
         phenotype[drug]="S"
 
+
+    effects = list()
+    mutations = list()
     # can only infer predicted effects and ultimate phenotypes if a resistance catalogue has been supplied!
     if catalogue_file is not None and MUTATIONS is not None:
 
@@ -180,6 +184,7 @@ def run(vcf_file,
 
         EFFECTS_dict={}
         EFFECTS_counter=0
+
 
         for gene_name,mutation_name in zip(MUTATIONS_IN_CATALOGUE.GENE,MUTATIONS_IN_CATALOGUE.MUTATION):
 
@@ -221,20 +226,20 @@ def run(vcf_file,
         EFFECTS=pandas.DataFrame.from_dict(EFFECTS_dict,orient="index",columns=["UNIQUEID","GENE","MUTATION","CATALOGUE_NAME","DRUG","PREDICTION"])
         EFFECTS.set_index(["UNIQUEID","DRUG","GENE","MUTATION","CATALOGUE_NAME"],inplace=True)
 
-    wgs_prediction_string=""
-    for drug in resistance_catalogue.catalogue.drugs:
-        metadata["WGS_PREDICTION_"+drug]=phenotype[drug]
+        wgs_prediction_string=""
+        for drug in resistance_catalogue.catalogue.drugs:
+            metadata["WGS_PREDICTION_"+drug]=phenotype[drug]
 
-    effects = list()
-    for e in EFFECTS_dict.values():
-        effects.append({ 'gene_name': e[1],
+
+        if EFFECTS_dict:
+            for e in EFFECTS_dict.values():
+                effects.append({ 'gene_name': e[1],
                          'mutation_name': e[2],
                          'drug_name': e[4],
                          'prediction': e[5] })
-    
-    mutations = list()
-    for m in MUTATIONS_IN_CATALOGUE.to_dict('rows'):
-        mutations.append({
+
+        for m in MUTATIONS_IN_CATALOGUE.to_dict('rows'):
+                mutations.append({
             'genome_index': m['GENOME_INDEX'],
             'vcf_filename': None,
             'gene_name': m['GENE'],
@@ -264,7 +269,7 @@ def run(vcf_file,
         'metadata': metadata,
         'effects': effects,
         'mutations': mutations }
-        
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--vcf_file",required=True,help="the path to a single VCF file")
