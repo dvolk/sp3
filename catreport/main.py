@@ -46,7 +46,7 @@ def db_get_report_for_type(cluster_instance_uuid, pipeline_run_uuid, sample_name
 
 def db_get_queue(con, report_type):
     with sql_lock, con:
-        rows = con.execute("select * from q where status = 'queued' and type = ? order by added_epochtime asc limit 1", (report_type,)).fetchall()
+        rows = con.execute("select * from q where status = 'queued' and type = ? order by added_epochtime desc limit 1", (report_type,)).fetchall()
     return rows
 
 def db_update_report_result(con, report_filename, report_started_epochtime, report_finished_epochtime, report_status, report_uuid):
