@@ -1182,7 +1182,9 @@ def fetch_details(guid):
         accession = ret1['name']
         logger.debug(ret1)
         fetch_range = json.loads(ret1['data'])['fetch_range']
-        fetch_samples = json.loads(ret1['data'])['fetch_samples']
+        fetch_sampels = []
+        if 'fetch_samples' in ret1['data']:
+            fetch_samples = json.loads(ret1['data'])['fetch_samples']
         status = ret1['status']
         progress = ret1['progress']
         total = ret1['total']
