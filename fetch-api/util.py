@@ -23,8 +23,6 @@ class FTPDownloadThread(threading.Thread):
         directory = path.parent
         filename = path.name
 
-        time.sleep(100)
-
         cmd = f"lftp {host} -e 'cd {directory}; set xfer:clobber yes; get {filename} -o {self.out_dir}; exit'"
         self.download_process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
