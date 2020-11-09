@@ -1024,7 +1024,10 @@ def fetch_data2(fetch_kind):
                                data_identifier=in_data_identifier,
                                paths=paths)
     if fetch_kind == 'ena2':
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        name = 'ENA_' + timestamp
         return render_template('new_fetch2_ena2.template',
+                               name=name,
                                source=source,
                                fetch_kind=fetch_kind,
                                data_kind=in_data_kind,

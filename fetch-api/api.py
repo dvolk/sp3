@@ -105,7 +105,7 @@ def describe():
         'ena2':
         {
             'display_name': 'ENA - list of sample accessions',
-            'description': 'Fetch paired fastq SRA reads from the ENA.',
+            'description': 'Fetch ENA data via accessions.',
             'data_identifier_display_name': 'Accession',
             'data_filter_display_name': 'Filter',
             'flatten_directory': config.get('ena_flatten_dir'),
@@ -114,8 +114,8 @@ def describe():
         },
         'ena1':
         {
-            'display_name': 'ENA - one project or accession',
-            'description': 'Fetch paired fastq SRA reads from the ENA.',
+            'display_name': 'ENA - one project or one accession',
+            'description': 'Fetch ENA data via project or accession',
             'data_identifier_display_name': 'Accession',
             'data_filter_display_name': 'Filter',
             'flatten_directory': config.get('ena_flatten_dir'),
@@ -126,7 +126,7 @@ def describe():
         {
             'display_name': 'Local server',
             'description': '''Fetch from local filesystem.
-                              Pick this if you're using SFTP or S3''',
+                              Pick this if you're using web upload or S3''',
             'data_identifier_display_name': 'Local path',
             'flatten_directory': config.get('local_flatten_dir'),
             'local_glob_directories': config.get('local_glob_directories'),
@@ -146,15 +146,11 @@ def fetch_new(fetch_kind):
         return ret
 
     if fetch_kind == 'ena2':
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        fetch_name = fetch_name + '_' + timestamp
         fetch_samples  = data['fetch_samples']
-
         rows  = fetch_samples.split('\r\n')
         samples = [x.strip() for x in rows if ('ERR' in x or 'SRR' in x)]
 
         if len(samples) > 0:
-            data['fetch_name'] = fetch_name
             data['fetch_samples'] = samples
             ret = ena2.api.ena2_new(fetch_name, data)
         else:
