@@ -1,15 +1,15 @@
 name: "ClockworkQC"
 display_name: "Clockwork Quality Control"
 script: "qc.nf"
-show: no
-root_dir: "clockworkcloud/"
-prog_dir: "clockworkcloud/"
+show: yes
+root_dir: "clockworkcloud-gvcf/"
+prog_dir: "clockworkcloud-gvcf/"
 output_dir: "output/"
 version: "0.1"
 description: "Clockwork quality control"
 contexts:
   - name: local
-    arguments: "-with-singularity /data/images/clockwork_container.img -process.executor slurm"
+    arguments: "-process.executor slurm -with-singularity /data/images/clockwork-20200512T103506_v0.9.0.img"
 param:
   minargs: 5
   description:

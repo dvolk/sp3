@@ -1,17 +1,15 @@
 name: "ClockworkRC"
 display_name: Clockwork Contam Remove
 script: "remove_contam.nf"
-show: no
-root_dir: "ClockworkCloud/"
-prog_dir: "ClockworkCloud/"
+show: yes
+root_dir: "clockworkcloud-gvcf/"
+prog_dir: "clockworkcloud-gvcf/"
 output_dir: "output/"
 version: "0.1"
 description: "Clockwork remove contamination"
 contexts:
   - name: local
-    arguments: "-with-singularity /mnt/disk1/images/clockwork_container.img"
-  - name: slurm
-    arguments: "-with-singularity /mnt/disk1/images/clockwork_container.img -process.executor slurm"
+    arguments: "-process.executor slurm -with-singularity /data/images/clockwork-20200512T103506_v0.9.0.img"
 param:
   minargs: 5
   description:
@@ -20,13 +18,13 @@ param:
       type: switch
       desc: 'Reference in fasta format'
       globs:
-         - /mnt/disk1/inputs/references/clockwork/remove_contam/ref/
+         - /data/references/clockwork/rc/*/Reference.remove_contam/ref.fa
     - name: 'ref_metadata'
       arg: "--ref_metadata_tsv"
       type: switch
       desc: "Reference metadata in tsv format"
       globs:
-         - /mnt/disk1/inputs/references/clockwork/remove_contam/ref_meta/
+         - /data/references/clockwork/rc/*/Reference.remove_contam/remove_contam_metadata.tsv
     - name: 'indir'
       arg: '--input_dir'
       type: input-reqr
