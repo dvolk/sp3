@@ -12,6 +12,8 @@ from pathlib import Path
 import json
 import sys, os, time
 
+import argh
+
 def find_fasta_files_for_run(site_uuid, run_uuid):
     target_folder = Path(f'/work/persistence/{site_uuid}/work/output/{run_uuid}')
     result = []
@@ -72,17 +74,13 @@ def insert_fasta_files_to_catwalk(area, site_uuid, sample_ref):
 def find_all_fasta_files(area, site_uuid, sample_ref):
     return { x.name for x in Path(f"/work/persistence-catwalk/fasta/{area}/{site_uuid}/{sample_ref}").glob("*.fasta") }
 
-if __name__ == '__main__':
-    site_uuid = '1fd86041-5b36-4208-8eb4-cf825d37c6a6'
-    sample_ref = 'NC_000962.3'
-    area = 'global-prod'
-    if len(sys.argv) == 2:
-        site_uuid = sys.argv[1]
-
+def go(area = 'global-prod', site_uuid = '1fd86041-5b36-4208-8eb4-cf825d37c6a6', sample_ref = 'NC_000962.3'):
     runs = find_all_runs(site_uuid)
     print(f"number of runs found for site uuid {site_uuid}: {len(runs)}")
     existing_fasta_files = find_all_fasta_files(area, site_uuid, sample_ref)
     for run in runs:
         copy_fasta_files(site_uuid, run, sample_ref, area, existing_fasta_files)
-
     insert_fasta_files_to_catwalk(area, site_uuid, sample_ref)
+
+if __name__ == '__main__':
+    argh.dispatch_command(go)
