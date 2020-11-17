@@ -404,7 +404,6 @@ def list_flows():
     flows = list()
     for flow in cfg.get('nextflows'):
         flows.append(flow)
-
     return render_template('list_flows.template', flows=flows,
                            user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
 
@@ -1245,6 +1244,15 @@ def get_report(run_uuid : str, dataset_id: str):
                            pipeline_run_uuid=run_uuid,
                            dataset_id=dataset_id,
                            report=template_report_data)
+
+@app.route('/make_a_tree', methods=['POST'])
+@flask_login.login_required
+def make_a_tree():
+    samples =  request.form.keys()
+    sample_names = request.form.values()
+    logger.warning(f'tree requests: {request.form}')
+    return render_template('make_a_tree.template',
+                           sample_names = sample_names)
 
 @app.route('/cw_query')
 @flask_login.login_required

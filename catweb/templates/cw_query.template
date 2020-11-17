@@ -8,13 +8,13 @@
     <div class="row">
       <input name="run_id" type="text" placeholder="run id, see example below" data-val-required="run id is required." class="form-input col-md-4" id="run_id" value="{{ run_id }}"  />
       <input name="sample_name" type="text" placeholder="sample name" data-val-required="sample name is required." class="form-input col-md-4" id="sample_name" value="{{ sample_name }}"  />
-      <input name="distance" class="form-input col-md-1" type="number" id="distance" min="0" max="12" value="{{ distance }}" />
+      <input name="distance" class="form-input col-md-1" type="number" id="distance" min="0" max="50" value="{{ distance }}" />
       <input type="submit" class="form-input col-md-3 btn btn-primary" value="Search Neighbours" id="search_submit" />
     </div>
     <div class="row">
       <span class="form-input col-md-4">eg. 6ecf6616-6d25-4a2d-9588-a9dc7f2c681a</span>
       <span class="form-input col-md-4">eg. ERR552831</span>
-      <span class="col-md-1">SNPs:0-12</span>
+      <span class="col-md-1">snps</span>
     </div>
     </form>
 
@@ -38,9 +38,12 @@
       {% endif %}
     {% endif %}
     {% if neighbours | length > 0 %}
+      <form action="/make_a_tree" method="POST">
+       <input type="submit" class="form-input btn btn-primary" value="Generate Phylo Tree">
        <table class="table table-hover table-sm">
 	 <thead>
 	   <tr>
+	     <th></th>
 	     <th>Site name</th>
 	     <th>Run name</th>
 	     <th>Sample name</th>
@@ -48,10 +51,18 @@
 	   </tr>
 	 </thead>
 	 <tbody>
+	   <tr>
+	     <td><input type="checkbox" name="{{ run_id }}_{{ sample_name }}" value="{{all_runs[run_id]["run_name"]}}_{{ sample_name }}"></th>
+             <td style="font-family: monospace">{{ all_runs[run_id]['instance_name'] }} </td>
+             <td style="font-family: monospace">{{ all_runs[run_id]["run_name"]}}</td>
+	     <td style="font-family: monospace">{{ sample_name }}</td>
+	     <td>Self</td>
+	   </tr>
 	   {% for neighbour in neighbours%}
 	   {% set run_uuid = neighbour[0][0:36] %}
 	   {% set sample_name = neighbour[0][37:] %}
 	   <tr>
+	     <td><input type="checkbox" value="{{ all_runs[run_uuid]['run_name'] }}_{{ sample_name }}" name="{{ run_uuid }}_{{ sample_name }}"></th>
 	     <td style="font-family: monospace">{{ all_runs[run_uuid]['instance_name'] }}</td>
 	     <td style="font-family: monospace">{{ all_runs[run_uuid]['run_name'] }}</td>
 	     <td style="font-family: monospace">{{ sample_name }}</td>
@@ -60,6 +71,7 @@
 	{% endfor %}
 	 </tbody>
        </table>
+       </form>
     {% endif %}	
 </div>
 {% endblock%}
