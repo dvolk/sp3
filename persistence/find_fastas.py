@@ -1,3 +1,4 @@
+
 # Find clockwork fasta files that
 # - run out of one site, eg. ebi
 # - run out of clockwork pipeline, in this case, names are gvcf.fasta
@@ -9,22 +10,22 @@
 import shutil
 from pathlib import Path
 import json
-import sys
+import sys, os, time
 
-def find_tb_fasta_files_for_run(site_uuid, run_uuid):
+def find_fasta_files_for_run(site_uuid, run_uuid):
     target_folder = Path(f'/work/persistence/{site_uuid}/work/output/{run_uuid}')
     result = []
     if target_folder.is_dir():
         result = list(target_folder.glob('*/minos/gvcf.fasta'))
     return result
 
-def tb_or_not_tb(site_uuid, run_uuid, sample_name):
+def is_sample_correct_ref(site_uuid, run_uuid, sample_name, sample_ref):
     try:
         p = f'/work/persistence/{site_uuid}/work/output/{run_uuid}/{sample_name}/speciation/reference_info.txt'
         with open(p) as f:
             data = json.loads(f.read())
 
-            if data['pick_taxid'] == 'NC_000962.3':
+            if data['pick_taxid'] == sample_ref:
                 return True
     except Exception as e:
         print(str(e))
@@ -33,15 +34,17 @@ def tb_or_not_tb(site_uuid, run_uuid, sample_name):
 def get_sample_name(p):
     return p.parent.parent.name
 
-def copy_fasta_files(site_uuid, run_uuid):
+def copy_fasta_files(site_uuid, run_uuid, sample_ref, area, existing_fasta_files):
     count = 0
-    fasta_files = find_tb_fasta_files_for_run(site_uuid, run_uuid)
+    fasta_files = find_fasta_files_for_run(site_uuid, run_uuid)
     for f in fasta_files:
         sample_name = get_sample_name(f)
-        print(f"f={f}, sample_name={sample_name}")
-        
-        if tb_or_not_tb(site_uuid, run_uuid, get_sample_name(f)):
-            dest = Path(f'/work/persistence-catwalk/{run_uuid}_{sample_name}.fasta')
+        run_sample_fasta_name = run_uuid + "_" + sample_name + ".fasta"
+        if run_sample_fasta_name in existing_fasta_files:
+            continue
+
+        if is_sample_correct_ref(site_uuid, run_uuid, sample_name, sample_ref):
+            dest = Path(f'/work/persistence-catwalk/fasta/{area}/{site_uuid}/{sample_ref}/{run_sample_fasta_name}')
             if not dest.exists():
                 count += 1
                 shutil.copyfile(f, dest)
@@ -54,14 +57,32 @@ def find_all_runs(site_uuid):
     if target_folder.is_dir():
         result = [x.name for x in target_folder.iterdir()]
     return result
-        
+
+def insert_fasta_files_to_catwalk(area, site_uuid, sample_ref):
+    samples_already_there = set([x.name for x in Path("/home/ubuntu/catwalk/test").glob("*")])
+    all_samples = list(Path("/work/persistence-catwalk/fasta").glob(f"{area}/*/{sample_ref}/*.fasta"))
+
+    for sample in all_samples:
+        if sample.stem not in samples_already_there:
+            cmd = f"/home/ubuntu/catwalk/cw_client add_sample -f {sample}"
+            print(cmd)
+            os.system(cmd)
+            time.sleep(0.5)
+
+def find_all_fasta_files(area, site_uuid, sample_ref):
+    return { x.name for x in Path(f"/work/persistence-catwalk/fasta/{area}/{site_uuid}/{sample_ref}").glob("*.fasta") }
+
 if __name__ == '__main__':
     site_uuid = '1fd86041-5b36-4208-8eb4-cf825d37c6a6'
+    sample_ref = 'NC_000962.3'
+    area = 'global-prod'
     if len(sys.argv) == 2:
         site_uuid = sys.argv[1]
 
     runs = find_all_runs(site_uuid)
-    print(runs)
+    print(f"number of runs found for site uuid {site_uuid}: {len(runs)}")
+    existing_fasta_files = find_all_fasta_files(area, site_uuid, sample_ref)
     for run in runs:
-        copy_fasta_files(site_uuid,run)
-    
+        copy_fasta_files(site_uuid, run, sample_ref, area, existing_fasta_files)
+
+    insert_fasta_files_to_catwalk(area, site_uuid, sample_ref)
