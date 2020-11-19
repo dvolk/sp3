@@ -1,0 +1,31 @@
+{% extends 'base1.template' %}
+
+{% block content %}
+
+  <textarea readonly name="textarea" placeholder="Paste a tree here in nwk format, then select Linear or Radial to display." id="nwk_tree" rows="5" cols="150"> {{ tree_nwk }} </textarea>
+  <hr />
+  <div id="phylocanvas" style="width: 100%; height: 30em;"></div>
+  <script type="application/javascript" src="https://cdn.rawgit.com/phylocanvas/phylocanvas-quickstart/v2.8.1/phylocanvas-quickstart.js"></script>
+  <script type="application/javascript">
+    (function (Phylocanvas) {
+    var tree = Phylocanvas.createTree('phylocanvas');
+    tree.setTreeType('rectangular')
+    tree.setNodeSize(20);
+    tree.alignLabels = true; 
+    tree.lineWidth = 2;
+    tree.draw();
+    tree.on('error', function (event) { throw event.error; });
+    tree.on('loaded', function () {
+    console.log('loaded');
+    });
+    var tree_input = document.getElementById("nwk_tree").innerHTML;
+    tree.load('{{ tree_nwk }}');
+    tree.setTextSize(30);
+    window.tree = tree // closure out
+})(window.Phylocanvas);
+  </script>
+
+  <pre>
+    {{ data }}
+  </pre>
+{% endblock %}  

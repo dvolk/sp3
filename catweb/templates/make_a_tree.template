@@ -1,0 +1,31 @@
+{% extends 'base1.template' %}
+
+{% block content %}
+  <div class="container">
+
+    <p>{{ run_ids_sample_names }}</p>
+
+    
+  <h4>TB Phylo Tree</h4>
+  <form action='/submit_tree' method="POST">
+    <input type="submit" class="form-input btn btn-primary" value="Confirm and Submit">
+    <input type="hidden" name="run_ids_sample_names" value='{{ run_ids_sample_names }}'/>
+  </form>
+   <table class="table table-hover table-sm">
+     <thead>
+       <tr>
+         <th>Count</th>
+         <th>Run name + Sample name</th>
+       </tr>
+     </thead>
+     <tbody>
+        {% for run_name_sample_name in run_names_sample_names %}
+         <tr>
+           <td>{{ loop.index }}</th>
+           <td style="font-family: monospace">{{ run_name_sample_name }}</td>
+         </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}

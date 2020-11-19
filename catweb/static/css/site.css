@@ -8,7 +8,7 @@
 
 .container{
     padding-left:0px;
-    padding-bottom: 10px; 
+    padding-bottom: 10px;
 }
 
 
@@ -20,16 +20,29 @@
     font-family: monospace;
 }
 .login{
-    color: black; 
-    padding: 3px; 
-    border-radius: 5px; 
+    color: black;
+    padding: 3px;
+    border-radius: 5px;
 }
 #banner{
-    display: inline-block; 
+    display: inline-block;
     vertical-align: baseline;
 }
 #context{
     border-radius: 5px;
-    padding: 3px; 
-    background-color: #cac"
+    padding: 3px;
+    background-color: #cac
+}
+
+#tree_display {
+    width: 1080px;
+    height: 800px;
+    background-color: ghostwhite;
+}
+
+#sample_id_tree {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 1px;
 }

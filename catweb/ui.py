@@ -1248,11 +1248,39 @@ def get_report(run_uuid : str, dataset_id: str):
 @app.route('/make_a_tree', methods=['POST'])
 @flask_login.login_required
 def make_a_tree():
-    samples =  request.form.keys()
-    sample_names = request.form.values()
+    run_ids_sample_names =  json.dumps(list(request.form.keys()))
+    run_names_sample_names = list(request.form.values())
     logger.warning(f'tree requests: {request.form}')
     return render_template('make_a_tree.template',
-                           sample_names = sample_names)
+                           run_names_sample_names = run_names_sample_names,
+                           run_ids_sample_names = run_ids_sample_names)
+
+@app.route('/list_trees')
+@flask_login.login_required
+def list_trees():
+    trees = requests.get('http://localhost:7654/list_trees').json()
+    return render_template("list_trees.template", trees=trees)
+
+@app.route('/submit_tree', methods=["POST"])
+@flask_login.login_required
+def submit_tree():
+    run_ids_sample_names = request.form.get('run_ids_sample_names')
+    logger.warning("run ids sample names: ", run_ids_sample_names)
+    requests.post('http://localhost:7654/submit_tree', json={ 'run_ids_sample_names': run_ids_sample_names })
+    return redirect("/")
+
+@app.route('/view_tree/<guid>')
+@flask_login.login_required
+def view_tree(guid):
+    data = requests.get(f"http://localhost:7654/get_tree/{ guid }").json()
+    logger.warning(data)
+
+    result = json.loads(data['results'])
+    tree_nwk = result['data']['newick_content']
+    
+    return render_template("view_tree.template",
+                           tree_nwk=tree_nwk,
+                           data=json.dumps(data, indent=4))
 
 @app.route('/cw_query')
 @flask_login.login_required
