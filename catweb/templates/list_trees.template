@@ -3,34 +3,46 @@
 {% block content %}
 <div class="container">
   <h4>List of TB Phylo Trees</h4>
+  {% if pipeline_run_uuid and sample_name %}
+    <p>List contains trees containing sample <strong>{{ sample_name }}</strong> in pipeline run id <strong>{{ pipeline_run_uuid }}</strong></p>
+  {% endif %}
+  <br/>
    <table class="table table-hover table-sm">
      <thead>
        <tr>
-         <th>Count</th>
-         <th>Name</th>
-	 <th>Type</th>
-         <th>Sample Count</th>
-	 <th>Status</th>
-	 <th>Started</th>
+	 <th>Name</th>
+         <th>Status</th>
+	 <th>Count</th>
+	 <th>Added time</th>
+	 <th>Started time</th>
 	 <th>Duration</th>
-	 <th>User</th>
 	 <th>Organisation</th>
-	 <th></th>
+	 <th>Action</th>
        </tr>
      </thead>
      <tbody>
         {% for tree in trees %}
          <tr>
-           <td>{{ loop.index }}</td>
-	   <td style="font-family: monospace">{{ tree[1] }}</td>
-	   <td style="font-family: monospace">{{ tree[2] }}</td>
-	   <td style="font-family: monospace">{{ tree[3] }}</td>
-	   <td style="font-family: monospace">{{ tree[4] }}</td>
-	   <td style="font-family: monospace">{{ tree[5] }}</td>
-	   <td style="font-family: monospace">{{ tree[6] }}</td>
-	   <td style="font-family: monospace">{{ tree[7] }}</td>
-	   <td style="font-family: monospace">{{ tree[8] }}</td>
-	   <td><a href="/view_tree/{{ tree[0] }}">View tree</a></td>
+	   <td>{{ tree[1] }}</td>
+	   <td>{{ tree[3] }}</td>
+	   <td>{{ tree[4] }}</td>
+	   <td>{{ strftime("%d-%m-%Y %H:%M", localtime(tree[5])) }}</td>
+	   {% if tree[6] > 0 %}
+	     <td>{{ strftime("%d-%m-%Y %H:%M", localtime(tree[6])) }}</td>
+	   {% else %}
+	     <td></td>
+	   {% endif %}
+	   {% if tree[7] > 0 %}
+	     <td>{{ tree[7]-tree[6] }} s</td>
+	   {% else %}
+	     <td></td>
+	   {% endif %}
+	   <td>{{ tree[9] }}</td>
+	   {% if tree[7] > 0 %}
+	     <td><a href="/view_tree/{{ tree[0] }}">View tree</a></td>
+	   {% else %}
+	     <td></td>
+	   {% endif %}
          </tr>
       {% endfor %}
     </tbody>

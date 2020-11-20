@@ -2,30 +2,32 @@
 
 {% block content %}
   <div class="container">
-
-    <p>{{ run_ids_sample_names }}</p>
-
-    
-  <h4>TB Phylo Tree</h4>
-  <form action='/submit_tree' method="POST">
-    <input type="submit" class="form-input btn btn-primary" value="Confirm and Submit">
-    <input type="hidden" name="run_ids_sample_names" value='{{ run_ids_sample_names }}'/>
-  </form>
-   <table class="table table-hover table-sm">
-     <thead>
-       <tr>
+    <h4>TB Phylo Tree</h4>
+    <p>Note: we recommend keeping the number of samples around 50 for performance reasons.</p>
+    <form action='/submit_tree' method="POST">
+      <p>
+	Give your tree a name: <input type="text" name="my_tree_name" value='I forgot to name my tree'/>
+      </p>
+      <br/>
+      <input type="submit" class="form-input btn btn-primary" value="Confirm and Submit">
+      <input type="hidden" name="run_ids_sample_names" value='{{ run_ids_sample_names }}'/>
+    </form>
+    <br/>
+    <table class="table table-hover table-sm">
+      <thead>
+	<tr>
          <th>Count</th>
          <th>Run name + Sample name</th>
-       </tr>
+	</tr>
      </thead>
-     <tbody>
+      <tbody>
         {% for run_name_sample_name in run_names_sample_names %}
-         <tr>
-           <td>{{ loop.index }}</th>
-           <td style="font-family: monospace">{{ run_name_sample_name }}</td>
-         </tr>
-      {% endfor %}
-    </tbody>
+          <tr>
+            <td>{{ loop.index }}</th>
+            <td style="font-family: monospace">{{ run_name_sample_name }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
-</div>
+  </div>
 {% endblock %}

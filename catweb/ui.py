@@ -1258,29 +1258,61 @@ def make_a_tree():
 @app.route('/list_trees')
 @flask_login.login_required
 def list_trees():
-    trees = requests.get('http://localhost:7654/list_trees').json()
-    return render_template("list_trees.template", trees=trees)
+    pipeline_run_uuid = request.args.get('pipeline_run_uuid')
+    sample_name = request.args.get('sample_name')
+    if pipeline_run_uuid and sample_name:
+        trees = requests.get('http://localhost:7654/list_trees', params={ 'pipeline_run_uuid': pipeline_run_uuid,
+                                                                          'sample_name': sample_name }).json()
+    else:
+        trees = requests.get('http://localhost:7654/list_trees').json()
+    return render_template("list_trees.template", trees=trees, strftime=time.strftime, localtime=time.localtime,
+                           pipeline_run_uuid=pipeline_run_uuid,
+                           sample_name=sample_name)
 
 @app.route('/submit_tree', methods=["POST"])
 @flask_login.login_required
 def submit_tree():
     run_ids_sample_names = request.form.get('run_ids_sample_names')
+    my_tree_name = request.form.get('my_tree_name')
+    u = get_user_dict()
     logger.warning("run ids sample names: ", run_ids_sample_names)
-    requests.post('http://localhost:7654/submit_tree', json={ 'run_ids_sample_names': run_ids_sample_names })
-    return redirect("/")
+    requests.post('http://localhost:7654/submit_tree', json={ 'my_tree_name': my_tree_name,
+                                                              'run_ids_sample_names': run_ids_sample_names,
+                                                              'provider': 'iqtree1',
+                                                              'user': u['name'],
+                                                              'org': u['org_name'] })
+    return redirect("/list_trees")
 
 @app.route('/view_tree/<guid>')
 @flask_login.login_required
 def view_tree(guid):
     data = requests.get(f"http://localhost:7654/get_tree/{ guid }").json()
     logger.warning(data)
+    try:
+        runs_names_map = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()
+    except:
+        runs_names_map = dict()
+        pass
 
     result = json.loads(data['results'])
     tree_nwk = result['data']['newick_content']
+
+    if runs_names_map:
+        import newick
+        xs = newick.loads(tree_nwk)
+        for tree in xs:
+            for node in tree.walk():
+                if node.name:
+                    pipeline_run_uuid = node.name[0:36]
+                    sample_name = node.name[37:]
+                    if pipeline_run_uuid in runs_names_map:
+                        node.name = f"{sample_name} [{runs_names_map[pipeline_run_uuid]['run_name']}]"
+        tree_nwk = newick.dumps(xs)
     
     return render_template("view_tree.template",
                            tree_nwk=tree_nwk,
-                           data=json.dumps(data, indent=4))
+                           data=data,
+                           data2=json.loads(data['results']))
 
 @app.route('/cw_query')
 @flask_login.login_required

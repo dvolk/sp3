@@ -4,7 +4,7 @@
   <style>
     #phylocanvas {
         width: 100%;
-        height: 60em;
+        height: 45em;
         background-color: ghostwhite;
     }
 
@@ -15,9 +15,22 @@
 {% endblock %}
 
 {% block content %}
-  <textarea readonly name="textarea" placeholder="Paste a tree here in nwk format, then select Linear or Radial to display." id="nwk_tree" rows="5" cols="168"> {{ tree_nwk }} </textarea>
+<p>Tree name: {{ data['queue_row'][1] }}</p>
+<p>Generated with: {{ data2['data']['program_filepath'] }}</p>
+<h4>Tree view</h4>
+<p>Presented via <a href='http://phylocanvas.org/'>phylocanvas</a>, right click tree image for options of exporting etc. Requires javascript.</p>
+<input type='text' id='search_node' placeholder="Search sample (e.g. ERR133831) or run name (e.g. oxforduni-Clockwork)" class="form-input" size="100">
+<input type="submit" class="btn-sm btn-primary" id='search_btn' value="Highlight">
+<input type="submit" class="btn-sm btn-info" id='reset_btn' value="Clear highlighting">
+<div id="phylocanvas"></div>
   <hr />
-  <div id="phylocanvas"></div>
+  <h4>Newick string</h4>
+  <p>You can copy this into a third party tool to display the tree</p>
+  <p>{{ tree_nwk }}</p>
+  <h4>Program output</h4>
+<pre>
+{{ data2['data']['program_output'] }}
+</pre>
   <script type="application/javascript" src="/static/scripts/phylocanvas-2.8.1.min.js"></script>
   <script type="application/javascript">
     (function (Phylocanvas) {
@@ -29,14 +42,10 @@
     tree.on('loaded', function () {
     console.log('loaded');
     });
-    var tree_input = document.getElementById("nwk_tree").innerHTML;
+    var tree_input = '{{ tree_nwk }}';
     tree.load('{{ tree_nwk }}');
     tree.setTextSize(30);
-    window.tree = tree // closure out
-})(window.Phylocanvas);
+    window.Phylocanvas = tree // closure out
+    })(window.Phylocanvas);
   </script>
-
-  <pre>
-    {{ data }}
-  </pre>
-{% endblock %}  
+{% endblock %}

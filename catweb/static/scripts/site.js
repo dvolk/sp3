@@ -49,3 +49,22 @@ $(document).on('click', '#check_all_neighbour', function(e){
 	});
     }
 });
+
+$(document).on('click', '#search_btn', function(e){
+    window.Phylocanvas.draw();
+    search_text = document.getElementById('search_node').value;
+    leaves = window.Phylocanvas.leaves;
+     for (i=0; i< leaves.length; i++) {
+         if (leaves[i].label.includes(search_text)) {
+            leaves[i].highlighted = true;
+        }
+    }
+    window.Phylocanvas.draw();
+});
+
+$(document).on('click', '#reset_btn', function(e){
+    tree = window.Phylocanvas;
+    tree.setNodeSize(20);                                                                                                                             tree.lineWidth = 2;  
+    tree.redrawOriginalTree();
+    tree.setTextSize(30);
+});
