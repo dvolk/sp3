@@ -34,3 +34,18 @@ $(document).on('click', '#submit_pipeline', function(e){
 	}
       }
 });
+
+$(document).on('click', '#check_all_neighbour', function(e){
+    if (document.getElementById('check_all_neighbour').checked) {
+	$('.neighbour_tick').each(function () {
+	    $(this).trigger('click');
+	    $(this).prop("checked", true);
+	});
+    }
+    else {
+	$('.neighbour_tick').each(function () {
+	    $(this).trigger('click');
+	    $(this).prop("checked", false);
+	});
+    }
+});

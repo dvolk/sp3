@@ -20,19 +20,19 @@
 
     <hr />
     {% if message %}
-        <p><strong>{{ message }}</strong></p>		
+        <p><strong>{{ message }}</strong></p>
     {% endif %}
 
     {% if neighbours_ok %}
-      {% set count = neighbours | length %} 
+      {% set count = neighbours | length %}
          <p>Query run: <strong>{{all_runs[run_id]["run_name"]}}</strong></p>
          <p>Query sample:<strong> {{sample_name}}</strong></p>
       {% if count == 0 %}
  	  <p><strong>No</strong> neighbours found.<p>
-      {% endif %}  
+      {% endif %}
       {% if count == 1 %}
          <p><strong>1</strong> neighbour found.<p>
-      {% endif %}  
+      {% endif %}
       {% if count > 1 %}
          <p><strong>{{count}}</strong> neighbours found.<p>
       {% endif %}
@@ -43,7 +43,7 @@
        <table class="table table-hover table-sm">
 	 <thead>
 	   <tr>
-	     <th></th>
+	     <th><input type="checkbox" id="check_all_neighbour" onclick="check_all_neighbour();"></th>
 	     <th>Site name</th>
 	     <th>Run name</th>
 	     <th>Sample name</th>
@@ -52,17 +52,17 @@
 	 </thead>
 	 <tbody>
 	   <tr>
-	     <td><input type="checkbox" name="{{ run_id }}_{{ sample_name }}" value="{{all_runs[run_id]["run_name"]}}_{{ sample_name }}"></th>
+	     <td><input type="checkbox" class='neighbour_tick' name="{{ run_id }}_{{ sample_name }}" value="{{all_runs[run_id]["run_name"]}}_{{ sample_name }}"></th>
              <td style="font-family: monospace">{{ all_runs[run_id]['instance_name'] }} </td>
              <td style="font-family: monospace">{{ all_runs[run_id]["run_name"]}}</td>
 	     <td style="font-family: monospace">{{ sample_name }}</td>
 	     <td>Self</td>
 	   </tr>
-	   {% for neighbour in neighbours%}
+	   {% for neighbour in neighbours %}
 	   {% set run_uuid = neighbour[0][0:36] %}
 	   {% set sample_name = neighbour[0][37:] %}
 	   <tr>
-	     <td><input type="checkbox" value="{{ all_runs[run_uuid]['run_name'] }}_{{ sample_name }}" name="{{ run_uuid }}_{{ sample_name }}"></th>
+	     <td><input type="checkbox" class='neighbour_tick' value="{{ all_runs[run_uuid]['run_name'] }}_{{ sample_name }}" name="{{ run_uuid }}_{{ sample_name }}"></th>
 	     <td style="font-family: monospace">{{ all_runs[run_uuid]['instance_name'] }}</td>
 	     <td style="font-family: monospace">{{ all_runs[run_uuid]['run_name'] }}</td>
 	     <td style="font-family: monospace">{{ sample_name }}</td>
@@ -72,6 +72,6 @@
 	 </tbody>
        </table>
        </form>
-    {% endif %}	
+    {% endif %}
 </div>
 {% endblock%}
