@@ -180,6 +180,22 @@ def api_get_runs_name_map():
 def api_cw_get_neighbours(run_uuid_and_sample_name, snp_distance):
     return requests.get(f"http://localhost:5000/neighbours/{ run_uuid_and_sample_name }/{ snp_distance }").text
 
+@app.route('/api_submit_tree', methods=["POST"])
+def submit_tree():
+    return requests.post('http://localhost:7654/submit_tree', json=request.json).text
+
+@app.route('/api_list_trees')
+def list_trees():
+    return requests.get('http://localhost:7654/list_trees', params=request.args).text
+
+@app.route('/api_get_tree/<guid>')
+def get_tree(guid):
+    return requests.get(f"http://localhost:7654/get_tree/{ guid }").text
+
+
+
+
+
 # ---- ui ---
 @app.route('/list_instances')
 @flask_login.login_required

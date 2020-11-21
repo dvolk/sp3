@@ -20,8 +20,12 @@
 <h4>Tree view</h4>
 <p>Presented via <a href='http://phylocanvas.org/'>phylocanvas</a>, right click tree image for options of exporting etc. Requires javascript.</p>
 <input type='text' id='search_node' placeholder="Search sample (e.g. ERR133831) or run name (e.g. oxforduni-Clockwork)" class="form-input" size="100">
+<br/>
+<br/>
 <input type="submit" class="btn-sm btn-primary" id='search_btn' value="Highlight">
 <input type="submit" class="btn-sm btn-info" id='reset_btn' value="Clear highlighting">
+<br/>
+<br/>
 <div id="phylocanvas"></div>
   <hr />
   <h4>Newick string</h4>

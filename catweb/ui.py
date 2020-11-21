@@ -1261,10 +1261,10 @@ def list_trees():
     pipeline_run_uuid = request.args.get('pipeline_run_uuid')
     sample_name = request.args.get('sample_name')
     if pipeline_run_uuid and sample_name:
-        trees = requests.get('http://localhost:7654/list_trees', params={ 'pipeline_run_uuid': pipeline_run_uuid,
+        trees = requests.get('https://persistence.mmmoxford.uk/api_list_trees', params={ 'pipeline_run_uuid': pipeline_run_uuid,
                                                                           'sample_name': sample_name }).json()
     else:
-        trees = requests.get('http://localhost:7654/list_trees').json()
+        trees = requests.get('https://persistence.mmmoxford.uk/api_list_trees').json()
     return render_template("list_trees.template", trees=trees, strftime=time.strftime, localtime=time.localtime,
                            pipeline_run_uuid=pipeline_run_uuid,
                            sample_name=sample_name)
@@ -1276,7 +1276,7 @@ def submit_tree():
     my_tree_name = request.form.get('my_tree_name')
     u = get_user_dict()
     logger.warning("run ids sample names: ", run_ids_sample_names)
-    requests.post('http://localhost:7654/submit_tree', json={ 'my_tree_name': my_tree_name,
+    requests.post('https://persistence.mmmoxford.uk/api_submit_tree', json={ 'my_tree_name': my_tree_name,
                                                               'run_ids_sample_names': run_ids_sample_names,
                                                               'provider': 'iqtree1',
                                                               'user': u['name'],
@@ -1286,7 +1286,7 @@ def submit_tree():
 @app.route('/view_tree/<guid>')
 @flask_login.login_required
 def view_tree(guid):
-    data = requests.get(f"http://localhost:7654/get_tree/{ guid }").json()
+    data = requests.get(f"https://persistence.mmmoxford.uk/api_get_tree/{ guid }").json()
     logger.warning(data)
     try:
         runs_names_map = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()

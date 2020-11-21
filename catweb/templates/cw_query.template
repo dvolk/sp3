@@ -39,9 +39,12 @@
     {% endif %}
     {% if neighbours | length > 0 %}
       <form action="/make_a_tree" method="POST">
-       <input type="submit" class="form-input btn btn-primary" value="Generate Phylo Tree">
-       <table class="table table-hover table-sm">
-	 <thead>
+	<p>To build a tree, select samples below by ticking the boxes, then click the button</p>
+	<input type="submit" class="form-input btn btn-primary" value="Generate Phylo Tree">
+	<br/>
+	<br/>
+	<table class="table table-hover table-sm">
+	  <thead>
 	   <tr>
 	     <th><input type="checkbox" id="check_all_neighbour" onclick="check_all_neighbour();"></th>
 	     <th>Site name</th>

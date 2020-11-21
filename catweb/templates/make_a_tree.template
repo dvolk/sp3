@@ -3,7 +3,8 @@
 {% block content %}
   <div class="container">
     <h4>TB Phylo Tree</h4>
-    <p>Note: we recommend keeping the number of samples around 50 for performance reasons.</p>
+    <p style="padding: 5px; border: 2px solid red;">Note: We recommend building tree with 50 samples or less for performance reasons.</p>
+    <p>You have selected to build a tree with {{ run_names_sample_names|length }} samples.</p>
     <form action='/submit_tree' method="POST">
       <p>
 	Give your tree a name: <input type="text" name="my_tree_name" value='I forgot to name my tree'/>
