@@ -31,11 +31,11 @@ def add(guid, name, provider, run_ids_sample_names, user, org):
 
 def get_trees_containing_sample(run_uuid, sample_name):
     with con, lock:
-        return con.execute("select * from queue where guid = (select tree_guid from run_sample_tree_index where pipeline_run_uuid = ? and sample_name = ?)", (run_uuid, sample_name)).fetchall()
+        return con.execute("select * from queue where guid in (select tree_guid from run_sample_tree_index where pipeline_run_uuid = ? and sample_name = ?) order by added desc", (run_uuid, sample_name)).fetchall()
 
 def get_all():
     with con, lock:
-        return con.execute("select * from queue").fetchall()
+        return con.execute("select * from queue order by added desc").fetchall()
 
 def get(guid):
     with con, lock:

@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block content %}
-<p>Tree name: {{ data['queue_row'][1] }}</p>
+<h4>Tree "{{ data['queue_row'][1] }}"</h4>
 <p>Generated with: {{ data2['data']['program_filepath'] }}</p>
 <h4>Tree view</h4>
 <p>Presented via <a href='http://phylocanvas.org/'>phylocanvas</a>, right click tree image for options of exporting etc. Requires javascript.</p>

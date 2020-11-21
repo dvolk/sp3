@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-  <h4>List of TB Phylo Trees</h4>
+  <h4>List of phylogenetics trees</h4>
   {% if pipeline_run_uuid and sample_name %}
     <p>List contains trees containing sample <strong>{{ sample_name }}</strong> in pipeline run id <strong>{{ pipeline_run_uuid }}</strong></p>
   {% endif %}
@@ -16,7 +16,7 @@
 	 <th>Added time</th>
 	 <th>Started time</th>
 	 <th>Duration</th>
-	 <th>Organisation</th>
+<!--	 <th>Organisation</th> -->
 	 <th>Action</th>
        </tr>
      </thead>
@@ -37,7 +37,7 @@
 	   {% else %}
 	     <td></td>
 	   {% endif %}
-	   <td>{{ tree[9] }}</td>
+<!--	   <td>{{ tree[9] }}</td> -->
 	   {% if tree[7] > 0 %}
 	     <td><a href="/view_tree/{{ tree[0] }}">View tree</a></td>
 	   {% else %}
