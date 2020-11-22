@@ -1332,12 +1332,16 @@ def cw_query():
 
     else:
         # call persistence API to get run-name map
-        combine_name = run_id + '_' + sample_name
-        res = requests.get(f'https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}')
-        message = res.text
-        logger.debug(f'catwalk returned: {res.text}')
+        if distance == "-1":
+            import nifty_fifty
+            res = json.dumps(nifty_fifty.nifty_neighbours(run_id, sample_name, trim=True))
+        else:
+            combine_name = run_id + '_' + sample_name
+            res = requests.get(f'https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}').text
+        message = res
+        logger.debug(f'catwalk returned: {res}')
         try:
-            neighbours = res.json()
+            neighbours = json.loads(res)
             neighbours_ok = True
             all_runs = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()
             message = ""
