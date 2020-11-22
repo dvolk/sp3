@@ -3,10 +3,11 @@
 {% block content %}
 <div class="container">
   <h4>List of phylogenetics trees</h4>
+  <p>To create a new tree: to go a sample report, click 'Query genetic neighbourhood', and follow the instructions.</p>
+  <p>On the sample report, you can also click 'List trees containing this sample (and run)' to see only that have that sample (for that run)</p>
   {% if pipeline_run_uuid and sample_name %}
     <p>List contains trees containing sample <strong>{{ sample_name }}</strong> in pipeline run id <strong>{{ pipeline_run_uuid }}</strong></p>
   {% endif %}
-  <br/>
    <table class="table table-hover table-sm">
      <thead>
        <tr>
