@@ -1,12 +1,13 @@
 '''
-/api/fetch/ena/new
-/api/fetch/ena/delete
+/api/fetch/ena2/new
+/api/fetch/ena2/delete
 '''
 
 import logging
 import uuid
 import json
 import pathlib
+import uuid
 
 from flask import Flask, abort, request
 from api import queue
@@ -15,7 +16,7 @@ from config import config
 import ena2.fetcher
 import datetime
 
-def ena2_new(guid, request_args):
+def ena2_new(fetch_name, request_args):
     glogger = logging.getLogger("fetch_logger")
     glogger.debug(f'request_args: {request_args}')
 
@@ -39,6 +40,8 @@ def ena2_new(guid, request_args):
              'fetch_rerun': fetch_rerun,
              'fetch_range': fetch_range,
              'fetch_samples': fetch_samples }
+
+    guid = str(uuid.uuid4())
 
     def pred_always_rerun(rows):
         return None
