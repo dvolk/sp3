@@ -1,29 +1,31 @@
 {% extends "base1.template" %}
 {% block content %}
-<h4>Run details</h4>
+  <h4>Run details</h4>
 <p>
   <a href="/flow/{{ flow_name }}">{{ flow_display_name }}</a> /
   <a href="/flow/{{ flow_name }}/details/{{ uuid }}">{{ run_name }}</a>
+</p>
 <p>
-{#
-{% for k,v in user_param_dict.items() %}
-<p>{{ k }} = {{ v }}</p>
-{% endfor %}
-#}
-    {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/output_files/{{ uuid }}"><button type="button" class="btn btn-primary">Download Output</button></a>{% endif %}
-    {% if buttons['log'] %}<a href="/flow/{{ flow_name }}/log/{{ uuid }}"><button type="button" class="btn btn-info">View Log</button></a>{% endif %}
-    {% if buttons['report'] %}<a href="/flow/{{ flow_name }}/report/{{ uuid }}"><button type="button" class="btn btn-info">View report</button></a>{% endif %}
-    {% if buttons['timeline'] %}<a href="/flow/{{ flow_name }}/timeline/{{ uuid }}"><button type="button" class="btn btn-info">View timeline</button></a>{% endif %}
-    {% if buttons['dagdot'] %}<a href="/flow/{{ flow_name }}/dagdot/{{ uuid }}"><button type="button" class="btn btn-info">View Graph</button></a>{% endif %}
-    <a href="/flow/{{ flow_name }}/show_metadata/{{ uuid }}"><button type="button" class="btn btn-info">View metadata</button></a>
-    {% if buttons['stop'] %}<a href="/flow/{{ flow_name }}/stop/{{ uuid }}"><button type="button" class="btn btn-danger">Stop</button></a>{% endif %}
-    {% if buttons['rerun'] %}<a href="/flow/{{ flow_name }}/new?replay={{ uuid }}"><button type="button" class="btn btn-warning">Repeat Run</button></a>{% endif %}
-    {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/delete_output_files/{{ uuid }}" id="delete_output" data-confirm="Are you sure to delete output files?"><button type="button" class="btn btn-danger">Delete output files</button></a>{% endif %}
-    {% if not buttons['stop'] %}<a href="/flow/{{ flow_name }}/delete_run/{{ uuid }}" id="delete_run" data-confirm="Are you sure to delete the run?"><button type="button" class="btn btn-danger">Delete run</button></a>{% endif %}
+  {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/output_files/{{ uuid }}"><button type="button" class="btn btn-primary">Download Output</button></a>{% endif %}
+  {% if buttons['log'] %}<a href="/flow/{{ flow_name }}/log/{{ uuid }}"><button type="button" class="btn btn-info">View Log</button></a>{% endif %}
+  {% if buttons['report'] %}<a href="/flow/{{ flow_name }}/report/{{ uuid }}"><button type="button" class="btn btn-info">View report</button></a>{% endif %}
+  {% if buttons['timeline'] %}<a href="/flow/{{ flow_name }}/timeline/{{ uuid }}"><button type="button" class="btn btn-info">View timeline</button></a>{% endif %}
+  {% if buttons['dagdot'] %}<a href="/flow/{{ flow_name }}/dagdot/{{ uuid }}"><button type="button" class="btn btn-info">View Graph</button></a>{% endif %}
+  <a href="/flow/{{ flow_name }}/show_metadata/{{ uuid }}"><button type="button" class="btn btn-info">View metadata</button></a>
+  {% if buttons['stop'] %}<a href="/flow/{{ flow_name }}/stop/{{ uuid }}"><button type="button" class="btn btn-danger">Stop</button></a>{% endif %}
+  {% if buttons['rerun'] %}<a href="/flow/{{ flow_name }}/new?replay={{ uuid }}"><button type="button" class="btn btn-warning">Repeat Run</button></a>{% endif %}
+  {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/delete_output_files/{{ uuid }}" id="delete_output" data-confirm="Are you sure to delete output files?"><button type="button" class="btn btn-danger">Delete output files</button></a>{% endif %}
+  {% if not buttons['stop'] %}<a href="/flow/{{ flow_name }}/delete_run/{{ uuid }}" id="delete_run" data-confirm="Are you sure to delete the run?"><button type="button" class="btn btn-danger">Delete run</button></a>{% endif %}
+</p>
+  <hr>
+<p>
+  To view the report, click on the sample name in the left section of the table below.
+</p>
+<p>
+  To view the task command and output, click on the task name on the right section of the table below.
+</p>
 
-    <hr>
-
-    {% if trace_nice %}
+  {% if trace_nice %}
 
     {% if task_count > 0 and expected_tasks > 0 %}
       {% set percent_done = (100 * (task_count / expected_tasks))|round(1) %}
@@ -31,77 +33,77 @@
     {% endif %}
 
     {% set status_map = { 'COMPLETED': 'btn-info',
-                          'ABORTED': 'btn-warning',
-                          'FAILED': 'btn-danger' } %}
-        <table style="margin-top: 10px" class="table-striped table table-hover table-sm" style="border: none">
-          <thead>
-            <tr>
-              <th scope="col">Sample</th>
-              <th scope="col">Process</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for dataset_id, entry_ in trace_nice.items() %}
-            {% if entry_ %}
+    'ABORTED': 'btn-warning',
+    'FAILED': 'btn-danger' } %}
+    <table style="margin-top: 10px" class="table-striped table table-hover table-sm" style="border: none">
+      <thead>
+        <tr>
+          <th scope="col">Sample</th>
+          <th scope="col">Process</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dataset_id, entry_ in trace_nice.items() %}
+          {% if entry_ %}
             <tr>
               <td scope="row">
                 <span style="font-family: monospace; font-weight: bold">
 		  {% if dataset_id == "unknown" %}{% else %}<a href="/flow/{{ uuid }}/{{ dataset_id }}/report">{{ dataset_id }}</a>{% endif %}</span>
-     	        {% if dataset_id in tags %}
-		<br/>
-		<sup style="background-color: pink; margin-top: 3px;">
-		  {% for tag in tags[dataset_id] %}
-		  {% if tag[0] == 'resistance_profile' %}
-		  {% for c in tag[1] %}
-		  <span style="color:{% if c == 'R' %}red{% else %}grey{% endif %}">{{ c }}</span>
-		  {% endfor %}
-		  {% else %}
-		  {{ tag[1] }}<br/>
-		  {% endif %}
-		  {% endfor %}
-		 </sup>
+     	          {% if dataset_id in tags %}
+		    <br/>
+		    <sup style="background-color: pink; margin-top: 3px;">
+		      {% for tag in tags[dataset_id] %}
+			{% if tag[0] == 'resistance_profile' %}
+			  {% for c in tag[1] %}
+			    <span style="color:{% if c == 'R' %}red{% else %}grey{% endif %}">{{ c }}</span>
+			  {% endfor %}
+			{% else %}
+			  {{ tag[1] }}<br/>
+			{% endif %}
+		      {% endfor %}
+		    </sup>
 		  {% endif %}
               </td>
               <td>
                 {% for entry in entry_ %}
-                <a  style="line-height: 30px; margin: 3px" class="btn-sm {{ status_map[entry['status']]}}" href="/flow/{{ flow_name }}/details/{{ uuid }}/task/{% if dataset_id != 'unknown'%}{{ dataset_id }}/{{ entry['nice_name']}}{% else %}{{ entry['hash']|replace('/','-') }}{% endif %}">{% if dataset_id != "unknown" %}{{ entry['nice_name'] }}{% else %}{{ entry['name'] }}{% endif %}</a>
+                  <a  style="line-height: 30px; margin: 3px" class="btn-sm {{ status_map[entry['status']]}}" href="/flow/{{ flow_name }}/details/{{ uuid }}/task/{% if dataset_id != 'unknown'%}{{ dataset_id }}/{{ entry['nice_name']}}{% else %}{{ entry['hash']|replace('/','-') }}{% endif %}">{% if dataset_id != "unknown" %}{{ entry['nice_name'] }}{% else %}{{ entry['name'] }}{% endif %}</a>
                 {% endfor %}
               </td>
             </tr>
-            {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
 
-    {% endif %}
+{% endif %}
 
-    {% if not trace_nice %}
-        {% if entries %}
-        <table style="margin-top: 10px" class="table table-hover table-sm">
-          <thead>
-            <tr>
-              <th scope="col">Task ID</th>
-              <th scope="col">Name</th>
-              <th scope="col">Status</th>
-              <th scope="col">Exit code</th>
-              <th scope="col">Realtime</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for entry in entries %}
-            <tr>
-              <th scope="row">{{ entry['task_id'] }}</th>
-              <td><a href="/flow/{{ flow_name }}/details/{{ uuid }}/task/{{ entry['hash']|replace('/','-') }}">{{ entry['name'] }}</td>
-              <td>{{ entry['status'] }}</td>
-              <td>{{ entry['exit'] }}</td>
-              <td>{{ entry['duration'] }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% endif %}
-        {% if not entries %}
-        <h5 style='color: red; margin-top: 50px'>Trace file not found</h5>
-        {% endif %} {# not entries #}
-    {% endif %} {# not trace_nice #}
+{% if not trace_nice %}
+  {% if entries %}
+    <table style="margin-top: 10px" class="table table-hover table-sm">
+      <thead>
+        <tr>
+          <th scope="col">Task ID</th>
+          <th scope="col">Name</th>
+          <th scope="col">Status</th>
+          <th scope="col">Exit code</th>
+          <th scope="col">Realtime</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in entries %}
+          <tr>
+            <th scope="row">{{ entry['task_id'] }}</th>
+            <td><a href="/flow/{{ flow_name }}/details/{{ uuid }}/task/{{ entry['hash']|replace('/','-') }}">{{ entry['name'] }}</td>
+            <td>{{ entry['status'] }}</td>
+            <td>{{ entry['exit'] }}</td>
+            <td>{{ entry['duration'] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+  {% if not entries %}
+    <h5 style='color: red; margin-top: 50px'>Trace file not found</h5>
+  {% endif %} {# not entries #}
+{% endif %} {# not trace_nice #}
 {% endblock content %}

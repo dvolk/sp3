@@ -18,7 +18,7 @@
 <h4>Tree "{{ data['queue_row'][1] }}"</h4>
 <p>Generated with: {{ data2['data']['program_filepath'] }}</p>
 <h4>Tree view</h4>
-<p>Presented via <a href='http://phylocanvas.org/'>phylocanvas</a>, right click tree image for options of exporting etc. Requires javascript.</p>
+<p>Presented via <a href='http://phylocanvas.org/'>phylocanvas</a>, right click tree image for options of exporting etc.(Javascript required in browser)</p>
 <input type='text' id='search_node' placeholder="Search sample (e.g. ERR133831) or run name (e.g. oxforduni-Clockwork)" class="form-input" size="100">
 <br/>
 <br/>
@@ -30,11 +30,9 @@
   <hr />
   <h4>Newick string</h4>
   <p>You can copy this into a third party tool to display the tree</p>
-  <p>{{ tree_nwk }}</p>
+  <textarea rows="10" style="width: 100%;">{{ tree_nwk }}</textarea>
   <h4>Program output</h4>
-<pre>
-{{ data2['data']['program_output'] }}
-</pre>
+  <textarea rows="20" style="width: 100%;">{{ data2['data']['program_output'] }}</textarea>
   <script type="application/javascript" src="/static/scripts/phylocanvas-2.8.1.min.js"></script>
   <script type="application/javascript">
     (function (Phylocanvas) {
