@@ -54,6 +54,28 @@ def db_update_report_result(con, report_filename, report_started_epochtime, repo
         con.execute("update q set report_filename = ?, started_epochtime = ?, finished_epochtime = ?, status = ? where uuid = ?",
                     (report_filename, report_started_epochtime, report_finished_epochtime, report_status, report_uuid ))
 
+def db_get_queued_report_count(con, report_type):
+    with sql_lock, con:
+        rows = con.execute("select count(*) from q where type = ? and status = 'queued'", (report_type,)).fetchone()
+    return rows
+
+@app.route('/list_reports/')
+def list_report():
+    '''
+    List the last 1000 resistance reports in the queue
+    '''
+    data = []
+    detail = None
+    try:
+        data = db_get_reports(con, 'resistance')
+        status = 'success'
+        detail = str(len(data))
+    except:
+        status = 'failed'
+    return json.dumps({ 'status': status,
+                        'details': detail,
+                        'data': data })
+
 @app.route('/req_report/', methods=['POST'])
 def req_report():
     '''

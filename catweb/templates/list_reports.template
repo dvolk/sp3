@@ -1,0 +1,42 @@
+{% extends 'base1.template' %}
+
+{% block content %}
+<div class="container">
+  <h4>List of Reports</h4>
+   <table class="table table-hover table-sm">
+     <thead>
+       <tr>
+	 <th>Type</th>
+         <th>Status</th>
+	 <th>Added time</th>
+	 <th>Started time</th>
+	 <th>Duration</th>
+	 <th>Pipeline</th>
+	 <th>Sample Name</th>
+       </tr>
+     </thead>
+     <tbody>
+       {% for report in reports %}
+         <tr>
+           <td>{{ report[1] }}</td>
+           <td>{{ report[2] }}</td>
+           <td>{{ strftime("%d-%m-%Y %H:%M", localtime(int(report[3]))) }}</td>
+           {% if int(report[4]) > 0 %}
+             <td>{{ strftime("%d-%m-%Y %H:%M", localtime(int(report[4]))) }}</td>
+           {% else %}
+             <td></td>
+           {% endif %}
+           {% if int(report[5]) > 0 %}
+             <td>{{ int(report[5])-int(report[4]) }} s</td>
+           {% else %}
+             <td></td>
+           {% endif %}
+           <td>{{ report[6] }}</td>
+           <td>{{ report[7] }}</td>
+           <td>{{ report[10] }}</td>
+         </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}

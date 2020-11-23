@@ -1308,7 +1308,7 @@ def view_tree(guid):
                     if pipeline_run_uuid in runs_names_map:
                         node.name = f"{sample_name} [{runs_names_map[pipeline_run_uuid]['run_name']}]"
         tree_nwk = newick.dumps(xs)
-    
+
     return render_template("view_tree.template",
                            tree_nwk=tree_nwk,
                            data=data,
@@ -1356,8 +1356,18 @@ def cw_query():
                                distance = distance,
                                message = message,
                                neighbours = neighbours )
+@app.route('/list_reports')
+@flask_login.login_required
+def list_reports():
+    reports = api_get_request('report_api','/list_reports')
+    return render_template('list_reports.template',
+                           int = int,
+                           strftime=time.strftime,
+                           localtime=time.localtime,
+                           reports = reports)
 
 @app.route('/get_cluster_stats')
+@flask_login.login_required
 def proxy_get_cluster_stats():
     response = api_get_request('catstat_api', '/data')
     return json.dumps(response)
