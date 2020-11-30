@@ -103,8 +103,9 @@ def process_reports(report_data, catpile_resp, download_url):
         template_report_data['kraken2_speciation']['data'] = dict()
         Fs = tbl.query('Rank == "F" and RootFragmentsPct > 1 and RootFragments > 10000').drop_duplicates().to_dict('rows')
         Gs = tbl.query('Rank == "G" and RootFragmentsPct > 1 and RootFragments > 10000').drop_duplicates().to_dict('rows')
+        G1s = tbl.query('Rank == "G1" and RootFragmentsPct > 1 and RootFragments > 10000').drop_duplicates().to_dict('rows')
         Ss = tbl.query('Rank == "S" and RootFragmentsPct > 1 and RootFragments > 10000').drop_duplicates().to_dict('rows')
-        displayed = { v['Name'] for v in Fs + Gs + Ss }
+        displayed = { v['Name'] for v in Fs + Gs + G1s + Ss }
         if "Homo sapiens" not in displayed:
             sp1 = tbl.query('Name == "Homo sapiens"').to_dict('rows') # species
             Ss += sp1
@@ -113,6 +114,7 @@ def process_reports(report_data, catpile_resp, download_url):
             Fs += sp2
         template_report_data['kraken2_speciation']['data']['family'] = sorted(Fs, key=lambda x: x["RootFragments"], reverse=True)
         template_report_data['kraken2_speciation']['data']['genus'] = sorted(Gs, key=lambda x: x["RootFragments"], reverse=True)
+        template_report_data['kraken2_speciation']['data']['genus1'] = sorted(G1s, key=lambda x: x["RootFragments"], reverse=True)
         template_report_data['kraken2_speciation']['data']['species'] = sorted(Ss, key=lambda x: x["RootFragments"], reverse=True)
         # format report time
         template_report_data['kraken2_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['kraken2_speciation']['finished_epochtime']))
