@@ -12,31 +12,14 @@
       <tbody>
 	{% set types = ['family', 'genus', 'species'] %}
 	{% for type in types %}
-	{% if not report['kraken2_speciation']['data'][type].empty %}
-	<tr>
-	  <td>{{ type|capitalize }}</td>
-	  <td>{{ report['kraken2_speciation']['data'][type].Name.max() }}</td>
-	  <td>{{ report['kraken2_speciation']['data'][type]['RootFragments%'].max() }}%</td>
-	  <td>{{ report['kraken2_speciation']['data'][type]['RootFragments'].max() }}</td>
-	</tr>
-	{% endif %}
-	{% endfor %}
-
-	{# additional species that we want to look for #}
-	{% set specials = [['species','human'], ['family','mycobacteriaceae']] %}
-	{% for special_tax, special_name in specials %}
-	{% if not report['kraken2_speciation']['data'][special_name].empty and
-	      ( special_tax in report['kraken2_speciation']['data'] and
-   	        report['kraken2_speciation']['data'][special_name].Name.max() != report['kraken2_speciation']['data'][special_tax].Name.max()
-	      )
-        %}
-	<tr>
-	  <td>{{ special_tax|capitalize }}</td>
-	  <td>{{ report['kraken2_speciation']['data'][special_name].Name.max() }}</td>
-	  <td>{{ report['kraken2_speciation']['data'][special_name]['RootFragments%'].max() }}%</td>
-	  <td>{{ report['kraken2_speciation']['data'][special_name]['RootFragments'].max() }}</td>
-	</tr>
-	{% endif %}
+	  {% for row in report['kraken2_speciation']['data'][type] %}
+	    <tr>
+	      <td>{{ type|capitalize }}</td>
+	      <td>{{ row['Name'] }}</td>
+	      <td>{{ row['RootFragmentsPct'] }}%</td>
+	      <td>{{ row['RootFragments'] }}</td>
+	    </tr>
+	  {% endfor %}
 	{% endfor %}
       </tbody>
     </table>

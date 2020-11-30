@@ -49,7 +49,7 @@ def is_token_valid(token):
         return False
 
     tokens[token]['last_active_epochtime'] = time.time()
-    print(tokens)
+    #print(tokens)
     return True
 
 # --- attributes ---
@@ -228,7 +228,7 @@ log.disabled = True
 
 def main():
     load_state()
-    print(state)
+    #print(state)
     app.run(port=13666, debug=False)
 
 if __name__ == "__main__":
