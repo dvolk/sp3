@@ -10,18 +10,23 @@
 	<th>Reads</th>
       </thead>
       <tbody>
-	{% set type_name_table = { "family": "Family", "genus": "Genus", "genus1": "Species complex (G1)", "species": "Species" } %}
-	{% set types = ['family', 'genus', 'genus1', 'species'] %}
+	{% set type_name_table = { "Family": "Family", "Genus": "Genus", "Species complex": "Species complex (G1)", "Species": "Species" } %}
+	{% set types = ['Family', 'Genus', 'Species complex', 'Species'] %}
 	{% for type in types %}
-	  {% for row in report['kraken2_speciation']['data'][type] %}
-	    <tr>
-	      <td>{{ type_name_table[type] }}</td>
-	      <td>{{ row['Name'] }}</td>
-	      <td>{{ row['RootFragmentsPct'] }}%</td>
-	      <td>{{ row['RootFragments'] }}</td>
+	    {% for row in report['kraken2_speciation']['data'][type] %}
+            <tr>
+               <td>{{ type_name_table[type] }}</td>
+               <td>{{ row['name'] }}</td>
+	       <td>{{ row['percentage'] }}%</td>
+	       <td>{{ row['reads'] }}</td>
 	    </tr>
+	    {% endfor %}
 	  {% endfor %}
-	{% endfor %}
+	<ul>
+	{% for k, v in report['kraken2_speciation']['data']['Warnings'].items() %}    
+          <li> {{ k }}: {{ v }}</li>
+        {% endfor %}
+	</ul>
       </tbody>
     </table>
   </div>

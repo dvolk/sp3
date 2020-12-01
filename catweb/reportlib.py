@@ -91,31 +91,22 @@ def process_reports(report_data, catpile_resp, download_url):
         template_report_data['mykrobe_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['mykrobe_speciation']['finished_epochtime']))
 
     if 'kraken2_speciation' in report_data and 'data' in report_data['kraken2_speciation']:
-        # read kraken2 tsv
-        tbl = pandas.read_csv(StringIO(report_data['kraken2_speciation']['data']),
-                              sep='\t', header=None,
-                              names=['RootFragmentsPct', 'RootFragments', 'DirectFragments', 'Rank', 'NCBI_Taxonomic_ID', 'Name'])
+        import parse_kraken2
+        pct_threshold = 1
+        num_threshold = 10000
+        logging.warning(report_data['kraken2_speciation']['data'])
+        input_file = report_data['kraken2_speciation']['data']
+        result = parse_kraken2.read_kraken2(input_file, pct_threshold, num_threshold)
+        sorted_result = parse_kraken2.sort_result(result, pct_threshold, num_threshold)
 
-        # remove leading spaces from name
-        tbl['Name'] = tbl['Name'].apply(lambda x: x.strip())
-        # get family, genus and species
         template_report_data['kraken2_speciation'] = dict()
         template_report_data['kraken2_speciation']['data'] = dict()
-        Fs = tbl.query('Rank == "F" and RootFragmentsPct > 1 and RootFragments > 10000').drop_duplicates().to_dict('rows')
-        Gs = tbl.query('Rank == "G" and RootFragmentsPct > 1 and RootFragments > 10000').drop_duplicates().to_dict('rows')
-        G1s = tbl.query('Rank == "G1" and RootFragmentsPct > 1 and RootFragments > 10000').drop_duplicates().to_dict('rows')
-        Ss = tbl.query('Rank == "S" and RootFragmentsPct > 1 and RootFragments > 10000').drop_duplicates().to_dict('rows')
-        displayed = { v['Name'] for v in Fs + Gs + G1s + Ss }
-        if "Homo sapiens" not in displayed:
-            sp1 = tbl.query('Name == "Homo sapiens"').to_dict('rows') # species
-            Ss += sp1
-        if "Mycobacteriaceae" not in displayed:
-            sp2 = tbl.query('Name == "Mycobacteriaceae"').to_dict('rows') # family
-            Fs += sp2
-        template_report_data['kraken2_speciation']['data']['family'] = sorted(Fs, key=lambda x: x["RootFragments"], reverse=True)
-        template_report_data['kraken2_speciation']['data']['genus'] = sorted(Gs, key=lambda x: x["RootFragments"], reverse=True)
-        template_report_data['kraken2_speciation']['data']['genus1'] = sorted(G1s, key=lambda x: x["RootFragments"], reverse=True)
-        template_report_data['kraken2_speciation']['data']['species'] = sorted(Ss, key=lambda x: x["RootFragments"], reverse=True)
+        template_report_data['kraken2_speciation']['data']['Family'] = sorted_result['Family']
+        template_report_data['kraken2_speciation']['data']['Genus'] = sorted_result['Genus']
+        template_report_data['kraken2_speciation']['data']['Species complex'] = sorted_result['Species complex']
+        template_report_data['kraken2_speciation']['data']['Species'] = sorted_result['Species']
+        template_report_data['kraken2_speciation']['data']['Warnings'] = sorted_result['Warnings']
         # format report time
         template_report_data['kraken2_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['kraken2_speciation']['finished_epochtime']))
+        
     return template_report_data
