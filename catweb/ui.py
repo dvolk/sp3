@@ -1298,6 +1298,7 @@ def view_tree(guid):
     tree_nwk = result['data']['newick_content']
 
     if runs_names_map:
+        # rename tree nodes from "run-uuid_sample_name" to "sample name [run name]"
         import newick
         xs = newick.loads(tree_nwk)
         for tree in xs:
@@ -1342,6 +1343,13 @@ def cw_query():
         logger.debug(f'catwalk returned: {res}')
         try:
             neighbours = json.loads(res)
+            unique_samples = set()
+            unique_neighbours = list()
+            for neighbour in neighbours:
+                sample_name = neighbour[0][37:]
+                if sample_name not in unique_samples:
+                    unique_samples.add(sample_name)
+                    unique_neighbours.append(neighbour)
             neighbours_ok = True
             all_runs = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()
             message = ""
@@ -1355,7 +1363,7 @@ def cw_query():
                                sample_name = sample_name,
                                distance = distance,
                                message = message,
-                               neighbours = neighbours )
+                               neighbours = unique_neighbours)
 @app.route('/list_reports')
 @flask_login.login_required
 def list_reports():

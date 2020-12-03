@@ -35,7 +35,7 @@ $(document).on('click', '#submit_pipeline', function(e){
       }
 });
 
-$(document).on('click', '#check_all_neighbour', function(e){
+$(document).on('change', '#check_all_neighbour', function(e){
     if (document.getElementById('check_all_neighbour').checked) {
 	$('.neighbour_tick').each(function () {
 	    $(this).trigger('click');
@@ -48,6 +48,76 @@ $(document).on('click', '#check_all_neighbour', function(e){
 	    $(this).prop("checked", false);
 	});
     }
+});
+
+$(document).on('change', '#tick_my_org', function(e){
+    var query_org = document.getElementById('query_run').innerHTML.split('-')[0]
+    console.log(query_org)
+
+    if (document.getElementById('tick_my_org').checked) {
+	$('.neighbour_tick').each(function () {
+	    var org = $(this)[0].defaultValue.split('-')[0]
+	    if (org === query_org) {
+                $(this).trigger('click');
+	        $(this).prop("checked", true);
+	    }
+	    console.log(org)
+	});
+    }
+    else {
+	$('.neighbour_tick').each(function () {
+	    var org = $(this)[0].defaultValue.split('-')[0]
+	    if (org === query_org) {
+                $(this).trigger('click');
+	        $(this).prop("checked", false);
+	    }
+	    console.log(org)
+	});
+    }
+});
+
+$(document).on('change', '#tick_other_orgs', function(e){
+    var query_org = document.getElementById('query_run').innerHTML.split('-')[0]
+    console.log(query_org)
+
+    if (document.getElementById('tick_other_orgs').checked) {
+	$('.neighbour_tick').each(function () {
+	    var org = $(this)[0].defaultValue.split('-')[0]
+	    if (org !== query_org) {
+                $(this).trigger('click');
+	        $(this).prop("checked", true);
+	    }
+	    console.log(org)
+	});
+    }
+    else {
+	$('.neighbour_tick').each(function () {
+	    var org = $(this)[0].defaultValue.split('-')[0]
+	    if (org !== query_org) {
+                $(this).trigger('click');
+	        $(this).prop("checked", false);
+	    }
+	    console.log(org)
+	});
+    }
+});
+
+$(document).on('click', '#build_tree', function(e){
+    var samples = $('.neighbour_tick')
+    var ticked = 0
+    for (var i=0; i<samples.length; i++){
+	if (samples[i].checked == true){
+	    ticked = ticked + 1;
+	}
+    }
+
+    if (ticked < 3) {
+        alert("Please select three and more samples. ")
+	e.preventDefault();
+    	e.stopPropagation();
+
+      }
+
 });
 
 $(document).on('click', '#search_btn', function(e){
@@ -64,7 +134,7 @@ $(document).on('click', '#search_btn', function(e){
 
 $(document).on('click', '#reset_btn', function(e){
     tree = window.Phylocanvas;
-    tree.setNodeSize(20);                                                                                                                             tree.lineWidth = 2;  
+    tree.setNodeSize(20);                                                                                                                             tree.lineWidth = 2;
     tree.redrawOriginalTree();
     tree.setTextSize(30);
 });

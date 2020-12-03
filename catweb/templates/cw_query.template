@@ -25,7 +25,7 @@
 
     {% if neighbours_ok %}
       {% set count = neighbours | length %}
-         <p>Query run: <strong>{{all_runs[run_id]["run_name"]}}</strong></p>
+         <p>Query run: <strong><span id='query_run'>{{all_runs[run_id]["run_name"]}}</span></strong></p>
          <p>Query sample:<strong> {{sample_name}}</strong></p>
       {% if count == 0 %}
  	  <p><strong>No</strong> neighbours found.<p>
@@ -38,15 +38,22 @@
       {% endif %}
     {% endif %}
     {% if neighbours | length > 0 %}
+      <p>To build a tree, select samples below by ticking the boxes, then click the button</p>
+      <span style='margin-right:20px;float:right;'>
+        <input type="checkbox" id='tick_my_org' name='tick_my_org'>
+        <label for='tick_my_org' style='margin-left:10px; margin-right:10px;'>Select samples from <strong>my</strong> orgnisation</label>
+	<input type="checkbox" id='tick_other_orgs' name='tick_other_orgs'>
+	<label  for='tick_other_orgs' style='margin-left:10px;'>Select samples from <strong>other</strong> orgnisations</label>
+      </span>
+
       <form action="/make_a_tree" method="POST">
-	<p>To build a tree, select samples below by ticking the boxes, then click the button</p>
-	<input type="submit" class="form-input btn btn-primary" value="Generate Phylo Tree">
-	<br/>
+	<input type="submit" class="form-input btn btn-primary" value="Generate Phylo Tree" id="build_tree">
+
 	<br/>
 	<table class="table table-hover table-sm">
 	  <thead>
 	   <tr>
-	     <th><input type="checkbox" id="check_all_neighbour" onclick="check_all_neighbour();"></th>
+	     <th><input type="checkbox" id="check_all_neighbour"></th>
 	     <th>Site name</th>
 	     <th>Run name</th>
 	     <th>Sample name</th>
@@ -65,7 +72,7 @@
 	   {% set run_uuid = neighbour[0][0:36] %}
 	   {% set sample_name = neighbour[0][37:] %}
 	   <tr>
-	     <td><input type="checkbox" class='neighbour_tick' value="{{ all_runs[run_uuid]['run_name'] }}_{{ sample_name }}" name="{{ run_uuid }}_{{ sample_name }}"></th>
+	     <td><input type="checkbox" class='neighbour_tick' value="{{ all_runs[run_uuid]['run_name'] }}_{{ sample_name }}" name="{{ run_uuid }}_{{ sample_name }}"></Th>
 	     <td style="font-family: monospace">{{ all_runs[run_uuid]['instance_name'] }}</td>
 	     <td style="font-family: monospace">{{ all_runs[run_uuid]['run_name'] }}</td>
 	     <td style="font-family: monospace">{{ sample_name }}</td>
