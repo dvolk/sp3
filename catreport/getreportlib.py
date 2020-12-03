@@ -103,10 +103,10 @@ def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
         report_kraken2_speciation_guid = r[0]
         report_kraken2_speciation_filepath = f"{ reports_directory }/{report_kraken2_speciation_guid}.json"
         logging.warning(report_kraken2_speciation_filepath)
-               
-        report_data['kraken2_speciation']['data'] = report_kraken2_speciation_filepath
-        report_data['kraken2_speciation']['finished_epochtime'] = int(r[5])
 
+        with open(report_kraken2_speciation_filepath) as f:
+            report_data['kraken2_speciation']['data'] = f.read()
+        report_data['kraken2_speciation']['finished_epochtime'] = int(r[5])
     '''
     end speciation report
     '''

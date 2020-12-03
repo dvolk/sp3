@@ -84,3 +84,4 @@ def go(area = 'global-prod', site_uuid = '1fd86041-5b36-4208-8eb4-cf825d37c6a6',
 
 if __name__ == '__main__':
     argh.dispatch_command(go)
+
