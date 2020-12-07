@@ -1,0 +1,7 @@
+{% extends "base1.template" %}
+
+{% block content %}
+  <pre>
+{{ raw_data }}
+  </pre>
+{% endblock content %}
