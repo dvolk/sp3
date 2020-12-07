@@ -12,18 +12,22 @@ def report_species(mykrobe_data):
     result['phylo_group'] = data['phylo_group']
     result['sub_complex'] = data['sub_complex']
     result['species'] = data['species']
-    lineages = data['lineage']['lineage']
-    result['lineage'] = lineages[0]
-    r_lineages = dict()
-    for lineage in lineages:
-        l_calls = data['lineage']['calls'][lineage]
-        for k, v in l_calls.items():
-            mutations = dict()
-            for mut,mut_info in v.items():
-                coverage = mut_info['info']['coverage']['alternate']
-                mutations[mut] = coverage
-            r_lineages[k] = mutations
-    result['lineages'] = r_lineages
+    try:
+        lineages = data['lineage']['lineage']
+        result['lineage'] = lineages[0]
+        r_lineages = dict()
+        for lineage in lineages:
+            l_calls = data['lineage']['calls'][lineage]
+            for k, v in l_calls.items():
+                mutations = dict()
+                for mut,mut_info in v.items():
+                    coverage = mut_info['info']['coverage']['alternate']
+                    mutations[mut] = coverage
+                r_lineages[k] = mutations
+        result['lineages'] = r_lineages
+    except:
+        # couldn't process lineage. pre 0.9 mykrobe?
+        pass
     return result
 
 if __name__ == '__main__':

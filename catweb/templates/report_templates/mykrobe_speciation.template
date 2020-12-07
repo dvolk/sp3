@@ -20,26 +20,28 @@
 {% endfor %}
 {% endfor %}
 </table>
-<p><strong>{{ phylo['lineage']|capitalize  }}</strong></p>
-<table class="table table-sm table-bordered">
-<thead>
-  <th>Calls</th>
-  <th>Variant name</th>
-  <th>Coverage</th>
-  <th>Median depth</th>
-  <th>Min non-zero depth</th>
-  <th>Kmer_count</th>
-  <th>Klen</th>
-</thead>
-  {% for k,v in phylo['lineages'].items() %}
-  <tr>
-  <td>{{ k|capitalize }}</td>
-  <td>{{ list(v.keys())[0] }}</td>
-  <td>{{ list(v.values())[0]['percent_coverage'] }}</td>
-  <td>{{ list(v.values())[0]['median_depth'] }}</td>
-  <td>{{ list(v.values())[0]['min_non_zero_depth'] }}</td>
-  <td>{{ list(v.values())[0]['kmer_count'] }}</td>
-  <td>{{ list(v.values())[0]['klen'] }}</td>
-  </tr>
-  {% endfor %}
+{% if 'lineage' in phylo and 'lineages' in phylo %}
+  <p><strong>{{ phylo['lineage']|capitalize  }}</strong></p>
+  <table class="table table-sm table-bordered">
+    <thead>
+      <th>Calls</th>
+      <th>Variant name</th>
+      <th>Coverage</th>
+      <th>Median depth</th>
+      <th>Min non-zero depth</th>
+      <th>Kmer_count</th>
+      <th>Klen</th>
+    </thead>
+    {% for k,v in phylo['lineages'].items() %}
+      <tr>
+	<td>{{ k|capitalize }}</td>
+	<td>{{ list(v.keys())[0] }}</td>
+	<td>{{ list(v.values())[0]['percent_coverage'] }}</td>
+	<td>{{ list(v.values())[0]['median_depth'] }}</td>
+	<td>{{ list(v.values())[0]['min_non_zero_depth'] }}</td>
+	<td>{{ list(v.values())[0]['kmer_count'] }}</td>
+	<td>{{ list(v.values())[0]['klen'] }}</td>
+      </tr>
+    {% endfor %}
+  {% endif %}
 </table>
