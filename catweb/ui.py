@@ -1232,7 +1232,6 @@ def fetch_details(guid):
 @app.route('/flow/<run_uuid>/<dataset_id>/report')
 @flask_login.login_required
 def get_report(run_uuid : str, dataset_id: str):
-    # TODO add API config
     resp = api_get_request('report_api', f'/report/{run_uuid}/{dataset_id}')
     catpile_resp = api_get_request('catpile_api', f'/get_sp3_data_for_run_sample/{run_uuid}/{dataset_id}')
     report_data = resp['report_data'] # data in from catreport
@@ -1245,6 +1244,27 @@ def get_report(run_uuid : str, dataset_id: str):
                            pipeline_run_uuid=run_uuid,
                            dataset_id=dataset_id,
                            report=template_report_data)
+
+@app.route('/flow/<run_uuid>/<dataset_id>/report/data/<report_type>')
+@flask_login.login_required
+def get_report_raw_data(run_uuid, dataset_id, report_type):
+    resp = api_get_request('report_api', f'/report/{run_uuid}/{dataset_id}')
+    catpile_resp = api_get_request('catpile_api', f'/get_sp3_data_for_run_sample/{run_uuid}/{dataset_id}')
+    report_data = resp['report_data'] # data in from catreport
+
+    import reportlib
+    template_report_data = reportlib.process_reports(report_data, catpile_resp, cfg.get('download_url'))
+
+    if report_type not in template_report_data or 'raw_data' not in template_report_data[report_type]:
+        return abort(404)
+
+    raw_data=template_report_data[report_type]['raw_data']
+
+    if report_type == 'resistance':
+        raw_data = json.dumps(json.loads(raw_data), indent=4)
+
+    return render_template('report_raw_data.template',
+                           raw_data=raw_data)
 
 @app.route('/make_a_tree', methods=['POST'])
 @flask_login.login_required
