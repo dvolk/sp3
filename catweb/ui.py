@@ -1342,10 +1342,10 @@ def cw_query():
             res = requests.get(f'https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}').text
         message = res
         logger.debug(f'catwalk returned: {res}')
+        unique_samples = set()
+        unique_neighbours = list()
         try:
             neighbours = json.loads(res)
-            unique_samples = set()
-            unique_neighbours = list()
             for neighbour in neighbours:
                 sample_name = neighbour[0][37:]
                 if sample_name not in unique_samples:

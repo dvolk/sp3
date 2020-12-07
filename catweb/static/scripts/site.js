@@ -112,7 +112,7 @@ $(document).on('click', '#build_tree', function(e){
     }
 
     if (ticked < 3) {
-        alert("Please select three and more samples. ")
+        alert("Please select 3 or more samples. ")
 	e.preventDefault();
     	e.stopPropagation();
 

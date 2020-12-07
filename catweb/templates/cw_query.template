@@ -38,7 +38,7 @@
       {% endif %}
     {% endif %}
     {% if neighbours | length > 0 %}
-      <p>To build a tree, select samples below by ticking the boxes, then click the button</p>
+      <p>To build a tree, select <strong> 3 or more </strong> samples below by ticking the boxes, then click the button</p>
       <span style='margin-right:20px;float:right;'>
         <input type="checkbox" id='tick_my_org' name='tick_my_org'>
         <label for='tick_my_org' style='margin-left:10px; margin-right:10px;'>Select samples from <strong>my</strong> orgnisation</label>
