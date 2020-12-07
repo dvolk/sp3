@@ -1241,6 +1241,7 @@ def get_report(run_uuid : str, dataset_id: str):
     template_report_data = reportlib.process_reports(report_data, catpile_resp, cfg.get('download_url'))
 
     return render_template('report.template',
+                           list = list,
                            pipeline_run_uuid=run_uuid,
                            dataset_id=dataset_id,
                            report=template_report_data)

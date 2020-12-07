@@ -49,7 +49,7 @@ def process_reports(report_data, catpile_resp, download_url):
             if resistance:
                 logging.error(f"resistance: {resistance}")
                 template_report_data['nfnvm_resistance_report']['data'].append(resistance)
-        
+
         template_report_data['nfnvm_resistance_report']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['nfnvm_resistance_report']['finished_epochtime']))
 
     if 'nfnvm_flureport' in report_data.keys():
@@ -79,15 +79,19 @@ def process_reports(report_data, catpile_resp, download_url):
         template_report_data['pick_reference']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['pick_reference']['finished_epochtime']))
 
     if 'resistance' in report_data and 'data' in report_data['resistance']:
-        template_report_data['resistance'] = dict()       
+        template_report_data['resistance'] = dict()
         template_report_data['resistance']['data'] = report_data['resistance']['data']
+        template_report_data['resistance']['raw_data'] = report_data['resistance']['raw_data']
         template_report_data['resistance']['message'] = report_data['resistance']['message']
         template_report_data['resistance']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['resistance']['finished_epochtime']))
         template_report_data['resistance']['status'] = report_data['resistance']['status']
 
     if 'mykrobe_speciation' in report_data and 'data' in report_data['mykrobe_speciation']:
+        import parse_mykrobe
+        input_data = report_data['mykrobe_speciation']['data']
+        result = parse_mykrobe.report_species(input_data)
         template_report_data['mykrobe_speciation'] = dict()
-        template_report_data['mykrobe_speciation']['data'] = report_data['mykrobe_speciation']['data']
+        template_report_data['mykrobe_speciation']['data'] = result
         template_report_data['mykrobe_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['mykrobe_speciation']['finished_epochtime']))
 
     if 'kraken2_speciation' in report_data and 'data' in report_data['kraken2_speciation']:
@@ -107,5 +111,5 @@ def process_reports(report_data, catpile_resp, download_url):
         template_report_data['kraken2_speciation']['data']['Warnings'] = sorted_result['Warnings']
         # format report time
         template_report_data['kraken2_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['kraken2_speciation']['finished_epochtime']))
-        
+
     return template_report_data
