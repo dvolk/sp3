@@ -4,17 +4,15 @@
 import sys
 import json
 import argparse
+import logging
 from collections import defaultdict
 
-def read_kraken2(file_name, pct_threshold, num_threshold):
-    with open(file_name) as kraken2:
-        lines = kraken2.readlines()
-
+def read_kraken2(kraken2_data, pct_threshold, num_threshold):
     result = defaultdict(list)
     result['Thresholds'] = {'percentage': pct_threshold, 'reads': num_threshold}
     result['Warnings'] = {'mykrobe': False, 'notes': 'No mykrobe report'}
 
-    for  line in lines:
+    for line in kraken2_data.splitlines():
         pc_frags, frags_rooted, _, rank_code, ncbi_taxon_id, name = line.split('\t')
         pc_frags = pc_frags.strip()
         name = name.replace('\n','').strip()
@@ -93,7 +91,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(f'File:{args.kraken_file}, pct_reads: {args.pct_reads}, number_reads: {args.number_reads}')
-    result = read_kraken2(args.kraken_file, args.pct_reads, args.number_reads)
+
+    with open(args.kraken_file) as kraken2:
+        kraken2_data = kraken2.read()
+
+    result = read_kraken2(kraken2_data, args.pct_reads, args.number_reads)
     output = sort_result(result, args.pct_reads, args.number_reads)
     pretty_output = json.dumps(output, indent=4)
     print(pretty_output)

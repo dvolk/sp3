@@ -94,9 +94,8 @@ def process_reports(report_data, catpile_resp, download_url):
         import parse_kraken2
         pct_threshold = 1
         num_threshold = 10000
-        logging.warning(report_data['kraken2_speciation']['data'])
-        input_file = report_data['kraken2_speciation']['data']
-        result = parse_kraken2.read_kraken2(input_file, pct_threshold, num_threshold)
+        input_data = report_data['kraken2_speciation']['data']
+        result = parse_kraken2.read_kraken2(input_data, pct_threshold, num_threshold)
         sorted_result = parse_kraken2.sort_result(result, pct_threshold, num_threshold)
 
         template_report_data['kraken2_speciation'] = dict()
