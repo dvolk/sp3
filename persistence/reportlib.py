@@ -81,6 +81,7 @@ def process_reports(report_data, catpile_resp, download_url):
     if 'resistance' in report_data and 'data' in report_data['resistance']:
         template_report_data['resistance'] = dict()       
         template_report_data['resistance']['data'] = report_data['resistance']['data']
+        template_report_data['resistance']['message'] = report_data['resistance']['message']
         template_report_data['resistance']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['resistance']['finished_epochtime']))
         template_report_data['resistance']['status'] = report_data['resistance']['status']
 
@@ -90,21 +91,21 @@ def process_reports(report_data, catpile_resp, download_url):
         template_report_data['mykrobe_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['mykrobe_speciation']['finished_epochtime']))
 
     if 'kraken2_speciation' in report_data and 'data' in report_data['kraken2_speciation']:
-        # read kraken2 tsv
-        tbl = pandas.read_csv(StringIO(report_data['kraken2_speciation']['data']),
-                              sep='\t', header=None,
-                              names=['RootFragments%', 'RootFragments', 'DirectFragments', 'Rank', 'NCBI_Taxonomic_ID', 'Name'])
+        import parse_kraken2
+        pct_threshold = 1
+        num_threshold = 10000
+        input_data = report_data['kraken2_speciation']['data']
+        result = parse_kraken2.read_kraken2(input_data, pct_threshold, num_threshold)
+        sorted_result = parse_kraken2.sort_result(result, pct_threshold, num_threshold)
 
-        # remove leading spaces from name
-        tbl['Name'] = tbl['Name'].apply(lambda x: x.strip())
-        # get family, genus and species
         template_report_data['kraken2_speciation'] = dict()
         template_report_data['kraken2_speciation']['data'] = dict()
-        template_report_data['kraken2_speciation']['data']['family'] = tbl.query('Rank == "F"').head(n=1)
-        template_report_data['kraken2_speciation']['data']['genus'] = tbl.query('Rank == "G"').head(n=1)
-        template_report_data['kraken2_speciation']['data']['species'] = tbl.query('Rank == "S"').head(n=1)
-        template_report_data['kraken2_speciation']['data']['human'] = tbl.query('Name == "Homo sapiens"').head(n=1)
-        template_report_data['kraken2_speciation']['data']['mycobacteriaceae'] = tbl.query('Name == "Mycobacteriaceae"').head(n=1)
+        template_report_data['kraken2_speciation']['data']['Family'] = sorted_result['Family']
+        template_report_data['kraken2_speciation']['data']['Genus'] = sorted_result['Genus']
+        template_report_data['kraken2_speciation']['data']['Species complex'] = sorted_result['Species complex']
+        template_report_data['kraken2_speciation']['data']['Species'] = sorted_result['Species']
+        template_report_data['kraken2_speciation']['data']['Warnings'] = sorted_result['Warnings']
         # format report time
         template_report_data['kraken2_speciation']['finished_epochtime'] = time.strftime("%Y/%m/%d %H:%M", time.localtime(report_data['kraken2_speciation']['finished_epochtime']))
+        
     return template_report_data
