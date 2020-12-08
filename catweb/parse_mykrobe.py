@@ -12,6 +12,8 @@ def report_species(mykrobe_data):
     result['phylo_group'] = data['phylo_group']
     result['sub_complex'] = data['sub_complex']
     result['species'] = data['species']
+    result['mykrobe-predictor_version'] = mykrobe_data['tb_sample_id']['version']['mykrobe-predictor']
+    result['mykrobe-atlas_version'] = mykrobe_data['tb_sample_id']['version']['mykrobe-atlas']
     try:
         lineages = data['lineage']['lineage']
         result['lineage'] = lineages[0]
