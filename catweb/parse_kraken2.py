@@ -76,6 +76,7 @@ def sort_result(result, pct_threshold, num_threshold):
 
     if ('Mycobact notes' in result['Warnings'].keys()) or ('species notes' in result['Warnings'].keys()):
         result['Warnings']['mykrobe'] = False
+        result['Warnings']['notes'] = f'Mykrobe report might be produced, please be cautious with the result.'
 
     if (result['Warnings']['mykrobe'] == True):
         result['Warnings']['notes'] = f'For higher-resolution classification, see Mykrobe report.'
