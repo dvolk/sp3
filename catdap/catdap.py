@@ -40,7 +40,7 @@ def is_token_valid(token):
     token_added_age = time.time() - tokens[token]['added_epochtime']
     token_last_active_age = time.time() - tokens[token]['last_active_epochtime']
 
-    token_last_active_age_max = 8 * 3600 # 8h
+    token_last_active_age_max = 24 * 3600 # 8h
     token_added_age_max = 5 * 24 * 3600  # 5d
 
     if token_last_active_age > token_last_active_age_max or token_added_age > token_added_age_max:
