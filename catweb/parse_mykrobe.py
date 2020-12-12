@@ -9,24 +9,25 @@ from collections import defaultdict
 def report_species(mykrobe_data):
     data = mykrobe_data['tb_sample_id']['phylogenetics']
     result = defaultdict(dict)
+    result['mykrobe-predictor_version'] = mykrobe_data['tb_sample_id']['version']['mykrobe-predictor']
+    result['mykrobe-atlas_version'] = mykrobe_data['tb_sample_id']['version']['mykrobe-atlas']
     result['phylo_group'] = data['phylo_group']
     result['sub_complex'] = data['sub_complex']
     result['species'] = data['species']
-    result['mykrobe-predictor_version'] = mykrobe_data['tb_sample_id']['version']['mykrobe-predictor']
-    result['mykrobe-atlas_version'] = mykrobe_data['tb_sample_id']['version']['mykrobe-atlas']
     try:
         lineages = data['lineage']['lineage']
-        result['lineage'] = lineages[0]
-        r_lineages = dict()
+        result['lineages'] = lineages
         for lineage in lineages:
+            r_lineages = defaultdict()
             l_calls = data['lineage']['calls'][lineage]
             for k, v in l_calls.items():
                 mutations = dict()
-                for mut,mut_info in v.items():
-                    coverage = mut_info['info']['coverage']['alternate']
-                    mutations[mut] = coverage
-                r_lineages[k] = mutations
-        result['lineages'] = r_lineages
+                if v != None:
+                    for mut,mut_info in v.items():
+                        coverage = mut_info['info']['coverage']['alternate']
+                        mutations[mut] = coverage
+                    r_lineages[k] = mutations
+                result[lineage] = r_lineages
     except:
         # couldn't process lineage. pre 0.9 mykrobe?
         pass
@@ -42,5 +43,5 @@ if __name__ == '__main__':
     pretty_output = json.dumps(report_species(data), indent=4)
     print(pretty_output)
 
-    with open(args.output_file, 'w') as outfile:   
+    with open(args.output_file, 'w') as outfile:
         outfile.write(pretty_output)
