@@ -1345,6 +1345,7 @@ def cw_query():
 
     run_id = request.args.get('run_id')
     sample_name = request.args.get('sample_name')
+    logger.debug(f'cw_query begin: sample_name: {sample_name}')
     distance = request.args.get('distance')
     neighbours_ok = False
 
@@ -1367,16 +1368,16 @@ def cw_query():
         try:
             neighbours = json.loads(res)
             for neighbour in neighbours:
-                sample_name = neighbour[0][37:]
-                if sample_name not in unique_samples:
-                    unique_samples.add(sample_name)
+                neighbour_name = neighbour[0][37:]
+                if neighbour_name not in unique_samples:
+                    unique_samples.add(neighbour_name)
                     unique_neighbours.append(neighbour)
             neighbours_ok = True
             all_runs = requests.get(f'https://persistence.mmmoxford.uk/api_get_runs_name_map').json()
             message = ""
         except:
             pass
-
+        logger.debug(f'cw_query end: sample_name: {sample_name}')
         return render_template('cw_query.template',
                                neighbours_ok = neighbours_ok,
                                all_runs = all_runs,
