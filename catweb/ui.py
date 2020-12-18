@@ -323,6 +323,9 @@ def status():
     logging.error("recent: {response['recent']}")
     running, recent, failed = response['running'], response['recent'], response['failed']
 
+    if request.args.get('api'):
+        return json.dumps([running, recent, failed])
+
     return render_template('status.template', running=running, recent=recent, failed=failed,
                            user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
 
@@ -404,6 +407,8 @@ def list_flows():
     flows = list()
     for flow in cfg.get('nextflows'):
         flows.append(flow)
+    if request.args.get('api'):
+        return json.dumps(flows)
     return render_template('list_flows.template', flows=flows,
                            user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
 
@@ -614,6 +619,9 @@ def list_runs(flow_name : str):
     if pathlib.Path(f"/data/pipelines/dags/{flow_name}.png").is_file():
         has_dagpng = True
 
+    if request.args.get('api'):
+        return json.dumps(data)
+
     return render_template('list_runs.template',
                            stuff={ 'display_name': flow_cfg['display_name'],'flow_name': flow_cfg['name'] },
                            has_dagpng=has_dagpng,
@@ -778,6 +786,9 @@ def run_details(flow_name : str, run_uuid: int):
     fetch_id = base64.b16encode(bytes(str(fetch_dir), encoding='utf-8')).decode('utf-8')
 
     tags = get_sample_tags_for_run(run_uuid)
+
+    if request.args.get('api'):
+        return json.dumps({ 'tags': tags, 'trace': trace, 'trace_nice': trace_nice })
 
     return render_template('run_details.template',
                            uuid=run_uuid,
