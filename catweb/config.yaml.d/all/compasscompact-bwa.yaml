@@ -31,7 +31,7 @@ param:
       type: switch
       desc: 'Reference in fasta format'
       globs:
-        - /data/references/clockwork/qc_vc/*/ref.fa
+        - /data/references/compass/fasta/*.fasta
     - name: 'mask_file'
       arg: "--mask_file"
       type: switch
