@@ -91,5 +91,24 @@
   {% include 'report_templates/nfnvm_resistance.template' %}
 {% endif %}
 
-  
+{% if report['run_distmatrix'] %}
+  <h3>Neighbours within dataset</h3>
+  {% set mysam = report['run_distmatrix']['data']['samples'][dataset_id] %}
+  <ul>
+    <li>Header: <span style="font-family: monospace;">{{ mysam['header'] }}</span></li>
+    <li>Bases: {{ mysam['size'] }}</li>
+    <li>Base counts: {{ mysam['counts'] }}</li>
+    <li>Sequence md5: <span style="font-family: monospace;">{{ mysam['seq_md5'] }}</span></li>
+
+    <li>Neighbours (note that these distances are without a mask such as the one used with the neighbourhood server):</li>
+    <ul>
+    <span style="font-family: monospace">
+      {% for neighbour,dist in mysam['neighbours'].items() %}
+	<li>{{ neighbour }} - {{ dist }} SNP</li>
+      {% endfor %}
+    </span>
+    </ul>
+  </ul>
+{% endif %}
+
 {% endblock content %}

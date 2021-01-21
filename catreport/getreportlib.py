@@ -98,6 +98,23 @@ def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
     '''
 
     '''
+    begin run distmatrix report
+    '''
+    r = get_report_for_type(con, pipeline_run_uuid, '-', 'run_distmatrix')
+    report_data['run_distmatrix'] = dict()
+    if r:
+        report_run_distmatrix_guid = r[0]
+        report_run_distmatrix_filepath = f"{ reports_directory }/{report_run_distmatrix_guid}.json"
+        logging.warning(report_run_distmatrix_filepath)
+
+        with open(report_run_distmatrix_filepath) as f:
+            report_data['run_distmatrix']['data'] = json.loads(f.read())
+        report_data['run_distmatrix']['finished_epochtime'] = int(r[5])
+    '''
+    end run distmatrix report
+    '''
+
+    '''
     begin speciation report
     '''
     r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'kraken2_speciation')
@@ -285,5 +302,5 @@ def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
     '''
     end nfnvm resistance report
     '''
-    
+
     return { 'status': 'success', 'details': None, 'data': { 'report_data': report_data }}

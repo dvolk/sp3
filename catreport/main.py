@@ -136,6 +136,9 @@ def get_report_for_type(pipeline_run_uuid, sample_name, report_type):
     '''
     return db_get_report_for_type(con, pipeline_run_uuid, sample_name, report_type)
 
+def make_within_run_distreport(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
+    os.system(f"python3 distmatrixsp3input.py /work/output/{pipeline_run_uuid} | python3 distmatrix.py > /work/reports/catreport/reports/{report_uuid}.json")
+
 def make_resistance_report(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
     '''
     1. symlink sample file path to /work/reports/resistanceapi/vcfs/{report_uuid}.vcf
@@ -189,6 +192,8 @@ def main():
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_map2coverage_report", make_file_copy_report)).start()
 
     threading.Thread(target=report_thread_factory, args=(con, "nfnvm_resistance", make_file_copy_report)).start()
+
+    threading.Thread(target=report_thread_factory, args=(con, "run_distmatrix", make_within_run_distreport)).start()
 
     app.run(port=10000)
 

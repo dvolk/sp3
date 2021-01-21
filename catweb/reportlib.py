@@ -12,6 +12,10 @@ def process_reports(report_data, catpile_resp, download_url):
         template_report_data['catpile_metadata'] = dict()
         template_report_data['catpile_metadata']['data'] = catpile_resp
 
+    if 'run_distmatrix' in report_data.keys() and 'data' in report_data['run_distmatrix']:
+        template_report_data['run_distmatrix'] = dict()
+        template_report_data['run_distmatrix']['data'] = report_data['run_distmatrix']['data']
+
     if 'samtools_qc' in report_data.keys() and 'data' in report_data['samtools_qc']:
         template_report_data['samtools_qc'] = dict()
         template_report_data['samtools_qc']['data'] = dict()
