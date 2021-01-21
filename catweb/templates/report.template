@@ -103,7 +103,7 @@
 	  <li><b>{{ base }}</b>: {{ count }} ({{ (count / mysam['size'] * 100)|round(1) }}%)</li>
 	{% endfor %}
       </ul>
-    <li>GC-content: {{ (100 * (mysam['counts']['A'] + mysam['counts']['A']  + mysam['counts']['A']  + mysam['counts']['A'] ) /
+    <li>GC-content: {{ (100 * (mysam['counts']['G'] + mysam['counts']['C']) /
       (mysam['size'] - mysam['counts']['N']))|round(1) }}%</li>
     <li>Sequence md5: {{ mysam['seq_md5'] }}</li>
 
