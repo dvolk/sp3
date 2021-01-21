@@ -95,10 +95,17 @@
   <h3>Neighbours within dataset</h3>
   {% set mysam = report['run_distmatrix']['data']['samples'][dataset_id] %}
   <ul>
-    <li>Header: <span style="font-family: monospace;">{{ mysam['header'] }}</span></li>
+    <li>Header: {{ mysam['header'] }}</li>
     <li>Bases: {{ mysam['size'] }}</li>
-    <li>Base counts: {{ mysam['counts'] }}</li>
-    <li>Sequence md5: <span style="font-family: monospace;">{{ mysam['seq_md5'] }}</span></li>
+    <li>Base counts:
+      <ul>
+	{% for base,count in mysam['counts'].items() %}
+	  <li><b>{{ base }}</b>: {{ count }} ({{ (count / mysam['size'] * 100)|round(1) }}%)</li>
+	{% endfor %}
+      </ul>
+    <li>GC-content: {{ (100 * (mysam['counts']['A'] + mysam['counts']['A']  + mysam['counts']['A']  + mysam['counts']['A'] ) /
+      (mysam['size'] - mysam['counts']['N']))|round(1) }}%</li>
+    <li>Sequence md5: {{ mysam['seq_md5'] }}</li>
 
     <li>Neighbours (note that these distances are without a mask such as the one used with the neighbourhood server):</li>
     <ul>
