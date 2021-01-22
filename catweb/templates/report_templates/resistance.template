@@ -1,4 +1,8 @@
 <p>Report generated on: <strong>{{ report['resistance']['finished_epochtime'] }}</strong></p>
+  {% if 'message' in report['resistance'] and 'config' in report['resistance']['message'] %}
+      <span>Gumpy object: {{ report['resistance']['message']['config']['genome_object'] }}</span><br>
+      <span>Catalogue file: {{ report['resistance']['message']['config']['catalogue_file'] }}</span><br>
+  {% endif %}
 
 <p><a href="/flow/{{ pipeline_run_uuid }}/{{ dataset_id }}/report/data/resistance">Show raw data</a></p>
 
@@ -6,17 +10,7 @@
   <p>This sample was mapped to a reference that was not made to work with the resistance processing.</p>
   <!-- <span style="filter: alpha(opacity=60); -moz-opacity: 0.6; opacity: 0.6;"> -->
 {% else %}
-
   <!-- {{ report['resistance'] }} -->
-  {% if 'message' in report['resistance'] and 'config' in report['resistance']['message'] %}
-
-    <h5>Resistance configuration</h5>
-    <ul style="font-family: monospace;">
-      <li>Gumpy object: {{ report['resistance']['message']['config']['genome_object'] }}</li>
-      <li>Catalogue file: {{ report['resistance']['message']['config']['catalogue_file'] }}</li>
-    </ul>
-  {% endif %}
-
   <div class='row'>
     <div class='col-md-12'>
       <h5>Drugs</h5>
@@ -43,6 +37,7 @@
             </td>
 	  {% endfor %}
 	</tr>
+	{% if report['resistance']['data'][pred_drug_name] | length > 0 %}
 	<tr>
 	  {% for pred_drug_name in pred_drug_names %}
 	    <td>
@@ -57,6 +52,7 @@
             </td>
           {% endfor %}
 	  <tr>
+      {% endif %} 
       </table>
     </div>
   </div>
