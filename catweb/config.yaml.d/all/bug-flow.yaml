@@ -26,7 +26,7 @@ param:
       arg: '--refFile'
       type: switch
       globs:
-        - /data/references/clockwork/qc_vc/*/ref.fa
+        - /data/references/bug-flow/fasta/*.fa
 output:
     parameter: "--outputPath"
 count_tasks_per_sample: 10
