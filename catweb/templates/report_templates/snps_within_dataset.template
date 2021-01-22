@@ -1,0 +1,23 @@
+{% set mysam = report['run_distmatrix']['data']['samples'][dataset_id] %}
+<span>Header:<b> {{ mysam['header'] }}</b></span><br>
+<span>Sequence md5: {{ mysam['seq_md5'] }}</span><br>
+<span>Bases: {{ mysam['size'] }}</span><br>
+<span>GC-content: <b> {{ (100 * (mysam['counts']['G'] + mysam['counts']['C']) /
+      (mysam['size'] - mysam['counts']['N']))|round(1) }}% </b></span><br>
+<span>Base counts:</span>
+ <table class='table-sm table table-bordered'>
+ <tr>
+   {% for base,count in mysam['counts'].items() %}
+     {% if base in ['A','C','G','T','N'] %}
+       <td>{{ base }}</td>
+       <td>{{ count }} (<b>{{ (count / mysam['size'] * 100)|round(1) }}%</b>) </td>
+     {% endif %}
+   {% endfor %}
+</tr>
+</table>
+<span><strong>Neighbours</strong> (note: these distances are calculated without a mask as the neighbourhood server)</span><br>
+<ul>
+   {% for neighbour,dist in mysam['neighbours'].items() %}
+     <li><a href="/flow/{{ pipeline_run_uuid }}/{{ dataset_id }}/report">{{ neighbour }}</a> - {{ dist }} SNP</li>
+   {% endfor %}
+</ul>
