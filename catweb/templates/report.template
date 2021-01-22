@@ -111,7 +111,7 @@
     <ul>
     <span style="font-family: monospace">
       {% for neighbour,dist in mysam['neighbours'].items() %}
-	<li>{{ neighbour }} - {{ dist }} SNP</li>
+	<li><a href="/flow/{{ pipeline_run_uuid }}/{{ dataset_id }}/report">{{ neighbour }}</a> - {{ dist }} SNP</li>
       {% endfor %}
     </span>
     </ul>
