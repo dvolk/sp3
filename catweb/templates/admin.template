@@ -3,15 +3,15 @@
 
 <h2>Users</h2>
 
-<table class="table table-hover table-sm">
+<table class="table table-hover table-sm tablesorter tablesorter-default">
   <thead>
     <tr>
-      <th scope="col">Username</th>
-      <th scope="col">Catweb user?</th>
-      <th scope="col">Catweb org</th>
-      <th scope="col">email</th>
-      <th scope="col">Added date</th>
-      <th scope="col">Activated</th>
+      <th scope="col"><a href="#">Username</a></th>
+      <th scope="col"><a href="#">Catweb user</a></th>
+      <th scope="col"><a href="#">Catweb org</a></th>
+      <th scope="col"><a href="#">Email</a></th>
+      <th scope="col"><a href="#">Added date</a></th>
+      <th scope="col"><a href="#">Activated</a></th>
       <th scope="col">Action</th>
     </tr>
   </thead>

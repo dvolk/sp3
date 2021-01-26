@@ -8,15 +8,15 @@
   {% if pipeline_run_uuid and sample_name %}
     <p>List contains trees containing sample <strong>{{ sample_name }}</strong> in pipeline run id <strong>{{ pipeline_run_uuid }}</strong></p>
   {% endif %}
-   <table class="table table-hover table-sm">
+   <table class="table table-hover table-sm tablesorter tablesorter-default">
      <thead>
        <tr>
-	 <th>Name</th>
-         <th>Status</th>
-	 <th>Count</th>
-	 <th>Added time</th>
-	 <th>Started time</th>
-	 <th>Duration</th>
+	 <th><a href="#">Name</a></th>
+         <th><a href="#">Status</a></th>
+	 <th><a href="#">Count</a></th>
+	 <th><a href="#">Added time</a></th>
+	 <th><a href="#">Started time</a></th>
+	 <th><a href="#">Duration</a></th>
 <!--	 <th>Organisation</th> -->
 	 <th>Action</th>
        </tr>
