@@ -87,7 +87,7 @@
 	<br>
 	<hr>
 	<footer>
-	  <p>Version {{ catweb_version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2020 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
+	  <p>Version {{ catweb_version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
 	</footer>
       {% endblock footer %}
     </div>
