@@ -1,11 +1,29 @@
 import collections, pathlib, sys, json, hashlib
 
 def parse_fasta(content):
-    content = content.split('\n')
-    header = content[0]
-    seq = ''.join(content[1:])
-    counts = collections.Counter(seq)
-    return header, seq, counts
+    blehs = content.split('\n>')
+    seqs = list()
+    for i, seq in enumerate(blehs):
+        lines = seq.split('\n')
+        if i == 0:
+            header = lines[0]
+        else:
+            header = '>' + lines[0]
+        seq = lines[1:]
+        seqs.append((header, ''.join(seq)))
+
+    max_header = str()
+    max_seq = str()
+    headers = list()
+    for header, seq in seqs:
+        headers.append([header, len(seq), collections.Counter(seq)])
+        if len(seq) > len(max_seq):
+            max_seq = seq
+            max_header = header
+
+    counts = collections.Counter(max_seq)
+    #print(max_header, len(max_seq), counts, headers)
+    return max_header, max_seq, counts, headers
 
 def load_fasta(filepath):
     with open(filepath) as f:
@@ -17,11 +35,12 @@ class Sample:
         self.filename = self.filepath.name
         self.sample_name = sample_name
     def load_file(self):
-        self.header, self.seq, self.counts = load_fasta(self.filepath)
+        self.header, self.seq, self.counts, self.headers = load_fasta(self.filepath)
         self.seq_md5 = hashlib.md5(self.seq.encode()).hexdigest()
         self.size = len(self.seq)
     def dump(self):
         return { 'header': self.header,
+                 'headers': self.headers,
                  'counts': self.counts,
                  'filepath': str(self.filepath),
                  'filename': self.filename,
@@ -29,9 +48,9 @@ class Sample:
                  'size': self.size,
                  'seq_md5': str(self.seq_md5) }
 
-def distance(sam1, sam2):
+def distance(seq1, seq2):
     ret = 0
-    for c1, c2 in zip(sam1.seq, sam2.seq):
+    for c1, c2 in zip(seq1, seq2):
         if c1 != c2 and c1 in "ACGT" and c2 in "ACGT":
             ret += 1
     return ret
@@ -57,7 +76,7 @@ def main():
             if sam1.size == sam2.size:
                 dist = ret['samples'][sam1.sample_name]['neighbours'].get(sam2.sample_name)
                 if dist == None:
-                    dist = distance(sam1, sam2)
+                    dist = distance(sam1.seq, sam2.seq)
                 ret['samples'][sam1.sample_name]['neighbours'][sam2.sample_name] = dist
                 ret['samples'][sam2.sample_name]['neighbours'][sam1.sample_name] = dist
 

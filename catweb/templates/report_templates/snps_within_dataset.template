@@ -17,7 +17,9 @@
 </table>
 <span><strong>Neighbours</strong> (note: these distances are calculated without a mask as the neighbourhood server)</span><br>
 <ul>
-   {% for neighbour,dist in mysam['neighbours'].items() %}
-     <li><a href="/flow/{{ pipeline_run_uuid }}/{{ dataset_id }}/report">{{ neighbour }}</a> - {{ dist }} SNP</li>
-   {% endfor %}
+  {% for neighbour,dist in mysam['neighbours'].items() %}
+    {% if neighbour != dataset_id %}
+     <li><a href="/flow/{{ pipeline_run_uuid }}/{{ neighbour }}/report">{{ neighbour }}</a> - {{ dist }} SNP</li>
+    {% endif %}
+  {% endfor %}
 </ul>
