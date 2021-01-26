@@ -387,7 +387,7 @@ def admin_edit_user():
 @app.template_filter('epochtodate')
 def epochtodate(value):
     t = time.localtime(int(value))
-    return f"{t.tm_mday}-{t.tm_mon}-{t.tm_year}"
+    return f"{t.tm_year}-{t.tm_mon}-{t.tm_mday}"
 
 @app.route('/admin')
 @flask_login.login_required
