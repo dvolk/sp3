@@ -90,7 +90,7 @@
   {% include 'report_templates/nfnvm_resistance.template' %}
 {% endif %}
 
-{% if report['run_distmatrix'] %}
+{% if report['run_distmatrix'] and dataset_id in report['run_distmatrix']['data']['samples'] %}
   <h3>Neighbours within dataset</h3>
 
   {% include 'report_templates/snps_within_dataset.template' %}
