@@ -36,7 +36,7 @@ def main():
             if words[1] == '-J':
                 job_name = words[2]
             if words[1] == '--mem':
-                job_mem = words[2]
+                job_mem = words[2][:-1]
 
     data = { 'name': job_name,
              'script': job_script,
