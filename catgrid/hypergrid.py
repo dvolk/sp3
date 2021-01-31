@@ -8,13 +8,14 @@ import uuid
 import logging
 import os
 import pwd
+import pathlib
 
 import flask
 import paramiko
 
 ### ssh utilities ###
 
-def run_ssh_cmd(host, cmd, print_output=False):
+def run_ssh_cmd(host, cmd):
     '''
     run a command over ssh; blocking
     '''
@@ -29,19 +30,22 @@ def run_ssh_cmd(host, cmd, print_output=False):
     stdout.close()
     stderr.close()
     client.close()
-    if print_output:
-        print(cmd)
-        print(stdout_str, stderr_str)
+    logging.debug(cmd)
+    logging.debug(stdout_str, stderr_str)
     return retcode, stdout_str, stderr_str
 
 def run_ssh_script(host, script, work_dir, script_filename_prefix=".command"):
     '''
     run a script over ssh; blocking
+    note that the work directory must be mounted on the catgrid machine and the cluster
     '''
-    cmd = f"""mkdir -p {shlex.quote(work_dir)} &&
-cd {shlex.quote(work_dir)} &&
-echo {shlex.quote(script)} > {script_filename_prefix}.script &&
-bash ./{script_filename_prefix}.script"""
+
+    wd = pathlib.Path(work_dir)
+    wd.mkdir(exist_ok=True, parents=True)
+    with open(wd / f'{script_filename_prefix}.script', 'w') as f:
+        f.write(script)
+
+    cmd = f"""cd {shlex.quote(str(wd))} && bash ./{shlex.quote(script_filename_prefix)}.script"""
     return run_ssh_cmd(host, cmd)
 
 def get_stats_over_ssh(name):
@@ -104,11 +108,11 @@ class Node:
             self.mem, self.cores = get_stats_over_ssh(name)
             self.status = "ready"
         except Exception as e:
-            print(f"failed to add node {self.name} - removing node")
-            print(f"error: {e}")
+            logging.error(f"failed to add node {self.name} - removing node")
+            logging.error(f"error: {e}")
             self.status = "failed"
             self.cores, self.mem = 0, 0
-        print(self.display())
+        logging.warning(self.display())
     def display(self):
         return { self.name: { 'cores': self.cores,
                               'mem': self.mem,
@@ -126,13 +130,13 @@ class Node:
         '''
         self.jobs[job.uuid] = job
         def run_job():
-            print(f"node {self.name} started job name {job.name}")
+            logging.warning(f"node {self.name} started job name {job.name}")
             try:
                 job.started_epochtime = int(time.time())
                 retcode, stdout, stderr = run_ssh_script(self.name, job.script, job.work_dir, job.filename_uuid)
             except Exception as e:
-                print(f"job {job.name} failed on node {self.name} - removing node and requeueing")
-                print(f"error: {e}")
+                logging.error(f"job {job.name} failed on node {self.name} - removing node and requeueing")
+                logging.error(f"error: {e}")
                 jq.add(job)
                 del self.jobs[job.uuid]
                 self.status = 'failed'
@@ -145,7 +149,7 @@ class Node:
                                   'node': self.name }
             del self.jobs[job.uuid]
             self.last_finished = time.time()
-            print(f"node {self.name} finished job name {job.name}")
+            logging.warning(f"node {self.name} finished job name {job.name}")
         threading.Thread(target=run_job).start()
 
 last_job_id = 0
@@ -174,7 +178,7 @@ app = flask.Flask(__name__)
 def terminate(job_name_to_kill):
     def terminate_(node_host, job):
         cmd = f'kill $(ps -s $(ps axwf | grep "bash ./{job.filename_uuid}.script" | grep -v "grep" | head -1 | awk \'{{ print $1 }}\') -o pid=)'
-        run_ssh_cmd(node_host, cmd, print_output=True)
+        run_ssh_cmd(node_host, cmd)
 
     if jq.remove(int(job_name_to_kill)):
         return "removed from queue"
@@ -249,13 +253,13 @@ def main():
     node_names = sys.argv[1:]
 
     for name in node_names:
-        print(add_node(name))
+        logging.warning(add_node(name))
 
     def scheduler():
         while True:
             for node in nodes.values():
                 if node.status == 'failed':
-                    print(remove_node(node))
+                    logging.warning(remove_node(node))
 
             jq.run(nodes)
             time.sleep(1)
