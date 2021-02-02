@@ -1,87 +1,97 @@
 {% extends 'base1.template' %}
 
 {% block content %}
-<div class="container">
+  <div class="container">
     <h4>TB Genetic Neighbours</h4>
     <hr />
     <form action="/cw_query">
-    <div class="row">
-      <input name="run_id" type="text" placeholder="run id, see example below" data-val-required="run id is required." class="form-input col-md-4" id="run_id" value="{{ run_id }}"  />
-      <input name="sample_name" type="text" placeholder="sample name" data-val-required="sample name is required." class="form-input col-md-4" id="sample_name" value="{{ sample_name }}"  />
-      <input name="distance" class="form-input col-md-1" type="number" id="distance" min="0" max="50" value="{{ distance }}" />
-      <input type="submit" class="form-input col-md-3 btn btn-primary" value="Search Neighbours" id="search_submit" />
-    </div>
-    <div class="row">
-      <span class="form-input col-md-4">eg. 6ecf6616-6d25-4a2d-9588-a9dc7f2c681a</span>
-      <span class="form-input col-md-4">eg. ERR552831</span>
-      <span class="col-md-1">snps</span>
-    </div>
+      <div class="row">
+	<input name="run_id" type="text" placeholder="run id, see example below" data-val-required="run id is required." class="form-input col-md-4" id="run_id" value="{{ run_id }}"  />
+	<input name="sample_name" type="text" placeholder="sample name" data-val-required="sample name is required." class="form-input col-md-4" id="sample_name" value="{{ sample_name }}"  />
+	<input name="distance" class="form-input col-md-1" type="number" id="distance" min="0" max="50" value="{{ distance }}" />
+	<input type="submit" class="form-input col-md-3 btn btn-primary" value="Search Neighbours" id="search_submit" />
+      </div>
+      <div class="row">
+	<span class="form-input col-md-4">eg. 6ecf6616-6d25-4a2d-9588-a9dc7f2c681a</span>
+	<span class="form-input col-md-4">eg. ERR552831</span>
+	<span class="col-md-1">snps</span>
+      </div>
     </form>
 
     <hr />
     {% if message %}
-        <p><strong>{{ message }}</strong></p>
+      <p><strong>{{ message }}</strong></p>
     {% endif %}
 
     {% if neighbours_ok %}
       {% set count = neighbours | length %}
-         <p>Query run: <strong><span id='query_run'>{{all_runs[run_id]["run_name"]}}</span></strong></p>
-         <p>Query sample:<strong> {{sample_name}}</strong></p>
-      {% if count == 0 %}
- 	  <p><strong>No</strong> neighbours found.<p>
-      {% endif %}
-      {% if count == 1 %}
-         <p><strong>1</strong> neighbour found.<p>
-      {% endif %}
-      {% if count > 1 %}
-         <p><strong>{{count}}</strong> neighbours found.<p>
-      {% endif %}
+      <p>Query run: <strong><span id='query_run'>{{all_runs[run_id]["run_name"]}}</span></strong></p>
+    <p>Query sample:<strong> {{sample_name}}</strong></p>
+    {% if count == 0 %}
+      <p><strong>No</strong> neighbours found.<p>
     {% endif %}
-    {% if neighbours | length > 0 %}
-      <p>To build a tree, select <strong> 3 or more </strong> samples below by ticking the boxes, then click the button</p>
-      <span style='margin-right:20px;float:right;'>
-        <input type="checkbox" id='tick_my_org' name='tick_my_org'>
-        <label for='tick_my_org' style='margin-left:10px; margin-right:10px;'>Select samples from <strong>my</strong> orgnisation</label>
-	<input type="checkbox" id='tick_other_orgs' name='tick_other_orgs'>
-	<label  for='tick_other_orgs' style='margin-left:10px;'>Select samples from <strong>other</strong> orgnisations</label>
-      </span>
-
-      <form action="/make_a_tree" method="POST">
-	<input type="submit" class="form-input btn btn-primary" value="Generate Phylo Tree" id="build_tree">
-
-	<br/>
-	<table class="table table-hover table-sm">
-	  <thead>
-	   <tr>
-	     <th><input type="checkbox" id="check_all_neighbour"></th>
-	     <th>Site name</th>
-	     <th>Run name</th>
-	     <th>Sample name</th>
-	     <th>SNP distance</th>
-	   </tr>
-	 </thead>
-	 <tbody>
-	   <tr>
-	     <td><input type="checkbox" class='neighbour_tick' name="{{ run_id }}_{{ sample_name }}" value="{{all_runs[run_id]["run_name"]}}_{{ sample_name }}"></th>
-             <td style="font-family: monospace">{{ all_runs[run_id]['instance_name'] }} </td>
-             <td style="font-family: monospace">{{ all_runs[run_id]["run_name"]}}</td>
-	     <td style="font-family: monospace">{{ sample_name }}</td>
-	     <td>Self</td>
-	   </tr>
-	   {% for neighbour in neighbours %}
-	   {% set run_uuid = neighbour[0][0:36] %}
-	   {% set sample_name = neighbour[0][37:] %}
-	   <tr>
-	     <td><input type="checkbox" class='neighbour_tick' value="{{ all_runs[run_uuid]['run_name'] }}_{{ sample_name }}" name="{{ run_uuid }}_{{ sample_name }}"></Th>
-	     <td style="font-family: monospace">{{ all_runs[run_uuid]['instance_name'] }}</td>
-	     <td style="font-family: monospace">{{ all_runs[run_uuid]['run_name'] }}</td>
-	     <td style="font-family: monospace">{{ sample_name }}</td>
-	     <td>{{ neighbour[1] }}</td>
-	   </tr>
-	{% endfor %}
-	 </tbody>
-       </table>
-       </form>
+    {% if count == 1 %}
+      <p><strong>1</strong> neighbour found.<p>
     {% endif %}
-</div>
+    {% if count > 1 %}
+      <p><strong>{{count}}</strong> neighbours found.<p>
+    {% endif %}
+  {% endif %}
+  {% if neighbours | length > 0 %}
+    <p>To build a tree, select <strong> 3 or more </strong> samples below by ticking the boxes, then click the button</p>
+    <span style='margin-right:20px;float:right;'>
+      <input type="checkbox" id='tick_my_org' name='tick_my_org'>
+      <label for='tick_my_org' style='margin-left:10px; margin-right:10px;'>Select samples from <strong>my</strong> orgnisation</label>
+      <input type="checkbox" id='tick_other_orgs' name='tick_other_orgs'>
+      <label  for='tick_other_orgs' style='margin-left:10px;'>Select samples from <strong>other</strong> orgnisations</label>
+    </span>
+
+    <form action="/make_a_tree" method="POST">
+      <input type="submit" class="form-input btn btn-primary" value="Generate Phylo Tree" id="build_tree">
+
+      <br/>
+      <table class="table table-hover table-sm">
+	<thead>
+	  <tr>
+	    <th><input type="checkbox" id="check_all_neighbour"></th>
+	    <th>Site name</th>
+	    <th>Run name</th>
+	    <th>Sample name</th>
+	    <th>SNP distance</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+	    <td><input type="checkbox" class='neighbour_tick' name="{{ run_id }}_{{ sample_name }}" value="{{all_runs[run_id]["run_name"]}}_{{ sample_name }}"></td>
+	    <td style="font-family: monospace">{{ all_runs[run_id]['instance_name'] }} </td>
+	    <td style="font-family: monospace">{{ all_runs[run_id]["run_name"]}}</td>
+	    <td style="font-family: monospace">{{ sample_name }}</td>
+	    <td>Self</td>
+	  </tr>
+	  {% for neighbour in neighbours %}
+	    {% set run_uuid = neighbour[0][0:36] %}
+	    {% set sample_name = neighbour[0][37:] %}
+	    {% if run_uuid in all_runs %}
+	      <tr>
+		<td><input type="checkbox" class='neighbour_tick' value="{{ all_runs[run_uuid]['run_name'] }}_{{ sample_name }}" name="{{ run_uuid }}_{{ sample_name }}"></td>
+		<td style="font-family: monospace">{{ all_runs[run_uuid]['instance_name'] }}</td>
+		<td style="font-family: monospace">{{ all_runs[run_uuid]['run_name'] }}</td>
+		<td style="font-family: monospace">{{ sample_name }}</td>
+		<td>{{ neighbour[1] }}</td>
+	      </tr>
+	    {% endif %}
+	  {% endfor %}
+	</tbody>
+      </table>
+    </form>
+
+    {% for neighbour in neighbours %}
+      {% set run_uuid = neighbour[0][0:36] %}
+      {% set sample_name = neighbour[0][37:] %}
+      {% if run_uuid not in all_runs %}
+	<p>Neighbour not found in database: {{ sample_name }}, run uuid: {{ run_uuid }}.</p>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  </div>
 {% endblock%}
