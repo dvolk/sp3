@@ -16,7 +16,7 @@ param:
     - name: 'kraken2_db'
       arg: "--kraken2_db"
       type: switch
-      desc: "Kraken 2 databse"
+      desc: "Kraken 2 database"
       globs:
         - /data/databases/clockworkcloud/kraken2/*
     - name: 'input_filetype'
