@@ -263,6 +263,9 @@ def login():
 
         logger.warning(f"{form_username} - {users[user.id]}")
 
+        if request.args.get('api'):
+            return "OK"
+
         next = request.form.get('next')
         logger.warning(f"next url: {next}")
 
@@ -302,6 +305,11 @@ def change_pw():
 def logout():
     flask_login.logout_user()
     return redirect('/')
+
+@app.route('/am_i_logged_in')
+@flask_login.login_required
+def am_i_logged_in():
+    return "yes"
 
 def get_user_pipelines(username):
     ret = list()
@@ -496,6 +504,7 @@ def new_run1(flow_name, flow_cfg, form):
     data_json = json.dumps(data)
 
     response = api_post_request('nfweb_api', '/run/start', data_json)
+    return run_uuid
 
 @app.route('/flow/<flow_name>/new', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -561,8 +570,11 @@ def begin_run(flow_name: str):
 
     elif request.method == 'POST':
         logger.debug('form: {0}'.format(request.form))
-        new_run1(flow_name, flow_cfg, request.form)
-        return redirect("/flow/{0}".format(flow_name))
+        run_uuid = new_run1(flow_name, flow_cfg, request.form)
+        if request.form.get('api'):
+            return json.dumps({ 'run_uuid': run_uuid })
+        else:
+            return redirect("/flow/{0}".format(flow_name))
 
 @app.route('/map_samples', methods=['POST'])
 @flask_login.login_required
@@ -731,6 +743,9 @@ def get_sample_tags_for_run(run_uuid):
 @flask_login.login_required
 def run_details(flow_name : str, run_uuid: int):
     rows = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid))
+
+    if request.args.get('api'):
+        return json.dumps(rows)
 
     if not rows or 'data' not in rows or not rows['data'] or not rows['data'][0]:
         abort(404, description="Run not found")
@@ -1093,12 +1108,15 @@ def fetch_new():
     fetch_method = request.form.get("fetch_method")
     fetch_samples = request.form.get("fetch_samples")
 
-    api_post_request('fetch_api', f'/api/fetch/{fetch_kind}/new',
-                     { 'fetch_name': fetch_name,
-                       'fetch_range': fetch_range,
-                       'fetch_method': fetch_method,
-                       'fetch_samples': fetch_samples
-                    })
+    r = api_post_request('fetch_api', f'/api/fetch/{fetch_kind}/new',
+                         { 'fetch_name': fetch_name,
+                           'fetch_range': fetch_range,
+                           'fetch_method': fetch_method,
+                           'fetch_samples': fetch_samples
+                          })
+
+    if request.form.get("is_api"):
+        return json.dumps(r)
 
     return redirect('/fetch')
 
@@ -1188,6 +1206,9 @@ def fetch_details(guid):
     else:
         abort(404, description="guid not found")
 
+    if request.args.get('api'):
+        return json.dumps(ret1)
+
     ret2 = api_get_request('fetch_api', '/api/fetch/log/{0}'.format(guid))
 
     fetch_samples = []
@@ -1249,6 +1270,9 @@ def get_report(run_uuid : str, dataset_id: str):
 
     import reportlib
     template_report_data = reportlib.process_reports(report_data, catpile_resp, cfg.get('download_url'))
+
+    if request.args.get('api'):
+        return json.dumps(template_report_data)
 
     return render_template('report.template',
                            list = list,
