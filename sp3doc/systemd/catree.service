@@ -1,0 +1,6 @@
+[Unit]
+Description=SP3 Catree API
+
+[Service]
+WorkingDirectory=/home/ubuntu/sp3/catree
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catree/api.py 

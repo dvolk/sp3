@@ -309,7 +309,7 @@ def logout():
 @app.route('/am_i_logged_in')
 @flask_login.login_required
 def am_i_logged_in():
-    return "yes"
+    return flask_login.current_user.id
 
 def get_user_pipelines(username):
     ret = list()
