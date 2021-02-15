@@ -309,7 +309,7 @@ def logout():
 @app.route('/am_i_logged_in')
 @flask_login.login_required
 def am_i_logged_in():
-    return flask_login.current_user.id
+    return "yes"
 
 def get_user_pipelines(username):
     ret = list()
@@ -743,9 +743,6 @@ def get_sample_tags_for_run(run_uuid):
 @flask_login.login_required
 def run_details(flow_name : str, run_uuid: int):
     rows = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid))
-
-    if request.args.get('api'):
-        return json.dumps(rows)
 
     if not rows or 'data' not in rows or not rows['data'] or not rows['data'][0]:
         abort(404, description="Run not found")
