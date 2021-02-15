@@ -800,7 +800,7 @@ def run_details(flow_name : str, run_uuid: int):
     tags = get_sample_tags_for_run(run_uuid)
 
     if request.args.get('api'):
-        return json.dumps({ 'tags': tags, 'trace': trace, 'trace_nice': trace_nice })
+        return json.dumps({ 'tags': tags, 'trace': trace, 'trace_nice': trace_nice, 'data': rows })
 
     return render_template('run_details.template',
                            uuid=run_uuid,
