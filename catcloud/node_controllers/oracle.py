@@ -27,8 +27,9 @@ oci compute instance launch \
     --image-id { image_id } \
     --ssh-authorized-keys-file "/home/ubuntu/.ssh/id_rsa.pub" \
     --subnet-id { subnet_id } \
-    --assign-public-ip false \
     --boot-volume-size-in-gbs { boot_volume_size_in_gbs }"""
+    # TODO: --assign-public-ip false
+
     ret = run(cmd)
     return json.loads(ret)
 
