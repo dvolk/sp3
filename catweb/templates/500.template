@@ -29,7 +29,8 @@
 	<div class="inner">
 	  <div align="center">
 	    <h1>An error occured!</h1>
-	    <img src="/static/giphy.gif"> 
+	    <img src="/static/giphy.gif">
+	    <p><a href="https://sp3forum.mmmoxford.uk/post/new?post_template=issue"><button style="font-size: 1em; padding: 20px; background-color: #f77; border-radius: 10px">Report an issue</button></a></p>
 	    <p>Error description:</p>
 	    <p>{{ error }}</p>
 	  </div>
