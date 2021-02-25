@@ -1,11 +1,152 @@
+organisations:
+  oxforduni:
+    attributes:
+      pipelines:
+      - oxforduni-CompassCompact-bwa
+      - oxforduni-RegionsScan
+      - oxforduni-Clockwork_combined
+      upload_dirs:
+      - /data/inputs/oxforduni
+  oxforduniswe:
+    attributes:
+      pipelines: []
+      upload_dirs:
+      - /data/inputs/s3/alpha
+      - /data/inputs/s3/beta
+      - /data/inputs/uploads/phe
+      - /data/inputs/s3/tom
+      - /data/inputs/s3/climb-catsup1
+      - /data/inputs/uploads/oxforduni
+  sp3test1:
+    attributes:
+      pipelines:
+      - sp3test1-funvcf
+      - sp3test1-Clockwork_combined
+      - sp3test1-NanoSPC
+      - sp3test1-ClockworkQC
+      - sp3test1-ClockworkRC
+      - sp3test1-ClockworkVC
+      upload_dirs:
+      - /data/inputs/uploads/phe
 users:
-  - name: denisv@ndm.local
-    password_hash: '$2b$12$Idn1hQThsalCJ4M8R3Ckfe2tulP5VKgmbIxvjqmO.SelFZ0WbLuC6'
+  AlexOrlek:
     attributes:
-      - admin
-
-  - name: fan@ndm.local
-    password_hash: '$2b$12$No3GXn0vdoqA44qS.U.ef.bh2Y4viiaSH.u2JbzZeJJ0GFgzKqBmm'
+      catweb_organisation: oxforduni
+      catweb_user: true
+      country: United Kingdom
+      date_added: '1612262573'
+      date_expires: null
+      email: alex.orlek@phe.gov.uk
+      job_address: Public Health England
+      job_title: Bioinformatician
+      name: Alex Orlek
+      referal: David Wyllie
+    password_hash: $2b$12$3kuiKVESVmViUYD3cSBXS.cmlffOVCA0DKt39K3jgAo8kcc01tfJu
+  TMWalker:
     attributes:
-      - admin
-
+      catweb_organisation: University of Oxford
+      catweb_user: true
+      country: ''
+      date_added: '1608010538'
+      date_expires: null
+      email: Timothy.walker@ndm.ox.ac.uk
+      job_address: OUCRU, Vietnam
+      job_title: ''
+      name: Timothy Walker
+      referal: ''
+      requires_review: true
+    password_hash: $2b$12$TGmxEvXFGKfd2xZV1igXDOARNwDPUi/XO7eDQmLevUiYmuuGz04OW
+  davidwyllie:
+    attributes:
+      catweb_organisation: oxforduni
+      catweb_user: true
+      country: UK
+      date_added: '1608132356'
+      date_expires: null
+      email: david.wyllie@phe.gov.uk
+      job_address: ''
+      job_title: Consultant Microbiologist
+      name: David Wyllie
+      referal: ''
+    password_hash: $2b$12$Z65K0/pnH81Q1QyShIgJSeim.T6F790IC9orlYcXYacdozJOJS7IW
+  denis:
+    attributes:
+      catweb_admin: true
+      catweb_organisation: oxforduniswe
+      catweb_user: true
+      country: United Kingdom
+      date_added: '1602161483'
+      date_expires: null
+      email: denis.volk@ndm.ox.ac.uk
+      job_address: Oxford
+      job_title: Software Engneer
+      name: Denis Volk
+      referal: N/A
+    password_hash: $2b$12$XKdks4Bcj0UL768j6mniauZlE6EGfAcRXMWfVDyhPsQMK7/UFtueu
+  fan:
+    attributes:
+      catweb_admin: true
+      catweb_organisation: oxforduniswe
+      catweb_user: true
+      country: United Kingdom
+      date_added: '1602169531'
+      date_expires: null
+      email: fan.yang-turner@ndm.ox.ac.uk
+      job_address: 11 Gorse Leas
+      job_title: Lead Software Engineer
+      name: Fan Yang
+      referal: Denis
+    password_hash: $2b$12$2SvTLnkMH3o/KyuOan/1WeBo8O1qF22c8E6ivk9JqsI5auW8ikuci
+  samlipworth:
+    attributes:
+      catweb_organisation: oxforduni
+      catweb_user: true
+      country: United Kingdom
+      date_added: '1603707205'
+      date_expires: null
+      email: samuel.lipworth@lmh.ox.ac.uk
+      job_address: 2, Middle Street
+      job_title: ''
+      name: Samuel Lipworth
+      referal: ''
+    password_hash: $2b$12$MN2Qy1Y6yedRJGs7WhkJOuasl7Ff35sKQn.kqallSRtpHiB6zxY7C
+  sjbush:
+    attributes:
+      catweb_organisation: University of Oxford
+      catweb_user: true
+      country: United Kingdom
+      date_added: '1605109554'
+      date_expires: null
+      email: stephen.bush@ndm.ox.ac.uk
+      job_address: ''
+      job_title: ''
+      name: Stephen Bush
+      referal: ''
+      requires_review: true
+    password_hash: $2b$12$sJPp3V8o6hBTGFT/pcIMSeVyeA/nC8eDJIhGRk112yTtCOLDpjD4i
+  test:
+    attributes:
+      catweb_organisation: sp3test1
+      catweb_user: true
+      country: ''
+      date_added: '1602586716'
+      date_expires: null
+      email: test@test.com
+      job_address: ''
+      job_title: ''
+      name: test
+      referal: ''
+    password_hash: $2b$12$.risI3OkkWZo4CPGyXsGpeabYNHi8GmVrF.tK1AwRpIH8cE9Zj.oK
+  mhunt:
+    attributes:
+      catweb_organisation: oxforduni
+      catweb_user: true
+      country: ''
+      date_added: '1602504943'
+      date_expires: null
+      email: mhunt@ebi.ac.uk
+      job_address: ''
+      job_title: ''
+      name: Martin Hunt
+      referal: ''
+    password_hash: $2b$12$OQ9/QRBZvbum1Wgm22lncuFKRCq54kCYFlnhA29L/MK7bn4FgK5Ya
