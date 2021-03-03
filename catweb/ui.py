@@ -634,8 +634,13 @@ def list_runs(flow_name : str):
     if request.args.get('api'):
         return json.dumps(data)
 
+    if 'no_sample_count' in flow_cfg.keys():
+        cfg = { 'display_name': flow_cfg['display_name'],'flow_name': flow_cfg['name'], 'no_sample_count': flow_cfg['no_sample_count'] }
+    else:
+        cfg = { 'display_name': flow_cfg['display_name'],'flow_name': flow_cfg['name'] }
+
     return render_template('list_runs.template',
-                           stuff={ 'display_name': flow_cfg['display_name'],'flow_name': flow_cfg['name'] },
+                           stuff=cfg,
                            has_dagpng=has_dagpng,
                            data=data)
 
