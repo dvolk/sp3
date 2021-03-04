@@ -1,3 +1,4 @@
+
 auth_ldap:
   - name: 'ndm.local'
     host: '192.168.7.16'
@@ -9,3 +10,21 @@ auth_ldap:
       - 'ulfs@ndm.local'
       - 'weig@ndm.local'
       - 'Yifei@ndm.local'
+      - 'sp3test1@ndm.local'
+    admins:
+      - 'denisv@ndm.local'
+      - 'fan@ndm.local'
+
+organisations:
+  - name: 'oxforduni-swe'
+    users:
+      - 'denisv@ndm.local'
+      - 'fan@ndm.local'
+  - name: 'phe'
+    users:
+      - 'richardm@ndm.local'
+      - 'ulfs@ndm.local'
+  - name: 'sp3test1'
+    users:
+      - 'sp3test1@ndm.local'
+      

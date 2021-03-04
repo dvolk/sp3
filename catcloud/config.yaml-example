@@ -10,6 +10,7 @@ profiles:
     node_controller_params:
       setup_script: scripts/test_node_setup.sh
 
+
   - name: azure-catcloudtest
     node_controller: node_controllers.azure.AzureNodeController
     scheduler: schedulers.catgrid.CatgridScheduler
@@ -67,23 +68,6 @@ profiles:
       security_group_id: sg-002bd90eab458665f
       subnet_id: subnet-ffd5a396
       setup_script: scripts/aws-test.sh
-    scheduler_params: {}
-    scaler_params:
-      min_nodes: 1
-      max_nodes: 1
-
-  - name: oracle-test
-    node_controller: node_controllers.oracle.OracleNodeController
-    scheduler: schedulers.catgrid.CatgridScheduler
-    scaler: scalers.onebyone.OneByOneScaler
-    node_controller_params:
-      compartment_id: ocid1.tenancy.oc1..aaaaaaaamimojgdbnzx4ofouyjqcgh2ip5wolz3qthyjylvyu3oeqfb4k5kq
-      availability_domain: bjRf:UK-LONDON-1-AD-1
-      image_id: ocid1.image.oc1.uk-london-1.aaaaaaaalyjhzbtegfs3tafsspqwu6kre2pm5svlvmu25nkwsnk6t4fu45wq
-      shape: VM.Standard.E2.1
-      subnet_id: ocid1.subnet.oc1.uk-london-1.aaaaaaaa5ozb356gi643qyehg2olmt6dxxdini2yqhn4la2ucyxikg54o4sq
-      boot_volume_size_in_gbs: 120
-      setup_script: scripts/oracle_node_setup.sh
     scheduler_params: {}
     scaler_params:
       min_nodes: 1

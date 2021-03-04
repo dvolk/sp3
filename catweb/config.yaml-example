@@ -8,55 +8,19 @@ contexts:
 canonical_prog_dir: '/data/pipelines'
 log_dir: '/home/ubuntu/sp3/catweb/logs'
 db_target: '/db/catweb.sqlite'
-download_url: 'http://dev.sp3.local/files/'
-head_node_ip: '10.218.117.11'
-
-nextflows:
-  - !include config.yaml.d/clockwork/combined.yaml
-  - !include config.yaml.d/nfnvm/nfnvm.yaml
-  - !include config.yaml.d/compass/compasscompact-bwa.yaml
+download_url: 'https://cats.oxfordfun.com/files/'
+head_node_ip: '192.168.9.9'
 
 nfweb_api: { host: '127.0.0.1', port: '7100' }
 fetch_api: { host: '127.0.0.1', port: '7200' }
 catstat_api: { host: '127.0.0.1', port: '8000' }
+cattag_api: { host: '192.168.9.9', port: '12000' }
 report_api: { host: '127.0.0.1', port: '10000' }
-cattag_api: { host: '10.218.117.11', port: '12000' }
-
-authentication: ldap
-auth_ldap:
-  - name: 'ndm.local'
-    host: '192.168.7.16'
-    authorized_users: ['denisv@ndm.local', 'fan@ndm.local', 'sp3test1@ndm.local']
-    admins: ['denisv@ndm.local', 'fan@ndm.local']
-
-organisations:
-  - name: 'org1'
-    users: ['denisv@ndm.local']
-    upload_dirs:
-      - '/data/inputs/uploads'
-      - '/data/inputs/s3/tom'
-  - name: 'org2'
-    users: ['denisv@ndm.local', 'fan@ndm.local', 'sp3test1@ndm.local']
-    upload_dirs:
-      - '/data/inputs/s3/tom/ '
-
-user_pipeline_map:
-  - user: 'blah@ndm.local'
-    pipelines:
-      - 'Clockwork_combined'
-      - 'NanoSPC'
-      - 'CompassCompact'
-
-auth_builtin:
-  authorized_users:
-    - username: denis
-      password_bcrypt_hash: '$2b$14$xDz5X3y2sjCnghS.l3Ql6Oa6C8SV./lr38acdG3380cPlXezus222'
-    - username: fan
-      password_bcrypt_hash: '$2b$14$xDz5X3y2sjCnghS.l3Ql6Oa6C8SV./lr38acdG3380cPlXezus222'
-  admins: ['denis']
+catpile_api: { host: '127.0.0.1', port: '22000' }
+catdap_api: { host: '127.0.0.1', port: '13666' }
 
 cluster_view:
-  disk_filter: "root"
+  disk_filter: "home|sda|sdb|sdc|sdd"
   embeds:
     - title: 'Statistics'
-    - img: 'http://stat.dev.sp3.local/draw'
+    - img: 'https://stat-cats.oxfordfun.com/draw'

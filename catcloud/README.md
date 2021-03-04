@@ -17,6 +17,8 @@ It has 4 elements:
   supported:
     - OpenStack
     - Google Cloud Platform
+    - AWS
+    - Oracle Cloud
     - Azure
 
 - scheduler - an interface to a cluster scheduler
