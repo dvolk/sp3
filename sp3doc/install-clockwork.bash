@@ -1,6 +1,6 @@
 SP3PREFIX=/home/ubuntu/sp3
 
-pip3 install pysam usjon
+pip3 install pysam ujson
 
 #
 # resistance packages
@@ -30,8 +30,8 @@ sudo wget 'https://files.mmmoxford.uk/f/3b2f62aa66184301bf44/?dl=1' -O /data/ima
 sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/qc_vc.tar&dl=1' -O /data/references/clockwork/qc_vc.tar
 sudo wget 'https://files.mmmoxford.uk/d/dd25a4cc6a424506a785/files/?p=/spectest4.tar&dl=1' -O /data/inputs/uploads/spectest4.tar
 
-sudo wget 'ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/minikraken2_v2_8GB_201904_UPDATE.tgz' -O /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz
-sudo tar xf /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz -C /data/databases/clockworkcloud/kraken2
+sudo wget 'ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/minikraken_8GB_202003.tgz' -O /data/databases/clockworkcloud/kraken2/minikraken2.tgz
+sudo tar xf /data/databases/clockworkcloud/kraken2/minikraken2.tgz -C /data/databases/clockworkcloud/kraken2
 
 sudo tar xf /data/references/clockwork/qc_vc.tar -C /data/references/clockwork
 sudo tar xf /data/inputs/uploads/spectest4.tar -C /data/inputs/uploads
@@ -39,4 +39,4 @@ sudo tar xf /data/inputs/uploads/spectest4.tar -C /data/inputs/uploads
 sudo rm /data/references/clockwork/qc_vc.tar
 sudo rm /data/inputs/uploads/spectest4.tar
 
-sudo rm /data/databases/clockworkcloud/kraken2/minikraken2_v2_8GB_201904_UPDATE.tgz
+sudo rm /data/databases/clockworkcloud/kraken2/minikraken2.tgz
