@@ -16,15 +16,15 @@
 <p>
   Click on details on the right in the table below for more information, including sample reports.
 </p>
-<table class="table table-hover table-sm" style="margin-top:10px">
+<table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top:10px">
   <thead>
     <tr>
-      <th scope="col">Started On</th>
-      <th scope="col">User</th>
-      <th scope="col">Name</th>
-      <th scope="col">Duration</th>
-      {% if not stuff['no_sample_count'] %}<th scope="col">Samples</th>{% endif %}
-      <th scope="col">Status</th>
+      <th scope="col"><a href="#">Started On</a></th>
+      <th scope="col"><a href="#">User</a></th>
+      <th scope="col"><a href="#">Name</a></th>
+      <th scope="col"><a href="#">Duration</a></th>
+      {% if not stuff['no_sample_count'] %}<th scope="col"><a href="#">Samples</a></th>{% endif %}
+      <th scope="col"><a href="#">Status</a></th>
       <th scope="col">Action</th>
     </tr>
   </thead>
