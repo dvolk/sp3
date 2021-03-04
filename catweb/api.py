@@ -428,7 +428,10 @@ def get_report(flow_name, run_uuid):
     with open(str(report_filename)) as f:
         content = f.read()
 
-    return make_api_response('success', data={'report': content})
+    import process_report_html
+    js = process_report_html.get_report_json(report_filename)
+
+    return make_api_response('success', data={ 'report': content, 'js': js })
 
 @app.route('/flow/<flow_name>/timeline/<run_uuid>', methods = ['GET'])
 def get_timeline(flow_name, run_uuid):

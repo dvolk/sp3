@@ -855,6 +855,9 @@ def show_report(flow_name : str, run_uuid: int):
     response = api_get_request('nfweb_api', '/flow/{0}/report/{1}'.format(flow_name, run_uuid))
     content = response['report']
 
+    if request.args.get('api'):
+        return response['js']
+
     return content
 
 @app.route('/flow/<flow_name>/timeline/<run_uuid>')
