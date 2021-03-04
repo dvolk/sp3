@@ -1,4 +1,4 @@
-import demjson, json
+import json
 
 def get_report_json(report_file):
     report_lines = open(report_file).readlines()
