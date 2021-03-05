@@ -108,7 +108,9 @@ def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
         logging.warning(report_run_distmatrix_filepath)
 
         with open(report_run_distmatrix_filepath) as f:
-            report_data['run_distmatrix']['data'] = json.loads(f.read())
+            report_data['run_distmatrix']['data'] = dict()
+            report_data['run_distmatrix']['data']['samples'] = dict()
+            report_data['run_distmatrix']['data']['samples'][sample_name] = json.loads(f.read())['samples'][sample_name]
         report_data['run_distmatrix']['finished_epochtime'] = int(r[5])
     '''
     end run distmatrix report
