@@ -5,14 +5,14 @@ import sqlite3
 
 cons = dict()
 
-def get_samples_cov_names(con, pipeline_run_uuid, sample_name, report_type):
+def get_samples_cov_names(con, sql_lock, pipeline_run_uuid, sample_name, report_type):
     sample_like = sample_name + '%'
 
     sql = f'select sample_name from q where status = "done" and pipeline_run_uuid = "{pipeline_run_uuid}" and sample_name like "{sample_like}" and type = "{report_type}" order by added_epochtime desc'
 
     logging.warning(sql)
 
-    with con:
+    with con, sql_lock:
         r = con.execute(sql).fetchall()
     if r:
         logging.warning(r)
@@ -20,13 +20,13 @@ def get_samples_cov_names(con, pipeline_run_uuid, sample_name, report_type):
     else:
         return None
 
-def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
+def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_name):
     '''
     Get a report (all reports combined) for 1 sample
     '''
 
     def get_report_for_type(con, pipeline_run_uuid, sample_name, report_type):
-        with con:
+        with con, sql_lock:
             r = con.execute('select * from q where status = "done" and pipeline_run_uuid = ? and sample_name = ? and type = ? order by added_epochtime desc',
                             (pipeline_run_uuid, sample_name, report_type)).fetchall()
             logging.warning(r)
@@ -206,7 +206,7 @@ def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
     '''
     begin nfnvm map2coverage report
     '''
-    samples_cov_names = get_samples_cov_names(con, pipeline_run_uuid, sample_name, 'nfnvm_map2coverage_report')
+    samples_cov_names = get_samples_cov_names(con, sql_lock, pipeline_run_uuid, sample_name, 'nfnvm_map2coverage_report')
 
     if samples_cov_names != None:
         logging.warning(len(samples_cov_names))
@@ -272,7 +272,7 @@ def get_report(cluster_instance_uuid, con, pipeline_run_uuid, sample_name):
     '''
     begin nfnvm resistance report
     '''
-    samples_resistance_names = get_samples_cov_names(con, pipeline_run_uuid, sample_name, 'nfnvm_resistance')
+    samples_resistance_names = get_samples_cov_names(con, sql_lock, pipeline_run_uuid, sample_name, 'nfnvm_resistance')
 
     if samples_resistance_names != None:
         logging.warning(len(samples_cov_names))

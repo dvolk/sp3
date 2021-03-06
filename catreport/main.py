@@ -175,7 +175,7 @@ def make_file_copy_report(report_file_path, sample_filepath, sample_name, pipeli
 
 @app.route('/report/<pipeline_run_uuid>/<sample_name>')
 def get_report(pipeline_run_uuid, sample_name):
-    return json.dumps(getreportlib.get_report(None, con, pipeline_run_uuid, sample_name))
+    return json.dumps(getreportlib.get_report(None, con, sql_lock, pipeline_run_uuid, sample_name))
 
 def main():
 
