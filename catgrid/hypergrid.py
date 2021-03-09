@@ -86,7 +86,7 @@ class JobQueue:
         with scheduling_lock:
             for job in self.queue[:]:
                 for node in nodes.values():
-                    if node.status == 'ready' and len(node.jobs) < node.cores and job.mem <= node.mem_free():
+                    if node.status == 'ready' and job.mem <= node.mem_free() and job.cores <= node.cores_free():
                         node.add_job(job)
                         self.queue.remove(job)
                         break
@@ -124,6 +124,10 @@ class Node:
         return sum([job.mem for job in self.jobs.values()])
     def mem_free(self):
         return self.mem - self.mem_used()
+    def cores_used(self):
+        return sum([job.cores for job in self.jobs.values()])
+    def cores_free(self):
+        return self.cores - self.cores_used()
     def add_job(self, job):
         '''
         add a job to node and run it immediately; non-blocking
@@ -155,10 +159,11 @@ class Node:
 last_job_id = 0
 
 class Job:
-    def __init__(self, name, script, mem, work_dir):
+    def __init__(self, name, script, mem, cores, work_dir):
         self.name = name
         self.script = script
         self.mem = mem
+        self.cores = cores
         self.work_dir = work_dir
         global last_job_id
         self.uuid = last_job_id + 1
@@ -166,7 +171,7 @@ class Job:
         self.filename_uuid = str(uuid.uuid4())
         self.started_epochtime = None
     def display(self):
-        return { self.uuid: { 'name': self.name, 'mem': self.mem, 'started': self.started_epochtime } }
+        return { self.uuid: { 'name': self.name, 'mem': self.mem, 'cores': self.cores, 'started': self.started_epochtime } }
 
 nodes = collections.defaultdict(str)
 
@@ -198,7 +203,8 @@ def output(job_name):
 @app.route('/submit', methods=['POST'])
 def submit():
     data = flask.request.get_json(force=True)
-    job = Job(data['name'], data['script'], int(data['mem']), data['work_dir'])
+    logging.warning(data)
+    job = Job(data['name'], data['script'], int(data['mem']), int(data['cores']), data['work_dir'])
     jq.add(job)
     return json.dumps(job.uuid)
 

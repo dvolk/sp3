@@ -21,14 +21,15 @@ def main():
     with open(script_filepath) as f:
         job_script = f.read()
 
-#    print(job_script)
+#   print(job_script)
 
     job_name = str(uuid.uuid4())
     job_mem = 1024
+    job_cores = 1
     job_work_dir = str(pathlib.Path.cwd())
 
     for line in job_script.split('\n'):
-    #        print(line)
+#   print(line)
         words = line.split(' ')
         if len(words) >= 2 and words[0] == '#SBATCH':
             if words[1] == '-D':
@@ -37,11 +38,16 @@ def main():
                 job_name = words[2]
             if words[1] == '--mem':
                 job_mem = words[2][:-1]
+            if words[1] == '-c':
+                job_cores = words[2]
 
     data = { 'name': job_name,
              'script': job_script,
              'mem': job_mem,
+             'cores': job_cores,
              'work_dir': job_work_dir }
+
+    # print(data)
 
     cg_uuid = requests.post('http://127.0.0.1:6000/submit', json=data).text
 
