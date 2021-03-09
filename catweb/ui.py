@@ -1274,7 +1274,7 @@ def fetch_details(guid):
 @app.route('/flow/<run_uuid>/<dataset_id>/report')
 @flask_login.login_required
 def get_report(run_uuid : str, dataset_id: str):
-    resp = api_get_request('report_api', f'/report/{run_uuid}/{dataset_id}')
+    resp = api_get_request('reportreader_api', f'/report/{run_uuid}/{dataset_id}')
     catpile_resp = api_get_request('catpile_api', f'/get_sp3_data_for_run_sample/{run_uuid}/{dataset_id}')
     report_data = resp['report_data'] # data in from catreport
 
@@ -1293,7 +1293,7 @@ def get_report(run_uuid : str, dataset_id: str):
 @app.route('/flow/<run_uuid>/<dataset_id>/report/data/<report_type>')
 @flask_login.login_required
 def get_report_raw_data(run_uuid, dataset_id, report_type):
-    resp = api_get_request('report_api', f'/report/{run_uuid}/{dataset_id}')
+    resp = api_get_request('reportreader_api', f'/report/{run_uuid}/{dataset_id}')
     catpile_resp = api_get_request('catpile_api', f'/get_sp3_data_for_run_sample/{run_uuid}/{dataset_id}')
     report_data = resp['report_data'] # data in from catreport
 
@@ -1434,7 +1434,7 @@ def cw_query():
 @app.route('/list_reports')
 @flask_login.login_required
 def list_reports():
-    reports = api_get_request('report_api','/list_reports')
+    reports = api_get_request('reportreader_api','/list_reports')
     return render_template('list_reports.template',
                            int = int,
                            strftime=time.strftime,
