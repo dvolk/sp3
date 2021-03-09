@@ -100,3 +100,53 @@ Check via
 ```
 $ oci os ns get
 ```
+
+## Setup the NFS share on the headnode
+
+```
+sudo apt-get install nfs-server
+```
+
+add the following /etc/exports
+```
+/work 10.0.0.0/255.255.255.0(rw,async,root_squash)
+/data 10.0.0.0/255.255.255.0(ro,async,root_squash)
+```
+
+```
+sudo systemctl restart nfs-server.service
+sudo systemctl status nfs-server.service
+```
+
+**Important**: not setup the NFS firewall correctly.
+
+
+## Setup `catcloud`
+
+First check that the service files have been copied into place and if not copy them manually
+
+```
+$ ls /home/ubuntu/.config
+$ mkdir /home/ubuntu/.config
+$ mkdir /home/ubuntu/.config/systemd
+$ mkdir /home/ubuntu/.config/systemd/user
+$ cp /home/ubuntu/sp3/sp3doc/systemd/*.service /home/ubuntu/.config/systemd/user/
+$ systemctl --user daemon-reload
+$ systemctl --user restart catgrid
+```
+
+Now we are in a position to setup `catcloud`
+
+```
+$ cd sp3/catcloud
+$ cp config.yaml-example config.yaml
+$ emacs config.yaml
+$ cd scripts/
+$ emacs scripts/oracle_node_setup.sh
+```
+
+and start it
+
+```
+python3 main.py --profile oracle-test
+```
