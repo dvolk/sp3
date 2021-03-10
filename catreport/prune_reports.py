@@ -12,6 +12,7 @@ rows2 = con2.execute('select * from nfruns')
 def go():
     paths = list(pathlib.Path('/work/reports/catreport/reports').glob('*'))
     path_uuids = [x.stem for x in paths]
+    print(f"found { len(path_uuids) } files")
 
     # path_uuids = path_uuids[0:3]
 
@@ -20,6 +21,8 @@ def go():
 
     for row1 in rows1:
         pipeline_uuids[row1['uuid']] = row1['pipeline_run_uuid']
+
+    print(f"loaded { len(pipeline_uuids) } rows from catreport database")
 
     for path_uuid in path_uuids:
         if path_uuid not in pipeline_uuids:
