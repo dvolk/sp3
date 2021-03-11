@@ -74,7 +74,6 @@ def get_report_for_type(pipeline_run_uuid, sample_name, report_type):
     return db_get_report_for_type(con, pipeline_run_uuid, sample_name, report_type)
 
 @app.route('/report/<pipeline_run_uuid>/<sample_name>')
-@functools.lru_cache(maxsize=5120)
 def get_report(pipeline_run_uuid, sample_name):
     return json.dumps(getreportlib.get_report(None, con, sql_lock, pipeline_run_uuid, sample_name))
 
