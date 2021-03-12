@@ -19,7 +19,9 @@
 </p>
   <hr>
 <p>
-  To view the report, click on the sample name in the left section of the table below.
+  {% if not pipeline_no_report %}
+     To view the report, click on the sample name in the left section of the table below.
+  {% endif %}
 </p>
 <p>
   To view the task command and output, click on the task name on the right section of the table below.
@@ -48,7 +50,15 @@
             <tr>
               <td scope="row">
                 <span style="font-family: monospace; font-weight: bold">
-		  {% if dataset_id == "unknown" %}{% else %}<a href="/flow/{{ uuid }}/{{ dataset_id }}/report">{{ dataset_id }}</a>{% endif %}</span>
+		  {% if dataset_id == "unknown" %}
+		  {% else %}
+		      {% if not pipeline_no_report %}
+		       <a href="/flow/{{ uuid }}/{{ dataset_id }}/report">{{ dataset_id }}</a>
+		      {% else %}
+		       {{ dataset_id }}
+		      {% endif %}
+		  {% endif %}
+		</span>
      	          {% if dataset_id in tags %}
 		    <br/>
 		    <sup style="background-color: pink; margin-top: 3px;">

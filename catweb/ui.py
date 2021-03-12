@@ -808,6 +808,16 @@ def run_details(flow_name : str, run_uuid: int):
     if request.args.get('api'):
         return json.dumps({ 'tags': tags, 'trace': trace, 'trace_nice': trace_nice, 'data': rows })
 
+    if flow_name in flows:
+        flow_cfg = flows[flow_name]
+        if 'no_sample_report' in flow_cfg.keys():
+            pipeline_no_report = True
+        else:
+            pipeline_no_report = False
+    else:
+        abort(404, description="Flow not found")
+
+
     return render_template('run_details.template',
                            uuid=run_uuid,
                            flow_name=flow_name,
@@ -821,7 +831,8 @@ def run_details(flow_name : str, run_uuid: int):
                            run_name=run_name,
                            user_param_dict=user_param_dict,
                            task_count=task_count,
-                           expected_tasks=expected_tasks)
+                           expected_tasks=expected_tasks,
+                           pipeline_no_report = pipeline_no_report)
 
 @app.route('/flow/<flow_name>/log/<run_uuid>')
 @flask_login.login_required
