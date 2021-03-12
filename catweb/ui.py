@@ -866,7 +866,8 @@ def show_report(flow_name : str, run_uuid: int):
     if request.args.get('csv'):
         trace = json.dumps(json.loads(response['js'])['trace'])
         table = pandas.read_json(io.StringIO(trace))
-        return "<pre>" + table[["tag", "process", "status"]].sort_values("tag").to_csv(index=False)
+        table = table.drop(["script", "env"], axis=1)
+        return "<pre>" + table.sort_values("tag").to_csv(index=False)
 
     return content
 
