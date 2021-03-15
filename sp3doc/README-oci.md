@@ -19,7 +19,7 @@ You'll need to tweak the default options:
 * check that `Assign a public IPv4 address` is marked `Yes`.
 * paste or copy your public `SSH` key into the box
 
-Click `Create`. It can take a few minutes to spin up. Partway through the process the `Public IP` address will be shown. Then you can try connecting
+Click `Create`. It can take a few minutes to spin up. Partway through the process the `Public IP` address will be shown. Then you can try connecting.
 
 `$ ssh ubuntu@132.145.40.84`
 
@@ -52,6 +52,8 @@ $ sudo fdisk /dev/oracleoci/oraclevdb
 $ sudo mkfs.ext3 /dev/oracleoci/oraclevdb1
 $ sudo mount /dev/oracleoci/oraclevdb1 /data
 ```
+
+n, p, 1, w
 
 ..and repeat for `vdc` -> `/work`. Now if you run `df` you should see them.
 
@@ -95,6 +97,13 @@ Fingerprint: 42:30:ee:c2:ae:42:ea:f7:f6:e1:f1:09:55:9f:f2:14
 Config written to /home/ubuntu/.oci/config
 ```
 
+[DEFAULT]
+user=ocid1.user.oc1..aaaaaaaa6oaivweaajedttfzslifvcjjvnx4rwdtvdoul4ibeav4wldvh72a
+fingerprint=17:74:89:0b:e4:6d:50:b6:17:0e:99:fd:7b:4a:62:c5
+tenancy=ocid1.tenancy.oc1..aaaaaaaa4mcyyn2h7c37qyuq5ttoaeb4mh4cuprqnlsmmcirop5hgl3ehrvq
+region=uk-london-1
+key_file=<path to your private keyfile> # TODO
+
 Check via
 
 ```
@@ -118,8 +127,13 @@ sudo systemctl restart nfs-server.service
 sudo systemctl status nfs-server.service
 ```
 
-**Important**: not setup the NFS firewall correctly.
+sudo iptables-save > foo.txt
+   45  less foo.txt
+   46  emacs foo.txt
+   47  mv foo.txt iptables-new.txt
+   48  sudo iptables-restore < cat iptables-new.txt
 
+**Important**: not setup the NFS firewall correctly.
 
 ## Setup `catcloud`
 
@@ -150,3 +164,43 @@ and start it
 ```
 python3 main.py --profile oracle-test
 ```
+
+ssh -L 8080:10.0.1.2:80 -J ubuntu@132.145.69.127 ubuntu@10.0.1.2
+
+
+```
+$ less /etc/nginx/sites-available/default
+
+server {
+        listen 80 default_server;
+
+        return 301 https://$host$request_uri;
+}
+
+server {
+        server_name sp3ocisandbox.oxfordfun.com;
+        listen 443 ssl;
+
+        ssl_certificate /etc/letsencrypt/oxfordfun.com.cert.pem;
+        ssl_certificate_key /etc/letsencrypt/oxfordfun.com.key.pem;
+
+        location / {
+                proxy_pass http://10.0.1.2;
+                proxy_set_header Host sp3ocisandbox.oxfordfun.com;
+        }
+}
+```
+
+[13:18] Ben (Guest)
+
+``
+cp /etc/default/nfs-kernel-server /etc/default/nfs-kernel-server.orig
+sed -i 's/RPCMOUNTDOPTS="--manage-gids"/RPCMOUNTDOPTS="--manage-gids -p 2000"/g' /etc/default/nfs-kernel-server
+
+cat <<EOF > /etc/sysctl.d/30-nfs-ports.conf
+fs.nfs.nlm_tcpport = 2001
+fs.nfs.nlm_udpport = 2002
+EOF
+
+sysctl --system
+systemctl restart nfs-server.service
