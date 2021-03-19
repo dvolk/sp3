@@ -14,6 +14,12 @@ def process_reports(report_data, catpile_resp, download_url):
 
     if 'run_distmatrix' in report_data.keys() and 'data' in report_data['run_distmatrix']:
         template_report_data['run_distmatrix'] = dict()
+        if "samples" in report_data['run_distmatrix']['data']:
+            keys = list(report_data['run_distmatrix']['data']['samples'].keys())
+            if len(keys) >= 1:
+                neighbours = report_data['run_distmatrix']['data']['samples'][keys[0]]['neighbours']
+                sorted_neighbours =  {k:v for k, v in sorted(neighbours.items(), key=lambda item: item[1])}
+                report_data['run_distmatrix']['data']['samples'][keys[0]]['neighbours'] = sorted_neighbours
         template_report_data['run_distmatrix']['data'] = report_data['run_distmatrix']['data']
 
     if 'samtools_qc' in report_data.keys() and 'data' in report_data['samtools_qc']:
