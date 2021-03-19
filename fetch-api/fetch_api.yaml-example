@@ -9,12 +9,5 @@ ena_flatten_dir: "/data/inputs/ena/"
 local_flatten_dir: "/data/inputs/local/"
 
 local_glob_directories:
-  - '/data/inputs/uploads/phe/*'
-  - '/data/inputs/s3/tom/*'
-  - '/data/inputs/s3/alpha/*'
-  - '/data/inputs/s3/beta/*'
-  - '/data/inputs/s3/climb-catsup1/*'
   - '/data/inputs/uploads/oxforduni/*'
-  - '/data/inputs/users/fan/*'
-  - '/data/inputs/users/denis/*'
   - '/data/inputs/users/test/*'
