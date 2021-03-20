@@ -72,3 +72,38 @@ profiles:
     scaler_params:
       min_nodes: 1
       max_nodes: 1
+
+  - name: oracle-test
+    node_controller: node_controllers.oracle.OracleNodeController
+    scheduler: schedulers.catgrid.CatgridScheduler
+    scaler: scalers.onebyone.OneByOneScaler
+    node_controller_params:
+      compartment_id: ocid1.compartment.oc1..aaaaaaaao4kpjckz2pjmlict2ssrnx45ims7ttvxghlluo2tcwv6pgfdlepq
+      availability_domain: LfHB:UK-LONDON-1-AD-1
+      image_id: ocid1.image.oc1.uk-london-1.aaaaaaaaoc2hx6m45bba2avnfkj6lq7cas3z2avzgsh37dm3ih6r4taaglva
+      shape: VM.Standard2.4
+      subnet_id: ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzulehwiutxraanpcgasloa
+      boot_volume_size_in_gbs: 120
+      setup_script: scripts/oracle_sandbox_node_setup.sh
+    scheduler_params: {}
+    scaler_params:
+      min_nodes: 2
+      max_nodes: 32
+
+  - name: oracle2-test
+    node_controller: node_controllers.oracle2.OracleNodeController
+    scheduler: schedulers.catgrid.CatgridScheduler
+    scaler: scalers.onebyone.OneByOneScaler
+    node_controller_params:
+      compartment_id: ocid1.compartment.oc1..aaaaaaaao4kpjckz2pjmlict2ssrnx45ims7ttvxghlluo2tcwv6pgfdlepq
+      availability_domain: LfHB:UK-LONDON-1-AD-1
+      image_id: ocid1.image.oc1.uk-london-1.aaaaaaaaoc2hx6m45bba2avnfkj6lq7cas3z2avzgsh37dm3ih6r4taaglva
+      shape: VM.Standard2.4
+      subnet_id: ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzulehwiutxraanpcgasloa
+      boot_volume_size_in_gbs: 120
+      setup_script: scripts/oracle_sandbox_node_setup.sh
+    scheduler_params: {}
+    scaler_params:
+      min_nodes: 2
+      max_nodes: 32
+

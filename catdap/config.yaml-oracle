@@ -1,0 +1,23 @@
+organisations:
+  oxforduni:
+    attributes:
+      pipelines:
+      - oxforduni-Clockwork_combined
+      - oxforduni-ncov2019-artic-nf-illumina
+      upload_dirs:
+      - /data/inputs/oxforduni
+users:
+  admin:
+    attributes:
+      catweb_organisation: oxforduni
+      catweb_admin: true
+      catweb_user: true
+      country: ''
+      date_added: '1602586716'
+      date_expires: null
+      email: test@test.com
+      job_address: ''
+      job_title: ''
+      name: admin
+      referal: ''
+    password_hash: $2b$12$CU4QiiqXtn5054jUya2XvuoA6dAdM7Ha59pk7iSGLY5tOEwUodLmO
