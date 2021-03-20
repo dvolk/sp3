@@ -136,8 +136,19 @@ def get_report_for_type(pipeline_run_uuid, sample_name, report_type):
     '''
     return db_get_report_for_type(con, pipeline_run_uuid, sample_name, report_type)
 
+def make_report_filename(report_uuid):
+    p1 = report_uuid[0:2]
+    p2 = report_uuid[2:4]
+    return f"/work/reports/catreport/reports/{p1}/{p2}/{report_uuid}.json"
+
+def make_report_dir(report_uuid):
+    p1 = report_uuid[0:2]
+    p2 = report_uuid[2:4]
+    os.system(f"mkdir -p /work/reports/catreport/reports/{p1}/{p2}")
+
 def make_within_run_distreport(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
-    os.system(f"python3 distmatrixsp3input.py /work/output/{pipeline_run_uuid} | python3 distmatrix.py > /work/reports/catreport/reports/{report_uuid}.json")
+    make_report_dir(report_uuid)
+    os.system(f"python3 distmatrixsp3input.py /work/output/{pipeline_run_uuid} | python3 distmatrix.py > { make_report_filename(report_uuid) }")
 
 def make_resistance_report(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
     '''
@@ -152,7 +163,8 @@ def make_resistance_report(report_uuid, sample_filepath, sample_name, pipeline_r
     r = requests.get(url)
     logging.warning('res api end')
     try:
-        out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
+        make_report_dir(report_uuid)
+        out_filepath = make_report_filename(report_uuid)
         with open(out_filepath, 'w') as report_file:
             report_file.write(r.text)
         os.system(f'cd /work/reports/resistanceapi/vcfs && rm {report_uuid}.vcf')
@@ -164,12 +176,14 @@ def make_resistance_report(report_uuid, sample_filepath, sample_name, pipeline_r
     return out_filepath
 
 def make_trivial_copy_report(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
-    out_filepath = f'/work/reports/catreport/reports/{report_uuid}.json'
+    out_filepath = make_report_filename(report_uuid)
+    make_report_dir(report_uuid)
     os.system(f'cp {sample_filepath} {out_filepath}')
     return out_filepath
 
 def make_file_copy_report(report_file_path, sample_filepath, sample_name, pipeline_run_uuid):
-    out_filepath = f'/work/reports/catreport/reports/{report_file_path}'
+    out_filepath = make_report_filename(report_uuid)
+    make_report_dir(report_uuid)
     os.system(f'cp {sample_filepath} {out_filepath}')
     return out_filepath
 

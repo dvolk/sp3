@@ -3,6 +3,11 @@ import logging
 import json
 import sqlite3
 
+def make_report_dir_postfix(report_uuid):
+    p1 = report_uuid[0:2]
+    p2 = report_uuid[2:4]
+    return f"{p1}/{p2}"
+
 cons = dict()
 
 def get_samples_cov_names(con, sql_lock, pipeline_run_uuid, sample_name, report_type):
@@ -42,9 +47,9 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
         else:
             con = sqlite3.connect(f'/work/persistence/{ cluster_instance_uuid }/db/catreport.sqlite', check_same_thread=False)
             cons[cluster_instance_uuid] = con
-        reports_directory = f'/work/persistence/{ cluster_instance_uuid }/work/reports/catreport/reports'
+        reports_directory = f'/work/persistence/{ cluster_instance_uuid }/work/reports/catreport/reports/'
     else:
-        reports_directory = f'/work/reports/catreport/reports'
+        reports_directory = f'/work/reports/catreport/reports/'
 
     logging.warning(str(cons))
     report_data = dict()
@@ -56,7 +61,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     report_data['resistance'] = dict()
     if r:
         report_resistance_guid = r[0]
-        report_resistance_filepath = f"{ reports_directory }/{report_resistance_guid}.json"
+        report_resistance_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_resistance_guid)}/{report_resistance_guid}.json"
         logging.warning(report_resistance_filepath)
 
         try:
@@ -87,7 +92,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     report_data['mykrobe_speciation'] = dict()
     if r:
         report_mykrobe_speciation_guid = r[0]
-        report_mykrobe_speciation_filepath = f"{ reports_directory }/{report_mykrobe_speciation_guid}.json"
+        report_mykrobe_speciation_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_mykrobe_speciation_guid)}/{report_mykrobe_speciation_guid}.json"
         logging.warning(report_mykrobe_speciation_filepath)
 
         with open(report_mykrobe_speciation_filepath) as f:
@@ -104,7 +109,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     report_data['run_distmatrix'] = dict()
     if r:
         report_run_distmatrix_guid = r[0]
-        report_run_distmatrix_filepath = f"{ reports_directory }/{report_run_distmatrix_guid}.json"
+        report_run_distmatrix_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_run_distmatrix_guid)}/{report_run_distmatrix_guid}.json"
         logging.warning(report_run_distmatrix_filepath)
 
         with open(report_run_distmatrix_filepath) as f:
@@ -125,7 +130,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     report_data['kraken2_speciation'] = dict()
     if r:
         report_kraken2_speciation_guid = r[0]
-        report_kraken2_speciation_filepath = f"{ reports_directory }/{report_kraken2_speciation_guid}.json"
+        report_kraken2_speciation_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_kraken2_speciation_guid)}/{report_kraken2_speciation_guid}.json"
         logging.warning(report_kraken2_speciation_filepath)
 
         with open(report_kraken2_speciation_filepath) as f:
@@ -142,7 +147,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     report_data['pick_reference'] = dict()
     if r:
         report_pick_reference_guid = r[0]
-        report_pick_reference_filepath = f"{ reports_directory }/{report_pick_reference_guid}.json"
+        report_pick_reference_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_pick_reference_guid)}/{report_pick_reference_guid}.json"
         logging.warning(report_pick_reference_filepath)
 
         with open(report_pick_reference_filepath) as f:
@@ -159,7 +164,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     report_data['samtools_qc'] = dict()
     if r:
         report_samtools_qc_guid = r[0]
-        report_samtools_qc_filepath = f"{ reports_directory }/{report_samtools_qc_guid}.json"
+        report_samtools_qc_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_samtools_qc_guid)}/{report_samtools_qc_guid}.json"
         logging.warning(report_samtools_qc_filepath)
 
         with open(report_samtools_qc_filepath) as f:
@@ -176,7 +181,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     if r:
         report_data['nfnvm_nanostats_qc'] = dict()
         report_nfnvm_nanostats_qc_guid = r[0]
-        report_nfnvm_nanostats_qc_filepath = f"{ reports_directory }/{report_nfnvm_nanostats_qc_guid}.json"
+        report_nfnvm_nanostats_qc_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_nfnvm_nanostats_qc_guid)}/{report_nfnvm_nanostats_qc_guid}.json"
         logging.warning(report_nfnvm_nanostats_qc_filepath)
 
         with open(report_nfnvm_nanostats_qc_filepath) as f:
@@ -241,7 +246,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     if r:
         report_data['nfnvm_flureport'] = dict()
         report_nfnvm_flureport_guid = r[0]
-        report_nfnvm_flureport_filepath = f"{ reports_directory }/{report_nfnvm_flureport_guid}.json"
+        report_nfnvm_flureport_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_nfnvm_flureport_guid)}/{report_nfnvm_flureport_guid}.json"
         logging.warning(report_nfnvm_flureport_filepath)
 
         with open(report_nfnvm_flureport_filepath) as f:
@@ -259,7 +264,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     if r:
         report_data['nfnvm_viralreport'] = dict()
         report_nfnvm_viralreport_guid = r[0]
-        report_nfnvm_viralreport_filepath = f"{ reports_directory }/{report_nfnvm_viralreport_guid}.json"
+        report_nfnvm_viralreport_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_nfnvm_viralreport_guid)}/{report_nfnvm_viralreport_guid}.json"
         logging.warning(report_nfnvm_viralreport_filepath)
 
         with open(report_nfnvm_viralreport_filepath) as f:
@@ -287,7 +292,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
 
             if r:
                 report_nfnvm_resistance_guid = r[0]
-                report_nfnvm_resistance_downloadpath = f"{ reports_directory }/{ report_nfnvm_resistance_guid }"
+                report_nfnvm_resistance_downloadpath = f"{ reports_directory }/{make_report_dir_postfix(report_nfnvm_resistance_guid)}/{ report_nfnvm_resistance_guid }"
                 logging.warning(report_nfnvm_resistance_downloadpath)
                 sample_ref_files['name'] = sample_resistance_name
                 sample_ref_files['path'] = report_nfnvm_resistance_downloadpath
