@@ -1,7 +1,7 @@
 #! /bin/bash
 
 ###### catcloud
-cd ../catcloud/
+cd /home/ubuntu/sp3/catcloud/
 cp config.yaml-example config.yaml
 
 # find out the OCIDs of the compartment and the subnet
@@ -14,32 +14,29 @@ sed -i 's/ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzul
 
 ###### catweb
 
-SUBDOMAIN=`cat ~/deployment_id`
-cd ../catweb/
+SUBDOMAIN=$(jq -r .deployment_id /home/ubuntu/stack_info.json)
+cd /home/ubuntu/sp3/catweb/
 sed -i 's/192.168.9.9/10.0.1.2/g' config.yaml
 sed -i 's/cats./'$SUBDOMAIN'/g' config.yaml
 
-
 ###### catdap
-cd ../catdap/
+cd /home/ubuntu/sp3/catdap/
 cp config.yaml-oracle config.yaml
 
-
 ###### catpile
-cd ../catpile
+cd /home/ubuntu/sp3/catpile/
 cp config.yaml-example config.yaml
 
 ###### cattag
-cd ../cattag
+cd /home/ubuntu/sp3/cattag/
 sed -i 's/10.218.117.11/10.0.1.2/g' config.yaml
 
-
 ###### download
-cd ../download-api/
+cd /home/ubuntu/sp3/download-api/
 sed -i 's/cats./'$SUBDOMAIN.'/g' config.yaml
 
 ###### fetch
-cd ../fetch-api/
+cd /home/ubuntu/sp3/fetch-api/
 cp config.yaml-example config.yaml
 
 ###### Start cats services
