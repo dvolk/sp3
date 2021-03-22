@@ -42,5 +42,15 @@ sed -i 's/cats./'$SUBDOMAIN.'/g' config.yaml
 cd ../fetch-api/
 cp config.yaml-example config.yaml
 
+###### Start cats services
+systemctl --user start catdap
+systemctl --user start catdownload
+systemctl --user start catfetch
+systemctl --user start catgrid
+systemctl --user start catstat
+systemctl --user start cattag
+systemctl --user start catpile
+systemctl --user start catwebapi
+systemctl --user start catwebui
 
 
