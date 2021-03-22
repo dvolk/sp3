@@ -1,4 +1,4 @@
-! /bin/bash
+#! /bin/bash
 
 set -e
 set -x
@@ -46,14 +46,14 @@ cd /home/ubuntu/sp3/fetch-api/
 cp fetch_api.yaml-example fetch_api.yaml
 
 ###### Start cats services
-systemctl --user start catdap
-systemctl --user start catdownload
-systemctl --user start catfetch
-systemctl --user start catgrid
-systemctl --user start catstat
-systemctl --user start cattag
-systemctl --user start catpile
-systemctl --user start catwebapi
-systemctl --user start catwebui
+systemctl --user restart catdap
+systemctl --user restart catdownload
+systemctl --user restart catfetch
+systemctl --user restart catgrid
+systemctl --user restart catstat
+systemctl --user restart cattag
+systemctl --user restart catpile
+systemctl --user restart catwebapi
+systemctl --user restart catwebui
 
 
