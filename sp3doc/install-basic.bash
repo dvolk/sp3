@@ -115,6 +115,6 @@ sudo cp $SP3PREFIX/sp3doc/nginx/sp3 /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/sp3 /etc/nginx/sites-enabled/sp3
 sudo rm /etc/nginx/sites-enabled/default
 
-mkdir -p ~/.config/systemd/user
-cp $SP3PREFIX/sp3doc/systemd/*.service ~/.config/systemd/user
+mkdir -p /home/ubuntu/.config/systemd/user
+cp $SP3PREFIX/sp3doc/systemd/*.service /home/ubuntu/.config/systemd/user
 systemctl --user daemon-reload

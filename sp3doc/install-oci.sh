@@ -1,4 +1,7 @@
-#! /bin/bash
+! /bin/bash
+
+set -e
+set -x
 
 ###### catcloud
 cd /home/ubuntu/sp3/catcloud/
@@ -16,6 +19,7 @@ sed -i 's/ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzul
 
 SUBDOMAIN=$(jq -r .deployment_id /home/ubuntu/stack_info.json)
 cd /home/ubuntu/sp3/catweb/
+cp config.yaml-example config.yaml
 sed -i 's/192.168.9.9/10.0.1.2/g' config.yaml
 sed -i 's/cats./'$SUBDOMAIN'/g' config.yaml
 
@@ -29,15 +33,17 @@ cp config.yaml-example config.yaml
 
 ###### cattag
 cd /home/ubuntu/sp3/cattag/
+cp config.yaml-example config.yaml
 sed -i 's/10.218.117.11/10.0.1.2/g' config.yaml
 
 ###### download
 cd /home/ubuntu/sp3/download-api/
+cp config.yaml-example config.yaml
 sed -i 's/cats./'$SUBDOMAIN.'/g' config.yaml
 
 ###### fetch
 cd /home/ubuntu/sp3/fetch-api/
-cp config.yaml-example config.yaml
+cp fetch_api.yaml-example fetch_api.yaml
 
 ###### Start cats services
 systemctl --user start catdap
