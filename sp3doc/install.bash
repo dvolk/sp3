@@ -10,7 +10,7 @@ if [ "$(cat /etc/issue | head -c 12)" != "Ubuntu 18.04" ]; then
     exit 1
 fi
 
-cd ..
+cd /home/ubuntu/sp3/
 
 SP3PREFIX=$(pwd)
 USERNAME=$(whoami)
