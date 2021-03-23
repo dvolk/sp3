@@ -70,7 +70,7 @@ git clone https://github.com/oxfordmmm/catsgo
 cd catsgo
 cp config.json-covid config.json
 sed -i 's/test_user/admin/g' config.json
-ADMIN_PWD=$(oci secrets secret-bundle get --raw-output --auth instance_principal --secret-id ocid1.vaultsecret.oc1.uk-london-1.amaaaaaahe4ejdiandythftui7kosof3uwo47apelclopz6aj7hj4rxx47na --query "data.\"secret-bundle-content\".content" | base64 --decode)
+ADMIN_PWD=$(/home/ubuntu/bin/oci secrets secret-bundle get --raw-output --auth instance_principal --secret-id ocid1.vaultsecret.oc1.uk-london-1.amaaaaaahe4ejdiandythftui7kosof3uwo47apelclopz6aj7hj4rxx47na --query "data.\"secret-bundle-content\".content" | base64 --decode)
 sed -i 's/test_password/'$ADMIN_PWD'/g' config.json
 SP3_URL=$(jq -r '.sp3_url' /home/ubuntu/stack_info.json)
 sed -i 's#sp3_covid_site#'$SP3_URL'#g' config.json
