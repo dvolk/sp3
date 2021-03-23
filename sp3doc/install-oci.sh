@@ -23,6 +23,14 @@ cp config.yaml-example config.yaml
 sed -i 's/192.168.9.9/10.0.1.2/g' config.yaml
 sed -i 's/cats./'$SUBDOMAIN'/g' config.yaml
 
+# configure covid pipeline
+cd /home/ubuntu/sp3/catweb/config.yaml.d
+mkdir oxforduni
+cd oxforduni
+ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-illumina.yaml
+cd /data/pipelines/
+sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
+
 ###### catdap
 cd /home/ubuntu/sp3/catdap/
 cp config.yaml-oracle config.yaml
@@ -56,4 +64,17 @@ systemctl --user restart catpile
 systemctl --user restart catwebapi
 systemctl --user restart catwebui
 
+###### catsgo
+cd /home/ubuntu
+git clone https://github.com/oxfordmmm/catsgo
+cd catsgo
+cp config.json-covid config.json
+sed -i 's/test_user/admin/g' config.json
+ADMIN_PWD=$(oci secrets secret-bundle get --raw-output --auth instance_principal --secret-id ocid1.vaultsecret.oc1.uk-london-1.amaaaaaahe4ejdiandythftui7kosof3uwo47apelclopz6aj7hj4rxx47na --query "data.\"secret-bundle-content\".content" | base64 --decode)
+sed -i 's/test_password/'$ADMIN_PWD'/g' config.json
+SP3_URL=$(jq -r '.sp3_url' /home/ubuntu/stack_info.json)
+sed -i 's/sp3_covid_site/'$SP3_URL'/g' config.json
 
+source /home/ubuntu/env/bin/activate
+pip3 install -r requirements
+python3 catsgo.py run-covid-illumina 'oxforduni-ncov2019-artic-nf-illumina' /data/inputs/uploads/oxforduni/210204_M01746_0015_000000000-JHB5M
