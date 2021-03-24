@@ -112,9 +112,11 @@ cp $SP3PREFIX/cattag/config.yaml-example $SP3PREFIX/cattag/config.yaml
 #
 # copy sp3 nginx config to ...
 #
-sudo cp $SP3PREFIX/sp3doc/nginx/sp3 /etc/nginx/sites-available/
+sudo cp $SP3PREFIX/sp3doc/oracle-deploy/nginx/sp3 /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/sp3 /etc/nginx/sites-enabled/sp3
 sudo rm /etc/nginx/sites-enabled/default
+
+sudo systemctl restart nginx
 
 mkdir -p /home/ubuntu/.config/systemd/user
 cp $SP3PREFIX/sp3doc/systemd/*.service /home/ubuntu/.config/systemd/user
