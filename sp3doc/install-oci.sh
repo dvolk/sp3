@@ -2,11 +2,11 @@
 
 set -x
 
-sudo -s
-echo '/work 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' > /etc/exports
-echo '/data 10.0.1.2/255.255.255.0(ro,async,root_squash,crossmnt)' > /etc/exports
-systemctl restart nfs-server
-exit
+
+echo '/work 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' | sudo tee -a /etc/exports
+echo '/data 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' | sudo tee -a /etc/exports
+sudo systemctl restart nfs-server
+
 
 ###### catcloud
 cd /home/ubuntu/sp3/catcloud/
@@ -84,4 +84,4 @@ sed -i 's#sp3_covid_site#'$SP3_URL'#g' config.json
 
 source /home/ubuntu/env/bin/activate
 pip3 install -r requirements.txt
-python3 catsgo.py run-covid-illumina 'oxforduni-ncov2019-artic-nf-illumina' /data/inputs/uploads/oxforduni/210204_M01746_0015_000000000-JHB5M
+python3 catsgo.py run-covid-illumina "oxforduni-ncov2019-artic-nf-illumina" "/data/inputs/uploads/oxforduni/210204_M01746_0015_000000000-JHB5M"
