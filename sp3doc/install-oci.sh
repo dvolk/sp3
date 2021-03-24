@@ -76,5 +76,5 @@ SP3_URL=$(jq -r '.sp3_url' /home/ubuntu/stack_info.json)
 sed -i 's#sp3_covid_site#'$SP3_URL'#g' config.json
 
 source /home/ubuntu/env/bin/activate
-pip3 install -r requirements
+pip3 install -r requirements.txt
 python3 catsgo.py run-covid-illumina 'oxforduni-ncov2019-artic-nf-illumina' /data/inputs/uploads/oxforduni/210204_M01746_0015_000000000-JHB5M
