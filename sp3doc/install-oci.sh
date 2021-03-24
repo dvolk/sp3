@@ -1,7 +1,12 @@
 #! /bin/bash
 
-set -e
 set -x
+
+sudo -s
+echo '/work 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' > /etc/exports
+echo '/data 10.0.1.2/255.255.255.0(ro,async,root_squash,crossmnt)' > /etc/exports
+systemctl restart nfs-server
+exit
 
 ###### catcloud
 cd /home/ubuntu/sp3/catcloud/
@@ -55,5 +60,4 @@ systemctl --user restart cattag
 systemctl --user restart catpile
 systemctl --user restart catwebapi
 systemctl --user restart catwebui
-
 

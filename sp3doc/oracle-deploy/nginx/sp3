@@ -1,0 +1,40 @@
+server {
+        return 301 https://$host$request_uri;
+
+        listen 80 default_server;
+        listen [::]:80 default_server;
+}
+
+server {
+        listen 443 ssl;
+        server_name *.oci.sp3dev.ml;
+
+        ssl_certificate /etc/letsencrypt/live/oci.sp3dev.ml/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/oci.sp3dev.ml/privkey.pem;
+        include /etc/letsencrypt/options-ssl-nginx.conf;
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+        location / {
+                proxy_pass http://localhost:7000/;
+                proxy_set_header X-Real-IP $remote_addr;
+		#root /home/ubuntu/sp3/sp3doc/pages;
+                #index maintenance.html;
+
+        }
+
+	location /files {
+                alias /work/output;
+                auth_request /auth;
+                auth_request_set $auth_status $upstream_status;
+                autoindex on;
+                index index.html;
+        }
+
+        location = /auth {
+                internal;
+                proxy_pass http://127.0.0.1:7300;
+                proxy_pass_request_body off;
+                proxy_set_header Content-Length "";
+                proxy_set_header X-Original-URI $request_uri;
+        }
+}
