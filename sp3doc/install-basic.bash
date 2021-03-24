@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 
 #
 # Check if we're running the right OS

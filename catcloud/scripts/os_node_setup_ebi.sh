@@ -17,8 +17,8 @@ sleep 5
 echo 'bind path = /work' >> /etc/singularity/singularity.conf
 echo 'bind path = /data' >> /etc/singularity/singularity.conf
 
-echo '192.168.0.20:/data /data nfs defaults,noatime,ro 0 0' >> /etc/fstab
-echo '192.168.0.20:/work /work nfs defaults,noatime,rw 0 0' >> /etc/fstab
+echo '192.168.0.20:/data /data nfs defaults,noatime,nodiratime,ro 0 0' >> /etc/fstab
+echo '192.168.0.20:/work /work nfs defaults,noatime,nodiratime,rw 0 0' >> /etc/fstab
 
 mkdir /data && mkdir /work && chown ubuntu:ubuntu /data /work
 
