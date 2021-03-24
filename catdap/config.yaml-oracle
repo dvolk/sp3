@@ -5,7 +5,7 @@ organisations:
       - oxforduni-Clockwork_combined
       - oxforduni-ncov2019-artic-nf-illumina
       upload_dirs:
-      - /data/inputs/oxforduni
+      - /data/inputs/uploads/oxforduni
 users:
   admin:
     attributes:
@@ -20,4 +20,4 @@ users:
       job_title: ''
       name: admin
       referal: ''
-    password_hash: $2b$12$CU4QiiqXtn5054jUya2XvuoA6dAdM7Ha59pk7iSGLY5tOEwUodLmO
+    password_hash: $2b$12$k4Omlszk6aJupQdQUOqHB.9S1hbsBMtgej45foLXXU4pexdv7fXR6

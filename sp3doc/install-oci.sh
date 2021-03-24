@@ -1,7 +1,10 @@
 #! /bin/bash
 
+set -e
+set -x
+
 ###### catcloud
-cd ../catcloud/
+cd /home/ubuntu/sp3/catcloud/
 cp config.yaml-example config.yaml
 
 # find out the OCIDs of the compartment and the subnet
@@ -14,33 +17,64 @@ sed -i 's/ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzul
 
 ###### catweb
 
-SUBDOMAIN=`cat ~/deployment_id`
-cd ../catweb/
+SUBDOMAIN=$(jq -r .deployment_id /home/ubuntu/stack_info.json)
+cd /home/ubuntu/sp3/catweb/
+cp config.yaml-example config.yaml
 sed -i 's/192.168.9.9/10.0.1.2/g' config.yaml
 sed -i 's/cats./'$SUBDOMAIN'/g' config.yaml
 
+# configure covid pipeline
+cd /home/ubuntu/sp3/catweb/config.yaml.d
+mkdir oxforduni
+cd oxforduni
+ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-illumina.yaml
+cd /data/pipelines/
+sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
 
 ###### catdap
-cd ../catdap/
+cd /home/ubuntu/sp3/catdap/
 cp config.yaml-oracle config.yaml
 
-
 ###### catpile
-cd ../catpile
+cd /home/ubuntu/sp3/catpile/
 cp config.yaml-example config.yaml
 
 ###### cattag
-cd ../cattag
+cd /home/ubuntu/sp3/cattag/
+cp config.yaml-example config.yaml
 sed -i 's/10.218.117.11/10.0.1.2/g' config.yaml
 
-
 ###### download
-cd ../download-api/
+cd /home/ubuntu/sp3/download-api/
+cp config.yaml-example config.yaml
 sed -i 's/cats./'$SUBDOMAIN.'/g' config.yaml
 
 ###### fetch
-cd ../fetch-api/
-cp config.yaml-example config.yaml
+cd /home/ubuntu/sp3/fetch-api/
+cp fetch_api.yaml-example fetch_api.yaml
 
+###### Start cats services
+systemctl --user restart catdap
+systemctl --user restart catdownload
+systemctl --user restart catfetch
+systemctl --user restart catgrid
+systemctl --user restart catstat
+systemctl --user restart cattag
+systemctl --user restart catpile
+systemctl --user restart catwebapi
+systemctl --user restart catwebui
 
+###### catsgo
+cd /home/ubuntu
+git clone https://github.com/oxfordmmm/catsgo
+cd catsgo
+cp config.json-covid config.json
+sed -i 's/test_user/admin/g' config.json
+ADMIN_PWD=$(/home/ubuntu/bin/oci secrets secret-bundle get --raw-output --auth instance_principal --secret-id ocid1.vaultsecret.oc1.uk-london-1.amaaaaaahe4ejdiandythftui7kosof3uwo47apelclopz6aj7hj4rxx47na --query "data.\"secret-bundle-content\".content" | base64 --decode)
+sed -i 's/test_password/'$ADMIN_PWD'/g' config.json
+SP3_URL=$(jq -r '.sp3_url' /home/ubuntu/stack_info.json)
+sed -i 's#sp3_covid_site#'$SP3_URL'#g' config.json
 
+source /home/ubuntu/env/bin/activate
+pip3 install -r requirements.txt
+python3 catsgo.py run-covid-illumina 'oxforduni-ncov2019-artic-nf-illumina' /data/inputs/uploads/oxforduni/210204_M01746_0015_000000000-JHB5M

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 
 #
 # Check if we're running the right OS
@@ -10,7 +11,7 @@ if [ "$(cat /etc/issue | head -c 12)" != "Ubuntu 18.04" ]; then
     exit 1
 fi
 
-cd ..
+cd /home/ubuntu/sp3/
 
 SP3PREFIX=$(pwd)
 USERNAME=$(whoami)
@@ -115,6 +116,6 @@ sudo cp $SP3PREFIX/sp3doc/nginx/sp3 /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/sp3 /etc/nginx/sites-enabled/sp3
 sudo rm /etc/nginx/sites-enabled/default
 
-mkdir -p ~/.config/systemd/user
-cp $SP3PREFIX/sp3doc/systemd/*.service ~/.config/systemd/user
+mkdir -p /home/ubuntu/.config/systemd/user
+cp $SP3PREFIX/sp3doc/systemd/*.service /home/ubuntu/.config/systemd/user
 systemctl --user daemon-reload
