@@ -8,12 +8,6 @@ echo '/data 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' | sudo tee -a
 sudo systemctl restart nfs-server
 
 
-###### catcloud
-cd /home/ubuntu/sp3/catcloud/
-cp config.yaml-example config.yaml
-source /home/ubuntu/env/bin/activate
-python3 main.py --profile oracle2-test
-
 # find out the OCIDs of the compartment and the subnet
 COMP=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.compartmentId')
 SUBNET=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.metadata.subnet_id')
@@ -72,6 +66,16 @@ systemctl --user restart catwebapi
 systemctl --user restart catwebui
 
 sleep 60
+
+###### catcloud
+ssh-keygen -b 2048 -t rsa -f /home/ubuntu/.ssh/id_rsa -q -N ""
+
+cd /home/ubuntu/sp3/catcloud/
+cp config.yaml-example config.yaml
+source /home/ubuntu/env/bin/activate
+python3 main.py --profile oracle-test &
+
+sleep 5
 
 ###### catsgo
 cd /home/ubuntu
