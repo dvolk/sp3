@@ -8,14 +8,6 @@ echo '/data 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' | sudo tee -a
 sudo systemctl restart nfs-server
 
 
-# find out the OCIDs of the compartment and the subnet
-COMP=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.compartmentId')
-SUBNET=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.metadata.subnet_id')
-
-# replace them in the yaml
-sed -i 's/ocid1.compartment.oc1..aaaaaaaao4kpjckz2pjmlict2ssrnx45ims7ttvxghlluo2tcwv6pgfdlepq/'$COMP'/g' config.yaml
-sed -i 's/ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzulehwiutxraanpcgasloa/'$SUBNET'/g' config.yaml
-
 ###### catweb
 
 SUBDOMAIN=$(jq -r .deployment_id /home/ubuntu/stack_info.json)
@@ -71,6 +63,15 @@ sleep 60
 ssh-keygen -b 2048 -t rsa -f /home/ubuntu/.ssh/id_rsa -q -N ""
 
 cd /home/ubuntu/sp3/catcloud/
+
+# find out the OCIDs of the compartment and the subnet
+COMP=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.compartmentId')
+SUBNET=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.metadata.subnet_id')
+
+# replace them in the yaml
+sed -i 's/ocid1.compartment.oc1..aaaaaaaao4kpjckz2pjmlict2ssrnx45ims7ttvxghlluo2tcwv6pgfdlepq/'$COMP'/g' config.yaml
+sed -i 's/ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzulehwiutxraanpcgasloa/'$SUBNET'/g' config.yaml
+
 cp config.yaml-example config.yaml
 
 systemctl --user restart catcloud-oracle
