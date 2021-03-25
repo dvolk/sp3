@@ -121,3 +121,5 @@ sudo systemctl restart nginx
 mkdir -p /home/ubuntu/.config/systemd/user
 cp $SP3PREFIX/sp3doc/systemd/*.service /home/ubuntu/.config/systemd/user
 systemctl --user daemon-reload
+
+echo "TERM=xterm-256color" >> /home/ubuntu/.bashrc
