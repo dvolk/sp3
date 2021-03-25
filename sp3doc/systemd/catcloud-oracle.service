@@ -3,4 +3,6 @@ Description=SP3 catcloud service
 
 [Service]
 WorkingDirectory=/home/ubuntu/sp3/catcloud
+Environment=PATH=/home/ubuntu/bin:/home/ubuntu/bin:/home/ubuntu/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+Environment=OCI_CLI_AUTH=instance_principal
 ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catcloud/main.py --profile oracle-test
