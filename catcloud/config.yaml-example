@@ -87,7 +87,7 @@ profiles:
       setup_script: scripts/oracle_sandbox_node_setup.sh
     scheduler_params: {}
     scaler_params:
-      min_nodes: 2
+      min_nodes: 0
       max_nodes: 32
 
   - name: oracle2-test
@@ -104,6 +104,6 @@ profiles:
       setup_script: scripts/oracle_sandbox_node_setup.sh
     scheduler_params: {}
     scaler_params:
-      min_nodes: 2
+      min_nodes: 0
       max_nodes: 32
 
