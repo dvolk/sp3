@@ -12,6 +12,7 @@ import pathlib
 
 import flask
 import paramiko
+import waitress
 
 ### ssh utilities ###
 
@@ -272,7 +273,7 @@ def main():
 
     threading.Thread(target=scheduler).start()
 
-    app.run(port=6000)
+    waitress.serve(app, listen='127.0.0.1:6000')
 
 if __name__ == '__main__':
     main()

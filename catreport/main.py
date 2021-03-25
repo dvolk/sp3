@@ -11,6 +11,7 @@ import requests
 import flask
 from flask import request
 import yaml
+import waitress
 
 import resistance_help
 import getreportlib
@@ -209,7 +210,7 @@ def main():
 
     threading.Thread(target=report_thread_factory, args=(con, "run_distmatrix", make_within_run_distreport)).start()
 
-    app.run(port=10000)
+    waitress.serve(app, listen='127.0.0.1:10000')
 
 if __name__ == '__main__':
     main()

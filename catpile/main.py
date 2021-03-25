@@ -4,6 +4,7 @@ import csv
 
 import requests, yaml
 from flask import Flask, request
+import waitress
 
 config = yaml.load(open('config.yaml').read())
 
@@ -109,4 +110,5 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'link':
         link_data(sys.argv[2], sys.argv[3])
     else:
-        app.run(port=22000)
+        waitress.serve(app, listen='127.0.0.1:22000')
+

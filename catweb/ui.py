@@ -27,6 +27,7 @@ import flask_login
 from passlib.hash import bcrypt
 from werkzeug.utils import secure_filename
 from werkzeug.urls import url_parse
+import waitress
 
 import authenticate
 import nflib
@@ -1461,7 +1462,7 @@ def proxy_get_cluster_stats():
 
 
 def main():
-    app.run(port=7000)
+    waitress.serve(app, listen='127.0.0.1:7000')
 
 if __name__ == "__main__":
     main()

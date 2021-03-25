@@ -6,6 +6,7 @@ import time
 import yaml
 from flask import Flask, abort, request
 from passlib.hash import bcrypt
+import waitress
 
 # --- state ---
 
@@ -228,8 +229,7 @@ log.disabled = True
 
 def main():
     load_state()
-    #print(state)
-    app.run(port=13666, debug=False)
+    waitress.serve(app, listen='127.0.0.1:13666')
 
 if __name__ == "__main__":
     main()

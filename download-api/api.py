@@ -1,7 +1,9 @@
-from flask import Flask, request
-import json
 import pathlib
+import json
+
+from flask import Flask, request
 import yaml
+import waitress
 
 app = Flask(__name__)
 
@@ -50,4 +52,4 @@ def download(run_uuid, dl_file):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=7300)
+    waitress.serve(app, listen='0.0.0.0:7300')

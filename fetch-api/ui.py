@@ -7,6 +7,7 @@ from ftplib import FTP
 from io import StringIO
 import uuid
 import pathlib
+import waitress
 
 import requests
 import pandas
@@ -85,4 +86,4 @@ def log(guid):
     r = requests.get('http://127.0.0.1:5001/api/fetch/log/{0}'.format(guid))
     return "<pre>{0}</pre>".format(json.loads(r.text)['data']['app3'])
 
-app.run(host='127.0.0.1', port=5002, debug=False)
+waitress.serve(app, listen="127.0.0.1:5002")

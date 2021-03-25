@@ -12,6 +12,7 @@ import flask
 from flask import request
 import yaml
 import functools
+import waitress
 
 import resistance_help
 import getreportlib
@@ -78,7 +79,7 @@ def get_report(pipeline_run_uuid, sample_name):
     return json.dumps(getreportlib.get_report(None, con, sql_lock, pipeline_run_uuid, sample_name))
 
 def main():
-    app.run(port=10001)
+    waitress.serve(app, listen='127.0.0.1:10001')
 
 if __name__ == '__main__':
     main()

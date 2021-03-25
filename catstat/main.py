@@ -13,6 +13,7 @@ from matplotlib.backends.backend_svg import FigureCanvasSVG as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 import matplotlib.dates
+import waitress
 
 con = sqlite3.connect('/db/catstat.sqlite', check_same_thread=False)
 con.execute("create table if not exists catgrid_stats (time, nodes, cores, mem, free_mem, running, queued, free_disk_root, free_disk_data, free_disk_work)")
@@ -119,7 +120,7 @@ def draw():
 
 def main():
     threading.Thread(target=stat_collector).start()
-    app.run(port=8000)
+    waitress.serve(app, listen='127.0.0.1:8000')
 
 if __name__ == '__main__':
     main()

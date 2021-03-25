@@ -19,6 +19,7 @@ import datetime
 
 import requests
 from flask import Flask, abort, request
+import waitress
 
 import util
 import sqlitequeue
@@ -200,7 +201,7 @@ def main():
     ena2.api.ena2_api_start()
     local1.api.local1_api_start()
 
-    app.run(host='127.0.0.1', port=7200, debug=False)
+    waitress.serve(app, listen="127.0.0.1:7200")
 
 if __name__ == '__main__':
     main()

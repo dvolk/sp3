@@ -13,6 +13,7 @@ import time
 
 from flask import Flask, url_for, jsonify, request, abort
 import requests
+import waitress
 
 import nflib
 import config
@@ -459,4 +460,4 @@ def get_dagdot(flow_name, run_uuid):
     return make_api_response('success', data={'log': content})
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=7100)
+    waitress.serve(app, listen='127.0.0.1:7100')

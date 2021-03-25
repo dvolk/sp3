@@ -3,6 +3,7 @@ import json
 import yaml
 
 from flask import Flask, request
+import waitress
 
 with open('config.yaml') as f:
     config = yaml.load(f.read())
@@ -57,4 +58,4 @@ def get_sample_tags(run_uuid, sample_name):
                              data = data)
 
 if __name__ == '__main__':
-    app.run(config["bind_host"], port=12000)
+    waitress.serve(app, listen=f"{ config['bind_host'] }:12000")
