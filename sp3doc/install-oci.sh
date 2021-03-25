@@ -72,8 +72,8 @@ ssh-keygen -b 2048 -t rsa -f /home/ubuntu/.ssh/id_rsa -q -N ""
 
 cd /home/ubuntu/sp3/catcloud/
 cp config.yaml-example config.yaml
-source /home/ubuntu/env/bin/activate
-python3 main.py --profile oracle-test &
+
+systemctl --user restart catcloud-oracle
 
 sleep 5
 
