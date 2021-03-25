@@ -11,6 +11,8 @@ sudo systemctl restart nfs-server
 ###### catcloud
 cd /home/ubuntu/sp3/catcloud/
 cp config.yaml-example config.yaml
+source /home/ubuntu/env/bin/activate
+python3 main.py --profile oracle2-test
 
 # find out the OCIDs of the compartment and the subnet
 COMP=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.compartmentId')
@@ -30,8 +32,8 @@ sed -i 's/cats./'$SUBDOMAIN'/g' config.yaml
 
 # configure covid pipeline
 cd /home/ubuntu/sp3/catweb/config.yaml.d
-mkdir oxforduni
-cd oxforduni
+mkdir -p orgs/oxforduni
+cd orgs/oxforduni
 ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-illumina.yaml
 cd /data/pipelines/
 sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
