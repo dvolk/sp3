@@ -68,11 +68,11 @@ cd /home/ubuntu/sp3/catcloud/
 COMP=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.compartmentId')
 SUBNET=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.metadata.subnet_id')
 
+cp config.yaml-example config.yaml
+
 # replace them in the yaml
 sed -i 's/ocid1.compartment.oc1..aaaaaaaao4kpjckz2pjmlict2ssrnx45ims7ttvxghlluo2tcwv6pgfdlepq/'$COMP'/g' config.yaml
 sed -i 's/ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzulehwiutxraanpcgasloa/'$SUBNET'/g' config.yaml
-
-cp config.yaml-example config.yaml
 
 systemctl --user restart catcloud-oracle
 
