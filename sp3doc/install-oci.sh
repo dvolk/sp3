@@ -66,6 +66,7 @@ sleep 60
 ###### catcloud
 ssh-keygen -b 2048 -t rsa -f /home/ubuntu/.ssh/id_rsa -q -N ""
 
+source /home/ubuntu/env/bin/activate
 python3 /home/ubuntu/sp3/sp3doc/oracle-deploy/configure_catcloud.py /home/ubuntu/stack_info.json /home/ubuntu/sp3/catcloud/config.yaml-example > /home/ubuntu/sp3/catcloud/config.yaml
 
 systemctl --user restart catcloud-oracle
