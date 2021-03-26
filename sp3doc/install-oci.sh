@@ -47,6 +47,10 @@ cd /home/ubuntu/sp3/fetch-api/
 cp fetch_api.yaml-example fetch_api.yaml
 
 ###### Start cats services
+
+# don't kill services when last session quits
+loginctl enable-linger ubuntu
+
 systemctl --user restart catdap
 systemctl --user restart catdownload
 systemctl --user restart catfetch
