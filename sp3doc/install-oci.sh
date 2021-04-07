@@ -2,23 +2,11 @@
 
 set -x
 
-sudo -s
-echo '/work 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' > /etc/exports
-echo '/data 10.0.1.2/255.255.255.0(ro,async,root_squash,crossmnt)' > /etc/exports
-systemctl restart nfs-server
-exit
 
-###### catcloud
-cd /home/ubuntu/sp3/catcloud/
-cp config.yaml-example config.yaml
+echo '/work 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' | sudo tee -a /etc/exports
+echo '/data 10.0.1.2/255.255.255.0(rw,async,root_squash,crossmnt)' | sudo tee -a /etc/exports
+sudo systemctl restart nfs-server
 
-# find out the OCIDs of the compartment and the subnet
-COMP=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.compartmentId')
-SUBNET=$(curl -s http://169.254.169.254/opc/v1/instance/ | jq '.metadata.subnet_id')
-
-# replace them in the yaml
-sed -i 's/ocid1.compartment.oc1..aaaaaaaao4kpjckz2pjmlict2ssrnx45ims7ttvxghlluo2tcwv6pgfdlepq/'$COMP'/g' config.yaml
-sed -i 's/ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzulehwiutxraanpcgasloa/'$SUBNET'/g' config.yaml
 
 ###### catweb
 
@@ -30,8 +18,8 @@ sed -i 's/cats./'$SUBDOMAIN'/g' config.yaml
 
 # configure covid pipeline
 cd /home/ubuntu/sp3/catweb/config.yaml.d
-mkdir oxforduni
-cd oxforduni
+mkdir -p orgs/oxforduni
+cd orgs/oxforduni
 ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-illumina.yaml
 cd /data/pipelines/
 sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
@@ -59,6 +47,10 @@ cd /home/ubuntu/sp3/fetch-api/
 cp fetch_api.yaml-example fetch_api.yaml
 
 ###### Start cats services
+
+# don't kill services when last session quits
+loginctl enable-linger ubuntu
+
 systemctl --user restart catdap
 systemctl --user restart catdownload
 systemctl --user restart catfetch
@@ -70,6 +62,17 @@ systemctl --user restart catwebapi
 systemctl --user restart catwebui
 
 sleep 60
+
+###### catcloud
+ssh-keygen -b 2048 -t rsa -f /home/ubuntu/.ssh/id_rsa -q -N ""
+
+source /home/ubuntu/env/bin/activate
+pip3 install argh
+python3 /home/ubuntu/sp3/sp3doc/oracle-deploy/configure_catcloud.py /home/ubuntu/stack_info.json /home/ubuntu/sp3/catcloud/config.yaml-example > /home/ubuntu/sp3/catcloud/config.yaml
+
+systemctl --user restart catcloud-oracle
+
+sleep 5
 
 ###### catsgo
 cd /home/ubuntu
@@ -84,4 +87,4 @@ sed -i 's#sp3_covid_site#'$SP3_URL'#g' config.json
 
 source /home/ubuntu/env/bin/activate
 pip3 install -r requirements.txt
-python3 catsgo.py run-covid-illumina 'oxforduni-ncov2019-artic-nf-illumina' /data/inputs/uploads/oxforduni/210204_M01746_0015_000000000-JHB5M
+#python3 catsgo.py run-covid-illumina "oxforduni-ncov2019-artic-nf-illumina" "/data/inputs/uploads/oxforduni/210204_M01746_0015_000000000-JHB5M"

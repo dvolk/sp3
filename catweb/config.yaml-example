@@ -18,6 +18,7 @@ cattag_api: { host: '192.168.9.9', port: '12000' }
 report_api: { host: '127.0.0.1', port: '10000' }
 catpile_api: { host: '127.0.0.1', port: '22000' }
 catdap_api: { host: '127.0.0.1', port: '13666' }
+catstat_api: { host: '127.0.0.1', port: '8000' }
 
 cluster_view:
   disk_filter: "home|sda|sdb|sdc|sdd"
