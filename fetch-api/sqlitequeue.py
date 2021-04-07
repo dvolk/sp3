@@ -9,6 +9,7 @@ import sqlite3
 import threading
 import time
 import sqlite3
+from datetime import datetime
 
 class SqliteQueue:
     def __init__(self, sqlite3_target):
@@ -92,12 +93,15 @@ class SqliteQueue:
 
         for debugging only
         '''
+        seven_days = 604800.0
+        seven_days_ago = datetime.today().timestamp() - seven_days
+
         ret = dict()
         with self.con:
             if guid:
                 elems = self.con.execute('select * from q where guid = ? and status <> "deleted" order by started asc', (guid,)).fetchall()
             else:
-                elems = self.con.execute('select * from blah').fetchall()
+                elems = self.con.execute('select * from blah where started >= ?', (seven_days_ago,)).fetchall()
 
             for guid, status, name, data, progress, total, started, finished, kind in elems:
                 ret[guid] = { 'status': status, 'name': name, 'data': data,
