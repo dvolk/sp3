@@ -20,6 +20,7 @@
 <p>{{ source['description'] }}</p>
 <hr/>
 
+
 <form action="/fetch_new" method="post">
   <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
  
@@ -54,7 +55,7 @@
     </select>
   </div>
   {% endif %} {# if source['fetch_methods'] #}
-
+  <p>For fetch from <b>S3 buckets (catsup upload)</b>, please choose <b>copy</b> as fetch method</p>
   <br/>
 
   <div class="input-group ">

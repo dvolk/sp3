@@ -3,6 +3,8 @@
 <h4>Datasets</h4>
 <a href="/fetch_data"><button type="button" class="btn btn-primary">New Fetch</button></a>
 <a href="/drop_upload"><button type="button" class="btn btn-info">Upload Datasets</button></a>
+<br/>
+<p><b>Note</b>: Only dataset fetched in the <b>last 7 days</b> are available for run.</p>
 <table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top: 10px">
   <thead>
     <tr>
