@@ -35,6 +35,7 @@ sudo chmod a+x /usr/bin/nextflow
 #
 pip3 install psutil
 pip3 install cerberus
+pip3 install argh
 
 #
 # python virtualenv
@@ -48,6 +49,7 @@ cd sp3
 # sp3 packages
 #
 pip3 install -r requirements.txt
+pip3 install waitress
 
 #
 # copy slurm emu files to /usr/bin
