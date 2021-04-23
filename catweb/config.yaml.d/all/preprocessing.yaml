@@ -1,0 +1,54 @@
+name: "Mycobacterial_preprocessing"
+display_name: "Mycobacterial preprocessing pipeline"
+script: "main.nf"
+show: yes
+root_dir: "preprocessing/"
+prog_dir: "preprocessing/"
+output_dir: "output/"
+version: "0.1"
+description: "Clean, classify, remove non-bacterial content"
+contexts:
+  - name: local
+    arguments: "-process.executor slurm -profile sp3"
+param:
+  minargs: 5
+  description:
+    - name: 'kraken_db'
+      arg: "--kraken_db"
+      type: switch
+      desc: "Kraken 2 database"
+      globs:
+        - /data/databases/clockworkcloud/kraken2/*
+    - name: 'input_filetype'
+      type: switch
+      desc: 'Input file type'
+      arg: '--filetype'
+      options: { 'Gzipped fastq': 'fastq',  'BAM': 'bam' }
+    - name: 'indir'
+      arg: '--input_dir'
+      type: input-reqr
+      desc: "Input directory"
+    - name: 'readpat'
+      arg: '--pattern'
+      type: input-reqr
+      desc: "Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz)"
+    - name: 'bowtie2_index_name'
+      arg: '--bowtie2_index_name'
+      type: switch
+      desc: "Bowtie2 index name"
+      options: {'hg19_1kgmaj': 'hg19_1kgmaj'}
+    - name: 'bowtie2_index'
+      arg: '--bowtie2_index'
+      type: switch
+      desc: "Bowtie2 index"
+      options: {'hg19_1kgmaj': '/data/databases/preprocessing/indexes/bowtie2'}
+    - name: 'unmix_myco'
+      arg: '--unmix_myco'
+      type: switch
+      desc: "Disambiguate mixed-mycobactierial by read alignment"
+      options: {'yes': 'yes', 'no':'no'}
+    
+output:
+      parameter: "--output_dir"
+refmap: no
+
