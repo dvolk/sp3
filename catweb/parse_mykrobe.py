@@ -7,13 +7,19 @@ import argparse
 from collections import defaultdict
 
 def report_species(mykrobe_data):
-    data = mykrobe_data['tb_sample_id']['phylogenetics']
     result = defaultdict(dict)
+
+    susceptibility = mykrobe_data['tb_sample_id']['susceptibility']
+    result['susceptibility'] = susceptibility
+
+    data = mykrobe_data['tb_sample_id']['phylogenetics']
+
     result['mykrobe-predictor_version'] = mykrobe_data['tb_sample_id']['version']['mykrobe-predictor']
     result['mykrobe-atlas_version'] = mykrobe_data['tb_sample_id']['version']['mykrobe-atlas']
     result['phylo_group'] = data['phylo_group']
     result['sub_complex'] = data['sub_complex']
     result['species'] = data['species']
+
     try:
         lineages = data['lineage']['lineage']
         result['lineages'] = lineages
