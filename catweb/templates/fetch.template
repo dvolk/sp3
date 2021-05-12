@@ -1,9 +1,11 @@
 {% extends "base1.template" %}
 {% block content %}
-<h4>Datasets</h4>
-<a href="/fetch_data"><button type="button" class="btn btn-primary">New Fetch</button></a>
-<a href="/drop_upload"><button type="button" class="btn btn-info">Upload Datasets</button></a>
-<br/>
+  <h4>Datasets</h4>
+  {% if not is_readonly_user %}
+    <a href="/fetch_data"><button type="button" class="btn btn-primary">New Fetch</button></a>
+    <a href="/drop_upload"><button type="button" class="btn btn-info">Upload Datasets</button></a>
+  {% endif %}
+  <br/>
 <p><b>Note</b>: Only dataset fetched in the <b>last 7 days</b> are available for run.</p>
 <table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top: 10px">
   <thead>
@@ -14,27 +16,41 @@
       <th scope="col"><a href="#">Progress</a></th>
       <th scope="col"><a href="#">Status</a></th>
       <th scope="col" class='text-right'>Action</a></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for k,v in fetches.items() %}
+</tr>
+</thead>
+<tbody>
+  {% for k,v in fetches.items() %}
     <tr>
       <td scope="row">{{ v['started']|lower }}</td>
       <td scope="row">{{ v['kind'] }}</td>
       <td scope="row">{{ v['name'] }}</td>
       <td scope="row">{{ v['progress'] }} / {{ v['total'] }}</td>
       <td scope="row">
-	    <span href="#" style="padding: 3px; background-color: {% if v['status'] == "failure" %}#FF6347{% else %}#F0F8FF{% endif %}">
-	    {{ v['status'] }}</span></td>
-      <td scope="row" class='text-right'>
-        <a class='text-primary' href="/select_flow/{{ k }}"><button type="button" class="btn-sm btn-primary">Run</button></a> /
-        <a class='text-info' href="/fetch_details/{{ k }}">Details</a> /
-        <a class='text-danger text-muted' href="/fetch_stop/{{ k }}">Stop</a> /
-        <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
-      </td>
+	<span href="#" style="padding: 3px; background-color: {% if v['status'] == "failure" %}#FF6347{% else %}#F0F8FF{% endif %}">
+	  {{ v['status'] }}</span></td>
+	  <td scope="row" class='text-right'>
+	    {% if v['status'] == 'queued' %}
+	      <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+            {% endif %}
+	    {% if v['status'] == 'running' %}
+	      <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
+	        {% if v['kind'] in ['ena1','ena2'] %}
+                  / <a class='text-danger text-muted' href="/fetch_stop/{{ k }}">Stop</a>
+		{% endif %}
+	    {% endif %}
+	    {% if v['status'] == 'success' %}
+              <a class='text-primary' href="/select_flow/{{ k }}"><button type="button" class="btn-sm btn-primary">Run</button></a>
+              / <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
+	      / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+            {% endif %}
+            {% if v['status'] == 'failure' %}
+	      <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
+	      / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+            {% endif %}
+	  </td>
     </tr>
-    {% endfor %}
-  </tbody>
+  {% endfor %}
+</tbody>
 </table>
 
 {% endblock content %}
