@@ -39,7 +39,6 @@ MarkupSafe==1.1.1
 matplotlib==3.0.3
 msgpack==0.6.1
 munch==2.3.2
-mysql==0.0.2
 mysqlclient==1.4.2.post1
 netaddr==0.7.19
 netifaces==0.10.9
