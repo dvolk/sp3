@@ -170,6 +170,12 @@ def is_admin():
     except:
         return False
 
+def is_readonly_user():
+    try:
+        return 'catweb_readonly_user' in users[flask_login.current_user.id]['attributes']
+    except:
+        return False
+
 @app.context_processor
 def inject_globals():
     return { 'catweb_version': cfg.get('catweb_version'),
@@ -644,7 +650,8 @@ def list_runs(flow_name : str):
     return render_template('list_runs.template',
                            stuff=cfg,
                            has_dagpng=has_dagpng,
-                           data=data)
+                           data=data,
+                           is_readonly_user=is_readonly_user())
 
 @app.route('/flow/<flow_name>/dagpng')
 @flask_login.login_required
@@ -833,7 +840,8 @@ def run_details(flow_name : str, run_uuid: int):
                            user_param_dict=user_param_dict,
                            task_count=task_count,
                            expected_tasks=expected_tasks,
-                           pipeline_no_report = pipeline_no_report)
+                           pipeline_no_report = pipeline_no_report,
+                           is_readonly_user=is_readonly_user())
 
 @app.route('/flow/<flow_name>/log/<run_uuid>')
 @flask_login.login_required
@@ -1120,7 +1128,7 @@ def fetch():
     # sort fetches by time
     fetches = dict(reversed(sorted(fetches.items(), key=lambda x: authenticate.is_public_fetch_source(x[1]['started']))))
 
-    return render_template('fetch.template', fetches=fetches, sources=sources)
+    return render_template('fetch.template', fetches=fetches, sources=sources, is_readonly_user=is_readonly_user())
 
 @app.route('/fetch_new', methods=['POST'])
 @flask_login.login_required
