@@ -28,6 +28,10 @@
 <p>
   To view the task command and output, click on the task name on the right section of the table below.
 </p>
+<div class="form-group form-inline">
+  <label for="promt"><strong>Filter samples by species: </strong> </label>
+  <input type="text" size="40"  class="form-control" id="search_sample" placeholder="e.g. tuberculosis, bovis, abscessus or failed"><span id="samplecount"> {{ trace_nice | length - 1}} samples</span>
+</div>
 
   {% if trace_nice %}
 
@@ -39,10 +43,10 @@
     {% set status_map = { 'COMPLETED': 'btn-info',
     'ABORTED': 'btn-warning',
     'FAILED': 'btn-danger' } %}
-    <table style="margin-top: 10px" class="table-striped table table-hover table-sm" style="border: none">
+    <table style="margin-top: 10px" class="table-striped table table-hover table-sm" style="border: none" id="list_table">
       <thead>
         <tr>
-          <th scope="col">Sample</th>
+          <th scope="col">Sample </th>
           <th scope="col">Process</th>
         </tr>
       </thead>

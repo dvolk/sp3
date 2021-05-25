@@ -138,3 +138,21 @@ $(document).on('click', '#reset_btn', function(e){
     tree.redrawOriginalTree();
     tree.setTextSize(30);
 });
+
+$('#search_sample').keyup(function () {
+    var searchStr = $(this).val();
+    searchStr = searchStr.toLowerCase();
+    var total = 0;
+    $("#list_table tr").each(function (index) {
+        if (!index) return;
+        var status = $(this).find("td").eq(0).text().toLowerCase();
+        if (status.indexOf(searchStr) !== -1 ) {
+            $(this).toggle(true);
+            total++;
+        }
+        else
+            $(this).toggle(false);
+    });
+    $("#samplecount").text(" " + total + " results");
+
+});
