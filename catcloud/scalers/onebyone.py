@@ -10,10 +10,15 @@ class OneByOneScaler:
         self.scheduler = scheduler
 
     def run(self):
+        last_nodes_len = 0
+        last_queue_len = 0
         while True:
             time.sleep(10)
             nodes_len, queue_len, idle_nodes = self.scheduler.get_info()
-            logging.warning(f'nodes: {nodes_len}, queue: {queue_len}')
+            if nodes_len != last_nodes_len or queue_len != last_queue_len:
+                logging.warning(f'nodes: {nodes_len}, queue: {queue_len}')
+                last_nodes_len = nodes_len
+                last_queue_len = queue_len
 
             if (queue_len > 0 and nodes_len < self.max_nodes) or nodes_len < self.min_nodes:
                 logging.warning("creating new node")
