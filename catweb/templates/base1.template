@@ -46,7 +46,7 @@
 		    <a class="nav-link" href="/fetch" style="font-size: 24px">Datasets</a>
 		  </li>
 		  <li class="nav-item" style="margin-right: 20px">
-		    <a class="nav-link" href="/flows" style="font-size: 24px">Pipelines</a>
+		    <a class="nav-link" href="/flows" style="font-size: 24px">Runs/Outputs</a>
 		  </li>
 		  <li class="nav-item" style="margin-right: 20px">
 		    <a class="nav-link" href="/list_trees" style="font-size: 24px">Trees</a>

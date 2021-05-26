@@ -26,28 +26,38 @@
       <td scope="row">{{ v['name'] }}</td>
       <td scope="row">{{ v['progress'] }} / {{ v['total'] }}</td>
       <td scope="row">
-	<span href="#" style="padding: 3px; background-color: {% if v['status'] == "failure" %}#FF6347{% else %}#F0F8FF{% endif %}">
-	  {{ v['status'] }}</span></td>
-	  <td scope="row" class='text-right'>
-	    {% if v['status'] == 'queued' %}
-	      <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
-            {% endif %}
-	    {% if v['status'] == 'running' %}
-	      <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
-	        {% if v['kind'] in ['ena1','ena2'] %}
-                  / <a class='text-danger text-muted' href="/fetch_stop/{{ k }}">Stop</a>
-		{% endif %}
+	<span href="#" style="padding: 3px; background-color: {% if v['status'] == "failure" %}#FF6347{% else %}#F0F8FF{% endif %}">{{ v['status'] }}</span>
+      </td>
+      <td scope="row" class='text-right'>
+	{% if v['status'] == 'queued' %}
+	  {% if not is_readonly_user %}
+	    <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+	  {% endif %}
+        {% endif %}
+	{% if v['status'] == 'running' %}
+	  <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
+	  {% if v['kind'] in ['ena1','ena2'] %}
+	    {% if not is_readonly_user %}
+              / <a class='text-danger text-muted' href="/fetch_stop/{{ k }}">Stop</a>
 	    {% endif %}
-	    {% if v['status'] == 'success' %}
-              <a class='text-primary' href="/select_flow/{{ k }}"><button type="button" class="btn-sm btn-primary">Run</button></a>
-              / <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
-	      / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
-            {% endif %}
-            {% if v['status'] == 'failure' %}
-	      <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
-	      / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
-            {% endif %}
-	  </td>
+	  {% endif %}
+	{% endif %}
+	{% if v['status'] == 'success' %}
+	  {% if not is_readonly_user %}
+	    <a class='text-primary' href="/select_flow/{{ k }}"><button type="button" class="btn-sm btn-primary">Run</button></a> /
+	  {% endif %}
+          <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
+	  {% if not is_readonly_user %}
+	    / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+	  {% endif %}
+        {% endif %}
+        {% if v['status'] == 'failure' %}
+	  <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
+	  {% if not is_readonly_user %}
+	    / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+	  {% endif %}
+        {% endif %}
+      </td>
     </tr>
   {% endfor %}
 </tbody>
