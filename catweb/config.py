@@ -106,4 +106,4 @@ class Config:
         self.config = yaml.load(config_str)
 
     def get(self, field: str):
-        return self.config[field]
+        return self.config.get(field)
