@@ -183,6 +183,8 @@ def inject_globals():
 
 @app.route('/register_sp3_user', methods=["GET", "POST"])
 def register_sp3_user():
+    if not cfg.get("allow_registration"):
+        abort(404)
     if request.method == "GET":
         return render_template('register.template')
     if request.method == "POST":
@@ -201,6 +203,8 @@ def register_sp3_user():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    allow_registration = cfg.get("allow_registration")
+
     if request.method == 'GET':
         msg = request.args.get('m')
 
@@ -212,7 +216,7 @@ def login():
         return render_template('login.template',
                                next=request.args.get('next'),
                                msgs=msgs,
-                               msg=msg)
+                               msg=msg, allow_registration=allow_registration)
     if request.method == 'POST':
         if not 'username' in request.form or not 'password' in request.form:
             logging.warning(f"form submitted without username or password")
