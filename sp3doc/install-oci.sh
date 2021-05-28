@@ -27,6 +27,9 @@ sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
 ###### catdap
 cd /home/ubuntu/sp3/catdap/
 cp config.yaml-oracle config.yaml
+source /home/ubuntu/env/bin/activate
+python3 convert.py
+deactivate
 
 ###### catpile
 cd /home/ubuntu/sp3/catpile/

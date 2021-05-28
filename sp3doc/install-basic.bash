@@ -21,7 +21,7 @@ USERNAME=$(whoami)
 #
 sudo apt update
 sudo apt install etckeeper -y
-sudo apt install build-essential python3-virtualenv python3-pip virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig sqlite3 elpa-magit iotop bmon sl -y
+sudo apt install build-essential python3-virtualenv python3-pip virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig sqlite3 elpa-magit iotop bmon sl mongodb-server -y
 
 #
 # nextflow
@@ -49,7 +49,7 @@ cd sp3
 # sp3 packages
 #
 pip3 install -r requirements.txt
-pip3 install waitress
+pip3 install waitress pymongo
 
 #
 # copy slurm emu files to /usr/bin

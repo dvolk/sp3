@@ -7,39 +7,34 @@ import yaml
 from flask import Flask, abort, request
 from passlib.hash import bcrypt
 import waitress
+import pymongo
 
-# --- state ---
+myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+mydb = myclient["catdap"]
+accounts_db = mydb["accounts"]
+organisations_db = mydb["organisations"]
+tokens_db = mydb["tokens"]
 
-state = dict()
-
-def load_state():
-    with open("config.yaml") as f:
-        global state
-        state = yaml.safe_load(f.read())
-
-def save_state():
-    with open("config.yaml", "w") as f:
-        global state
-        f.write(yaml.dump(state))
 
 # --- transient authentication tokens ---
 
 tokens = dict()
 
 def make_token(username):
-    new_token = str(uuid.uuid4())
-    tokens[new_token] = { 'added_epochtime': time.time(),
-                          'last_active_epochtime': time.time(),
-                          'username': username
-                         }
-    return new_token
+    new_token_id = str(uuid.uuid4())
+    tokens_db.insert({ 'token_id': new_token_id,
+                       'added_epochtime': time.time(),
+                       'last_active_epochtime': time.time(),
+                       'username': username })
+    return new_token_id
 
 def is_token_valid(token):
-    if token not in tokens:
+    token = tokens_db.find_one({ "token_id": token }, {'_id': False})
+    if not token:
         return False
 
-    token_added_age = time.time() - tokens[token]['added_epochtime']
-    token_last_active_age = time.time() - tokens[token]['last_active_epochtime']
+    token_added_age = time.time() - token['added_epochtime']
+    token_last_active_age = time.time() - token['last_active_epochtime']
 
     token_last_active_age_max = 24 * 3600 # 8h
     token_added_age_max = 5 * 24 * 3600  # 5d
@@ -49,23 +44,29 @@ def is_token_valid(token):
     if token_last_active_age < 0 or token_added_age < 0:
         return False
 
-    tokens[token]['last_active_epochtime'] = time.time()
-    #print(tokens)
+    tokens_db.update_one({ "token_id": token },
+                         { "$set": { "last_active_time": time.time() }})
     return True
 
 # --- attributes ---
 
 def get_attributes_from_token(token):
-    username = tokens[token]['username']
-    attributes = state['users'][username]['attributes']
-    return attributes
+    token = tokens_db.find_one({ "token_id": token }, {'_id': False})
+    if not token:
+        return None
+    username = token['username']
+    account = accounts_db.find_one({ "username": username }, {'_id': False})
+    return account["attributes"]
 
 # --- passwords ---
 
 def check_password(username, password):
-    if username not in state['users']:
+    account = accounts_db.find_one({ "username": username }, {'_id': False})
+    if not account:
         return "User not found"
-    if bcrypt.verify(password, state['users'][username]['password_hash']):
+    if "password_hash" not in account:
+        return "No password hash"
+    if bcrypt.verify(password, account['password_hash']):
         return "OK"
     else:
         return "Wrong password"
@@ -80,18 +81,24 @@ def root():
 
 @app.route('/get_users')
 def get_users():
-    return json.dumps(state['users'])
+    accounts = list(accounts_db.find({}, {'_id': False}))
+    ret = {}
+    for acc in accounts:
+        ret[acc["username"]] = acc
+    return json.dumps(ret)
 
 @app.route('/get_user')
 def get_user():
     username = request.args['username']
-    return json.dumps(state['users'][username])
+    account = accounts_db.find_one({ "username": username }, {'_id': False})
+    return json.dumps(account)
 
 @app.route('/edit_user')
 def edit_user():
     username = request.args['username']
-    state['users'][username] = json.loads(request.args['user_data'])
-    save_state()
+    user_data = json.loads(request.args['user_data'])
+    accounts_db.update_one({ "username": username },
+                           { "$set": user_data })
     return "OK"
 
 @app.route('/add_user')
@@ -106,7 +113,7 @@ def add_user():
     password = request.args['password']
     organisation = request.args['organisation']
 
-    if username in state['users']:
+    if accounts_db.find_one({ "username": username }, {'_id': False}):
         logging.info(f"add_user()! username {username} exists")
         return "Username exists"
 
@@ -116,29 +123,21 @@ def add_user():
 
     password_hash = bcrypt.hash(password)
 
-    state['users'][username] = {
-        'password_hash': password_hash,
-        'attributes': {
-            'catweb_user': True,
-            'catweb_organisation': organisation,
-            'date_added': str(int(time.time())),
-            'date_expires': None,
-            'requires_review': True,
-
-            'name': name,
-            'job_title': job_title,
-            'job_address': job_address,
-            'referal': referal,
-            'country': country,
-            'email': email } }
-
-    try:
-        save_state()
-        load_state()
-    except:
-        del state['users'][username]
-        abort(503)
-
+    accounts_db.insert_one(
+        { "username": username,
+          'password_hash': password_hash,
+          'attributes': {
+              'catweb_user': True,
+              'catweb_organisation': organisation,
+              'date_added': str(int(time.time())),
+              'date_expires': None,
+              'requires_review': True,
+              'name': name,
+              'job_title': job_title,
+              'job_address': job_address,
+              'referal': referal,
+              'country': country,
+              'email': email } })
     return "OK"
 
 @app.route('/check_user')
@@ -165,20 +164,20 @@ def check_user():
         return t
     return ""
 
-@app.route('/check_token/<token>')
-def check_token(token):
-    if is_token_valid(token):
-        attributes = get_attributes_from_token(token)
-        logging.info(f"check_token()! token={token},is_valid=true")
+@app.route('/check_token/<token_id>')
+def check_token(token_id):
+    if is_token_valid(token_id):
+        attributes = get_attributes_from_token(token_id)
+        logging.info(f"check_token()! token={token_id},is_valid=true")
         return json.dumps({ "attributes": attributes })
     else:
-        logging.info(f"check_token()! token={token},is_valid=false")
+        logging.info(f"check_token()! token={token_id},is_valid=false")
         return json.dumps({})
 
-@app.route('/change_password/<token>')
-def change_password(token):
-    logging.debug(f"change_password()! token={token}")
-    if not is_token_valid(token):
+@app.route('/change_password/<token_id>')
+def change_password(token_id):
+    logging.debug(f"change_password()! token={token_id}")
+    if not is_token_valid(token_id):
         abort(403)
 
     if 'new_password' not in request.args:
@@ -189,46 +188,40 @@ def change_password(token):
     if len(new_password) < 12:
         return "Password too short (minimum 12 characters)"
 
-    username = tokens[token]['username']
-    logging.debug(f"change_password()! token={token} username={username}")
+    token = tokens_db.find_one({ "token_id": token_id }, {'_id': False})
+    username = token['username']
+    logging.debug(f"change_password()! token={token_id} username={username}")
 
-    if username not in state['users']:
-        abort(503)
-    user = state['users'][username]
+    account = accounts_db.find_one({ "username": username }, {'_id': False})
+    if not account:
+        return "Account not found"
 
     new_pw_hash = bcrypt.hash(new_password)
-    user['password_hash'] = new_pw_hash
-
-    try:
-        save_state()
-    except:
-        abort(503)
+    accounts_db.update_one({ "username": username },
+                           { "$set": {
+                               "password_hash": new_pw_hash } })
 
     return "OK"
 
 @app.route('/get_organisation')
 def get_organisation():
-    ret = None
     group = request.args['group']
     org_name = request.args['organisation']
 
     logging.debug(f"get_organisation()! group={group} organisation={org_name}")
 
-    if org_name in state['organisations']:
-        ret = state['organisations'][org_name]
+    organisation = organisations_db.find_one({ "name": org_name }, {'_id': False})
+    logging.warning(organisation)
+    if not organisation:
+        return json.dumps({})
 
-    return json.dumps(ret)
+    return json.dumps(organisation)
 
 # --- main ---
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
 
-# don't log requests, as they contain passwords
-log = logging.getLogger('werkzeug')
-log.disabled = True
-
 def main():
-    load_state()
     waitress.serve(app, listen='127.0.0.1:13666')
 
 if __name__ == "__main__":
