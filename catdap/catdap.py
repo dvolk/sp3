@@ -23,8 +23,8 @@ tokens = dict()
 def make_token(username):
     new_token_id = str(uuid.uuid4())
     tokens_db.insert({ 'token_id': new_token_id,
-                       'added_epochtime': time.time(),
-                       'last_active_epochtime': time.time(),
+                       'added_epochtime': int(time.time()),
+                       'last_active_epochtime': int(time.time()),
                        'username': username })
     return new_token_id
 
@@ -45,7 +45,7 @@ def is_token_valid(token):
         return False
 
     tokens_db.update_one({ "token_id": token },
-                         { "$set": { "last_active_time": time.time() }})
+                         { "$set": { "last_active_time": int(time.time()) }})
     return True
 
 # --- attributes ---
