@@ -1305,6 +1305,8 @@ def get_report(run_uuid : str, dataset_id: str):
 
     import reportlib
     template_report_data = reportlib.process_reports(report_data, catpile_resp, cfg.get('download_url'))
+    template_report_data["run_uuid"] = run_uuid
+    template_report_data["dataset_id"] = dataset_id
 
     if request.args.get('api'):
         return json.dumps(template_report_data)
