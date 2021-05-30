@@ -13,9 +13,9 @@ brand_org = ""
 
 def first_page(canvas, doc):
     if brand_org == "phe":
-        canvas.drawImage("PublicHealthEngland.jpg", 7*mm, 277*mm, width=16*mm, height=1*cm)
+        canvas.drawImage("/home/ubuntu/sp3/catdoc/PublicHealthEngland.jpg", 7*mm, 277*mm, width=16*mm, height=1*cm)
     else:
-        canvas.drawImage("logo.png", 7*mm, 277*mm, width=2*cm, height=1*cm)
+        canvas.drawImage("/home/ubuntu/sp3/catdoc/logo.png", 7*mm, 277*mm, width=2*cm, height=1*cm)
 
     canvas.setFont('Helvetica', 20)
     canvas.drawString(30*mm, 280*mm, "Oxford SP3 Sample Analysis Report")
