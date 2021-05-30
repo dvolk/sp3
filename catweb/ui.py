@@ -22,7 +22,7 @@ import io
 
 import pandas
 import requests
-from flask import Flask, request, render_template, redirect, abort, url_for, g, make_response
+from flask import Flask, request, render_template, redirect, abort, url_for, g, make_response, send_file
 import flask_login
 from passlib.hash import bcrypt
 from werkzeug.utils import secure_filename
@@ -1295,6 +1295,27 @@ def fetch_details(guid):
                            input_dir=input_dir,
                            ena_table=ena_table,
                            sp3data=sp3data)
+
+@app.route('/flow/<run_uuid>/<dataset_id>/report_pdf')
+@flask_login.login_required
+def get_report_pdf(run_uuid, dataset_id):
+    resp = api_get_request('reportreader_api', f'/report/{run_uuid}/{dataset_id}')
+    catpile_resp = api_get_request('catpile_api', f'/get_sp3_data_for_run_sample/{run_uuid}/{dataset_id}')
+    report_data = resp['report_data'] # data in from catreport
+
+    import reportlib
+    template_report_data = reportlib.process_reports(report_data, catpile_resp, cfg.get('download_url'))
+    template_report_data["run_uuid"] = run_uuid
+    template_report_data["dataset_id"] = dataset_id
+
+    jf = f"/tmp/{run_uuid}_{dataset_id}_report.json"
+    rf = f"/tmp/{run_uuid}_{dataset_id}_report.pdf"
+    with open(jf, "w") as f:
+        f.write(json.dumps(template_report_data))
+    os.system(f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catdoc/catdoc.py {shlex.quote(jf)} {shlex.quote(rf)}")
+    return send_file(rf,
+                     as_attachment=True,
+                     mimetype="application/pdf")
 
 @app.route('/flow/<run_uuid>/<dataset_id>/report')
 @flask_login.login_required

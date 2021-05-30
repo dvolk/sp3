@@ -6,6 +6,8 @@
 
 <p>Sample name: <strong>{{ dataset_id  }}</strong></p>
 <p>Pipeline run uuid: <strong>{{ pipeline_run_uuid }}</strong></p>
+<p><a href="/flow/{{ pipeline_run_uuid }}/{{ dataset_id }}/report_pdf">Download PDF report</a></p>
+
 {% if 'pick_reference' in report and report['pick_reference']['data']['pick_taxid'] == "NC_000962.3" %}
 <p><a href="/cw_query?run_id={{ pipeline_run_uuid }}&sample_name={{ dataset_id }}&distance=12">Query genetic neighbourhood server (not avaiable until the next day of the run)</a></p>
 <p><a href="/list_trees?pipeline_run_uuid={{ pipeline_run_uuid }}&sample_name={{ dataset_id }}">List trees containing this sample (and run)</a></p>
