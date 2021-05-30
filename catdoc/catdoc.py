@@ -11,7 +11,7 @@ import PIL.Image
 styles = getSampleStyleSheet()
 
 def first_page(canvas, doc):
-    canvas.drawImage("kanboard.mmmoxford.uk.png", 7*mm, 277*mm, width=2*cm, height=1*cm)
+    canvas.drawImage("/home/ubuntu/sp3/catdoc/logo.png", 7*mm, 277*mm, width=2*cm, height=1*cm)
     canvas.drawString(30*mm, 280*mm, "Oxford SP3 Sample Analysis Report")
     add_page_number(canvas, doc)
 
@@ -51,7 +51,7 @@ def go(report_json_path, pdf_out_path):
         #print(data_)
         data_.insert(0, ["Field", "Value"])
         t = Table(data_, hAlign='LEFT')
-        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.black)] ))
+        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(t)
 
     if 'kraken2_speciation' in data:
@@ -67,7 +67,7 @@ def go(report_json_path, pdf_out_path):
                 tbldata.append([k1, v2["name"], v2["percentage"], v2["reads"]])
         tbldata.insert(0, ["Type", "Identified", "Coverage", "Reads"])
         t = Table(tbldata, hAlign='LEFT')
-        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.black)] ))
+        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(t)
 
     if 'mykrobe_speciation' in data:
@@ -85,7 +85,7 @@ def go(report_json_path, pdf_out_path):
             data_.append(["Sub-complex", k, v["percent_coverage"], v["median_depth"]])
         #print(data_)
         t = Table(data_, hAlign='LEFT')
-        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.black)] ))
+        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(t)
 
         elements.append(Paragraph("Lineages", styles["Heading3"]))
@@ -98,7 +98,7 @@ def go(report_json_path, pdf_out_path):
                     row = [k, k2, v2["percent_coverage"], v2["median_depth"], v2["min_non_zero_depth"], v2["kmer_count"], v2["klen"]]
                     data_.append(row)
                 t = Table(data_, hAlign='LEFT')
-                t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.black)] ))
+                t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
                 elements.append(Paragraph(k1, styles["Heading4"]))
                 elements.append(t)
 
@@ -111,7 +111,7 @@ def go(report_json_path, pdf_out_path):
         #print(data_)
         data_.insert(0, ["Field", "Value"])
         t = Table(data_, hAlign='LEFT')
-        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.black)] ))
+        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(t)
 
     if 'pick_reference' in data:
@@ -129,7 +129,7 @@ def go(report_json_path, pdf_out_path):
                  list(tbl["prediction_ex"].values())]
         #print(data_)
         t = Table(data_, hAlign='LEFT')
-        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.black)] ))
+        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(t)
         pred_drug_names = ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM']
         data_ = [["Gene mutation", "Change", "GT conf", "Drug", "Support"]]
@@ -144,26 +144,29 @@ def go(report_json_path, pdf_out_path):
                                            d['drug_name'],
                                            d['source'] ])
         t = Table(data_, hAlign='LEFT')
-        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.black)] ))
+        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(Paragraph("Mutations", styles["Heading3"]))
         elements.append(t)
 
-    if 'run_distmatrix' in data:
-        i += 1
-        s = list(data["run_distmatrix"]["data"]["samples"].values())[0]
-        elements.append(Paragraph(f"{i}. FASTA", styles["Heading2"]))
-        elements.append(Paragraph(f"Sample FASTA information", styles["Heading3"]))
-        elements.append(Paragraph(f"Header: {s['header']}"))
-        elements.append(Paragraph(f"Bases: {s['size']}"))
-        elements.append(Paragraph(f"Sequence md5: {s['seq_md5']}"))
-        elements.append(Paragraph(f"Base counts: {s['counts']['N']} N, {s['counts']['T']} T, {s['counts']['C']} C, {s['counts']['G']} G, {s['counts']['A']} A"))
-        elements.append(Paragraph(f"FASTA distances within run", styles["Heading3"]))
-        data_ = list(s['neighbours'].items())
-        #print(data_)
-        data_.insert(0, ["Neighbour", "Distance"])
-        t = Table(data_, hAlign='LEFT')
-        t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.black)] ))
-        elements.append(t)
+    try:
+        if 'run_distmatrix' in data:
+            i += 1
+            s = list(data["run_distmatrix"]["data"]["samples"].values())[0]
+            elements.append(Paragraph(f"{i}. FASTA", styles["Heading2"]))
+            elements.append(Paragraph(f"Sample FASTA information", styles["Heading3"]))
+            elements.append(Paragraph(f"Header: {s['header']}"))
+            elements.append(Paragraph(f"Bases: {s['size']}"))
+            elements.append(Paragraph(f"Sequence md5: {s['seq_md5']}"))
+            elements.append(Paragraph(f"Base counts: {s['counts']['N']} N, {s['counts']['T']} T, {s['counts']['C']} C, {s['counts']['G']} G, {s['counts']['A']} A"))
+            elements.append(Paragraph(f"FASTA distances within run", styles["Heading3"]))
+            data_ = list(s['neighbours'].items())
+            #print(data_)
+            data_.insert(0, ["Neighbour", "Distance"])
+            t = Table(data_, hAlign='LEFT')
+            t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
+            elements.append(t)
+    except:
+        pass
 
     doc.build(elements, onFirstPage=first_page, onLaterPages=add_page_number)
 
