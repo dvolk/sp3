@@ -1,4 +1,4 @@
-import json
+import json, datetime
 
 import argh
 from reportlab.lib import colors
@@ -9,29 +9,45 @@ from reportlab.lib.units import cm, mm
 import PIL.Image
 
 styles = getSampleStyleSheet()
+brand_org = ""
 
 def first_page(canvas, doc):
-    canvas.drawImage("/home/ubuntu/sp3/catdoc/logo.png", 7*mm, 277*mm, width=2*cm, height=1*cm)
+    if brand_org == "phe":
+        canvas.drawImage("PublicHealthEngland.jpg", 7*mm, 277*mm, width=16*mm, height=1*cm)
+    else:
+        canvas.drawImage("logo.png", 7*mm, 277*mm, width=2*cm, height=1*cm)
+
+    canvas.setFont('Helvetica', 20)
     canvas.drawString(30*mm, 280*mm, "Oxford SP3 Sample Analysis Report")
+    canvas.setFont('Helvetica', 12)
+
     add_page_number(canvas, doc)
 
 def add_page_number(canvas, doc):
     page_num = canvas.getPageNumber()
+    time_str = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    canvas.drawString(140*mm, 7*mm, time_str)
     text = f"Page {page_num}"
     canvas.drawRightString(200*mm, 7*mm, text)
+    canvas.drawRightString(200*mm, 280*mm, text)
 
-def go(report_json_path, pdf_out_path):
+def go(report_json_path, pdf_out_path, brand=""):
+    global brand_org
+    brand_org = brand
     with open(report_json_path) as f:
         data = json.loads(f.read())
 
     margin = 0.5
-    doc = SimpleDocTemplate(pdf_out_path, pagesize=A4, showBoundary=0, leftMargin=margin*cm, rightMargin=margin*cm, topMargin=margin*cm, bottomMargin=margin*cm)
+    doc = SimpleDocTemplate(pdf_out_path, pagesize=A4, showBoundary=1, leftMargin=margin*cm, rightMargin=margin*cm, topMargin=margin*cm, bottomMargin=2*margin*cm)
     elements = list()
     #elements.append(Paragraph("Oxford SP3 Sample Report", ))
-    elements.append(Spacer(0, 18*mm))
-    elements.append(Paragraph(f"Sample name: {data.get('dataset_id')}"))
-    elements.append(Spacer(0, 1*mm))
-    elements.append(Paragraph(f"Pipeline run ID: {data.get('run_uuid')}"))
+    top_para_style = ParagraphStyle('top_para', fontSize=14)
+    elements.append(Spacer(0, 20*mm))
+    elements.append(Paragraph(f"Sample name: {data.get('dataset_id')}", top_para_style))
+    elements.append(Spacer(0, 3*mm))
+    elements.append(Paragraph(f"Pipeline run ID: {data.get('run_uuid')}", top_para_style))
+    elements.append(Spacer(0, 3*mm))
+
     i = 0
 
     if 'catpile_metadata' in data:
