@@ -12,7 +12,7 @@ styles = getSampleStyleSheet()
 brand_org = ""
 
 def first_page(canvas, doc):
-    if brand_org == "phe":
+    if brand_org == "PHE":
         canvas.drawImage("/home/ubuntu/sp3/catdoc/PublicHealthEngland.jpg", 7*mm, 277*mm, width=16*mm, height=1*cm)
     else:
         canvas.drawImage("/home/ubuntu/sp3/catdoc/logo.png", 7*mm, 277*mm, width=2*cm, height=1*cm)
@@ -38,9 +38,8 @@ def go(report_json_path, pdf_out_path, brand=""):
         data = json.loads(f.read())
 
     margin = 0.5
-    doc = SimpleDocTemplate(pdf_out_path, pagesize=A4, showBoundary=1, leftMargin=margin*cm, rightMargin=margin*cm, topMargin=margin*cm, bottomMargin=2*margin*cm)
+    doc = SimpleDocTemplate(pdf_out_path, pagesize=A4, showBoundary=0, leftMargin=margin*cm, rightMargin=margin*cm, topMargin=margin*cm, bottomMargin=2*margin*cm)
     elements = list()
-    #elements.append(Paragraph("Oxford SP3 Sample Report", ))
     top_para_style = ParagraphStyle('top_para', fontSize=14)
     elements.append(Spacer(0, 20*mm))
     elements.append(Paragraph(f"Sample name: {data.get('dataset_id')}", top_para_style))
@@ -64,7 +63,6 @@ def go(report_json_path, pdf_out_path, brand=""):
         del tbl["sample_filename"]
         data_ = list(tbl.items())
         data_ = data_[3:] + data_[0:3]
-        #print(data_)
         data_.insert(0, ["Field", "Value"])
         t = Table(data_, hAlign='LEFT')
         t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
@@ -76,10 +74,11 @@ def go(report_json_path, pdf_out_path, brand=""):
         tbl = data["kraken2_speciation"]["data"]
         tbldata = []
         for k1, v1 in tbl.items():
+            if type(v1) == dict:
+                continue
             if k1 == "Warnings":
                 continue
             for v2 in v1:
-                #print(v2)
                 tbldata.append([k1, v2["name"], v2["percentage"], v2["reads"]])
         tbldata.insert(0, ["Type", "Identified", "Coverage", "Reads"])
         t = Table(tbldata, hAlign='LEFT')
@@ -89,7 +88,6 @@ def go(report_json_path, pdf_out_path, brand=""):
     if 'mykrobe_speciation' in data:
         i += 1
         elements.append(Paragraph(f"{i}. Mykrobe", styles["Heading2"]))
-        #elements.append(Spacer(1, 12))
         tbl = data["mykrobe_speciation"]["data"]
         data_ = list()
         data_.append(["Type", "Identified", "Coverage", "Median depth"])
@@ -99,7 +97,6 @@ def go(report_json_path, pdf_out_path, brand=""):
             data_.append(["Species", k, v["percent_coverage"], v["median_depth"]])
         for k,v in tbl["sub_complex"].items():
             data_.append(["Sub-complex", k, v["percent_coverage"], v["median_depth"]])
-        #print(data_)
         t = Table(data_, hAlign='LEFT')
         t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(t)
@@ -121,10 +118,8 @@ def go(report_json_path, pdf_out_path, brand=""):
     if 'samtools_qc' in data:
         i += 1
         elements.append(Paragraph(f"{i}. Samtools QC", styles["Heading2"]))
-        #elements.append(Spacer(1, 12))
         tbl = data["samtools_qc"]["data"]
         data_ = list(tbl.items())
-        #print(data_)
         data_.insert(0, ["Field", "Value"])
         t = Table(data_, hAlign='LEFT')
         t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
@@ -143,7 +138,6 @@ def go(report_json_path, pdf_out_path, brand=""):
         tbl = data["resistance"]["data"]
         data_ = [list(tbl["prediction_ex"].keys()),
                  list(tbl["prediction_ex"].values())]
-        #print(data_)
         t = Table(data_, hAlign='LEFT')
         t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(t)
@@ -176,7 +170,6 @@ def go(report_json_path, pdf_out_path, brand=""):
             elements.append(Paragraph(f"Base counts: {s['counts']['N']} N, {s['counts']['T']} T, {s['counts']['C']} C, {s['counts']['G']} G, {s['counts']['A']} A"))
             elements.append(Paragraph(f"FASTA distances within run", styles["Heading3"]))
             data_ = list(s['neighbours'].items())
-            #print(data_)
             data_.insert(0, ["Neighbour", "Distance"])
             t = Table(data_, hAlign='LEFT')
             t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))

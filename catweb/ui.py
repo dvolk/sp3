@@ -1312,7 +1312,12 @@ def get_report_pdf(run_uuid, dataset_id):
     rf = f"/tmp/{run_uuid}_{dataset_id}_report.pdf"
     with open(jf, "w") as f:
         f.write(json.dumps(template_report_data))
-    os.system(f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catdoc/catdoc.py {shlex.quote(jf)} {shlex.quote(rf)}")
+    brand_arg = ""
+    if 'org_name' in get_user_dict():
+        brand_arg = "--brand=" + get_user_dict()['org_name']
+    cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catdoc/catdoc.py {shlex.quote(jf)} {shlex.quote(rf)} {shlex.quote(brand_arg)}"
+    logging.warning(cmd)
+    os.system(cmd)
     return send_file(rf,
                      as_attachment=True,
                      mimetype="application/pdf")
