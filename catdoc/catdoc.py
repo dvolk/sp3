@@ -79,7 +79,8 @@ def go(report_json_path, pdf_out_path, brand=""):
             if k1 == "Warnings":
                 continue
             for v2 in v1:
-                tbldata.append([k1, v2["name"], v2["percentage"], v2["reads"]])
+                if type(v2) == dict:
+                    tbldata.append([k1, v2["name"], v2["percentage"], v2["reads"]])
         tbldata.insert(0, ["Type", "Identified", "Coverage", "Reads"])
         t = Table(tbldata, hAlign='LEFT')
         t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
@@ -91,12 +92,15 @@ def go(report_json_path, pdf_out_path, brand=""):
         tbl = data["mykrobe_speciation"]["data"]
         data_ = list()
         data_.append(["Type", "Identified", "Coverage", "Median depth"])
-        for k,v in tbl["phylo_group"].items():
-            data_.append(["Phylo group", k, v["percent_coverage"], v["median_depth"]])
-        for k,v in tbl["species"].items():
-            data_.append(["Species", k, v["percent_coverage"], v["median_depth"]])
-        for k,v in tbl["sub_complex"].items():
-            data_.append(["Sub-complex", k, v["percent_coverage"], v["median_depth"]])
+        if type(tbl["phylo_group"]) == dict:
+            for k,v in tbl["phylo_group"].items():
+                data_.append(["Phylo group", k, v["percent_coverage"], v["median_depth"]])
+        if type(tbl["species"]) == dict:
+            for k,v in tbl["species"].items():
+                data_.append(["Species", k, v["percent_coverage"], v["median_depth"]])
+        if type(tbl["sub_complex"]) == dict:
+            for k,v in tbl["sub_complex"].items():
+                data_.append(["Sub-complex", k, v["percent_coverage"], v["median_depth"]])
         t = Table(data_, hAlign='LEFT')
         t.setStyle(TableStyle( [('GRID', (0,0), (-1,-1), 0.25, colors.grey)] ))
         elements.append(t)
