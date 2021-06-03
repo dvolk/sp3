@@ -84,8 +84,6 @@
       <br />
       {% block content %}
       {% endblock content %}
-      {% block scripts %}
-      {% endblock scripts %}
       {% block footer %}
 	<br>
 	<hr>
@@ -102,5 +100,7 @@
 			    crossorigin="anonymous"></script>
 			    <script src="/static/scripts/jquery.tablesorter.js"></script>
 			    <script src="/static/scripts/site.js"></script>
+      {% block scripts %}
+      {% endblock scripts %}
   </body>
 </html>
