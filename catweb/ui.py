@@ -19,6 +19,7 @@ import sys
 import glob
 import csv
 import io
+import hashlib
 
 import pandas
 import requests
@@ -183,6 +184,8 @@ class User(flask_login.UserMixin):
             if path_begins_with(p2, p1):
                 return True
         return False
+    def email_hash(self):
+        return hashlib.md5(self.user_data().get("email").encode()).hexdigest()
 
 @login_manager.user_loader
 def user_loader(username):

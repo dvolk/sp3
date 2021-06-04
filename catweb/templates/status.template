@@ -2,7 +2,7 @@
 {% block content %}
 
 <h4>Recent OK</h4>
-<table class="table table-hover table-sm tablesorter tablesorter-default">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
   <thead style="background-color: #90EE90">
     <tr>
       <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
@@ -31,7 +31,7 @@ CREATE TABLE nfruns (date_time, duration, code_name, status, hash, uuid, command
 -->
 {% if running %}
 <h4>Running</h4>
-<table class="table table-hover table-sm tablesorter tablesorter-default">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white table-hover table-sm tablesorter tablesorter-default">
   <thead style="background-color: #FFEC8B">
     <tr>
       <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
@@ -57,7 +57,7 @@ CREATE TABLE nfruns (date_time, duration, code_name, status, hash, uuid, command
 </table>
 {% endif %}
 <h4>Recent Failed</h4>
-<table class="table table-hover table-sm tablesorter tablesorter-default">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white table-hover table-sm tablesorter tablesorter-default">
   <thead style="background-color: #FFAEB9">
     <tr>
       <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
