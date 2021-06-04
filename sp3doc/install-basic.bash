@@ -49,7 +49,7 @@ cd sp3
 # sp3 packages
 #
 pip3 install -r requirements.txt
-pip3 install waitress pymongo
+pip3 install waitress pymongo newick
 
 #
 # copy slurm emu files to /usr/bin
