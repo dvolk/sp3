@@ -15,10 +15,7 @@ accounts_db = mydb["accounts"]
 organisations_db = mydb["organisations"]
 tokens_db = mydb["tokens"]
 
-
 # --- transient authentication tokens ---
-
-tokens = dict()
 
 def make_token(username):
     new_token_id = str(uuid.uuid4())
@@ -61,7 +58,7 @@ def get_attributes_from_token(token):
 # --- passwords ---
 
 def check_password(username, password):
-    account = accounts_db.find_one({ "username": username }, {'_id': False})
+    account = accounts_db.find_one({ "username": username }, { '_id': False })
     if not account:
         return "User not found"
     if "password_hash" not in account:
@@ -81,7 +78,7 @@ def root():
 
 @app.route('/get_users')
 def get_users():
-    accounts = list(accounts_db.find({}, {'_id': False}))
+    accounts = list(accounts_db.find({}, { '_id': False }))
     ret = {}
     for acc in accounts:
         ret[acc["username"]] = acc
@@ -90,7 +87,7 @@ def get_users():
 @app.route('/get_user')
 def get_user():
     username = request.args['username']
-    account = accounts_db.find_one({ "username": username }, {'_id': False})
+    account = accounts_db.find_one({ "username": username }, { '_id': False })
     return json.dumps(account)
 
 @app.route('/edit_user')
@@ -103,23 +100,27 @@ def edit_user():
 
 @app.route('/add_user')
 def add_user():
-    name = request.args['name']
-    job_title = request.args['job_title']
-    job_address = request.args['job_address']
-    referal = request.args['referal']
-    country = request.args['country']
-    email = request.args['email']
-    username = request.args['username']
-    password = request.args['password']
-    organisation = request.args['organisation']
+    name = request.args.get('name')
+    job_title = request.args.get('job_title')
+    job_address = request.args.get('job_address')
+    referal = request.args.get('referal')
+    country = request.args.get('country')
+    email = request.args.get('email')
+    username = request.args.get('username')
+    password = request.args.get('password')
+    organisation = request.args.get('organisation')
 
-    if accounts_db.find_one({ "username": username }, {'_id': False}):
-        logging.info(f"add_user()! username {username} exists")
-        return "Username exists"
+    if not (name and email and organisation and username and password):
+        return "err-missing_data"
+
+    if accounts_db.find_one({ "username": username }, { '_id': False }):
+        return "err-username_exists"
+
+    if len(username) < 3:
+        return "err-username_too_short"
 
     if len(password) < 12:
-        logging.info(f"add_user()! password too short (len={len(password)})")
-        return "Password is too short (minimum 12 characters)"
+        return "err-password_too_short"
 
     password_hash = bcrypt.hash(password)
 
@@ -192,7 +193,7 @@ def change_password(token_id):
     username = token['username']
     logging.debug(f"change_password()! token={token_id} username={username}")
 
-    account = accounts_db.find_one({ "username": username }, {'_id': False})
+    account = accounts_db.find_one({ "username": username }, { '_id': False })
     if not account:
         return "Account not found"
 
@@ -210,7 +211,7 @@ def get_organisation():
 
     logging.debug(f"get_organisation()! group={group} organisation={org_name}")
 
-    organisation = organisations_db.find_one({ "name": org_name }, {'_id': False})
+    organisation = organisations_db.find_one({ "name": org_name }, { '_id': False })
     logging.warning(organisation)
     if not organisation:
         return json.dumps({})
