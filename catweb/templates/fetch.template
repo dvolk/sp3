@@ -1,7 +1,7 @@
 {% extends "base1.template" %}
 {% block content %}
   <h4>Datasets</h4>
-  {% if not is_readonly_user %}
+  {% if not current_user.is_readonly_user() %}
     <a href="/fetch_data"><button type="button" class="btn btn-primary">New Fetch</button></a>
     <a href="/drop_upload"><button type="button" class="btn btn-info">Upload Datasets</button></a>
   {% endif %}
@@ -30,30 +30,30 @@
       </td>
       <td scope="row" class='text-right'>
 	{% if v['status'] == 'queued' %}
-	  {% if not is_readonly_user %}
+	  {% if not current_user.is_readonly_user() %}
 	    <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
 	  {% endif %}
         {% endif %}
 	{% if v['status'] == 'running' %}
 	  <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
 	  {% if v['kind'] in ['ena1','ena2'] %}
-	    {% if not is_readonly_user %}
+	    {% if not current_user.is_readonly_user() %}
               / <a class='text-danger text-muted' href="/fetch_stop/{{ k }}">Stop</a>
 	    {% endif %}
 	  {% endif %}
 	{% endif %}
 	{% if v['status'] == 'success' %}
-	  {% if not is_readonly_user %}
+	  {% if not current_user.is_readonly_user() %}
 	    <a class='text-primary' href="/select_flow/{{ k }}"><button type="button" class="btn-sm btn-primary">Run</button></a> /
 	  {% endif %}
           <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
-	  {% if not is_readonly_user %}
+	  {% if not current_user.is_readonly_user() %}
 	    / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
 	  {% endif %}
         {% endif %}
         {% if v['status'] == 'failure' %}
 	  <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
-	  {% if not is_readonly_user %}
+	  {% if not current_user.is_readonly_user() %}
 	    / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
 	  {% endif %}
         {% endif %}

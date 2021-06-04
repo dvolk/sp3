@@ -7,13 +7,26 @@
   <thead>
   </thead>
   <tbody>
-    {% for k,v in userinfo.items() %}
-    {% if k != "password" %}
+    {% for k,v in current_user.u.items() %}
     <tr>
       <td>{{ k }}</td>
       <td>{{ v }}</td>
     </tr>
-    {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+
+<h4>Organisation</h4>
+
+<table class="table table-hover table-sm">
+  <thead>
+  </thead>
+  <tbody>
+    {% for k, v in current_user.g.items() %}
+    <tr>
+      <td>{{ k }}</td>
+      <td>{{ v }}</td>
+    </tr>
     {% endfor %}
   </tbody>
 </table>

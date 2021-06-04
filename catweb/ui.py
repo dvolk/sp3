@@ -22,14 +22,14 @@ import io
 
 import pandas
 import requests
-from flask import Flask, request, render_template, redirect, abort, url_for, g, make_response, send_file
+from flask import Flask, request, render_template, redirect, abort, url_for, g, make_response, send_file, session
 import flask_login
+from flask_login import current_user
 from passlib.hash import bcrypt
 from werkzeug.utils import secure_filename
 from werkzeug.urls import url_parse
 import waitress
 
-import authenticate
 import nflib
 import config
 import utils
@@ -50,14 +50,12 @@ logger = setup_logging()
 logger.debug("Logging initialized")
 
 app = Flask(__name__)
-
-# This is used for signing browser cookies. Change it in prod. Changing it
-# invalidates all current user sessions
 app.secret_key = 'secret key'
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = '/login'
+login_manager.session_protection = "strong"
 
 @app.errorhandler(404)
 def page500(error):
@@ -89,8 +87,6 @@ def reload_cfg():
         auth_builtin = cfg.get('auth_builtin')
     except KeyError:
         pass
-    global users
-    users = dict()
 
 reload_cfg()
 
@@ -137,49 +133,64 @@ def api_post_request(api, api_request, data_json):
         abort(500, description="Could not parse API response as JSON")
     return resp['data']
 
+def path_begins_with(p1, p2):
+    if str(p1) >= str(p2):
+        if p1[0:len(str(p2))] == p2:
+            return True
+    return False
+
 class User(flask_login.UserMixin):
-    pass
+    def __init__(self, username):
+        self.id = username
+        self.u = None
+        self.g = None
+        self.fetch_user_data()
+        self.u["token"] = session.get("token")
+        logging.warning(self.u["token"])
+    def fetch_user_data(self):
+        if not self.u or not self.g:
+            r = requests.get("http://localhost:13666/get_user",
+                             params={ "username": self.id }).text
+            logging.warning(r)
+            self.u = json.loads(r)["attributes"]
+            r = requests.get("http://localhost:13666/get_organisation",
+                             params={ "organisation": self.u["catweb_organisation"],
+                                       "group": "" }).text
+            logging.warning(r)
+            self.g = json.loads(r)
+            name = self.g["name"]
+            self.g = self.g["attributes"]
+            self.g["name"] = name
+        return self.u, self.g
+    def user_data(self):
+        u, _ = self.fetch_user_data()
+        return u
+    def org_data(self):
+        _, g = self.fetch_user_data()
+        return g
+    def is_admin(self):
+        return self.user_data().get("catweb_admin")
+    def is_readonly_user(self):
+        return self.user_data().get("catweb_readonly_user")
+    def requires_review(self):
+        return "requires_review" in self.user_data()
+    def get_org_name(self):
+        return self.org_data().get("name")
+    def get_pipelines(self):
+        return self.org_data.get("pipelines")
+    def can_see_upload_dir(self, p2):
+        for p1 in self.g["upload_dirs"]:
+            if path_begins_with(p2, p1):
+                return True
+        return False
 
 @login_manager.user_loader
 def user_loader(username):
-    if username not in users:
-        return
-
-    token = users[username]['token']
-    attribs = authenticate.attributes_from_user_token(token)
-    if not attribs:
-        return
-    if 'catweb_user' not in attribs:
-        return
-    if 'requires_review' in attribs:
-        return
-
-    org_name = attribs['catweb_organisation']
-    org_data = authenticate.get_organisation(org_name)
-
-    user = User()
-    user.id = username
-    users[user.id]['attributes'] = attribs
-    users['org_name'] = org_name
-    users['org_data'] = org_data
-    return user
-
-def is_admin():
-    try:
-        return 'catweb_admin' in users[flask_login.current_user.id]['attributes']
-    except:
-        return False
-
-def is_readonly_user():
-    try:
-        return 'catweb_readonly_user' in users[flask_login.current_user.id]['attributes']
-    except:
-        return False
+    return User(username)
 
 @app.context_processor
 def inject_globals():
-    return { 'catweb_version': cfg.get('catweb_version'),
-             'is_admin': is_admin() }
+    return { 'catweb_version': cfg.get('catweb_version') }
 
 @app.route('/register_sp3_user', methods=["GET", "POST"])
 def register_sp3_user():
@@ -188,18 +199,24 @@ def register_sp3_user():
     if request.method == "GET":
         return render_template('register.template')
     if request.method == "POST":
-        name = request.form['name']
-        job_title = request.form['job_title']
-        job_address = request.form['job_address']
-        referal = request.form['referal']
-        country = request.form['country']
-        email = request.form['email']
-        username = request.form['username']
-        password = request.form['password']
-        organisation = request.form['organisation']
-
-        requests.get("http://localhost:13666/add_user", params = request.form)
+        r = requests.get("http://localhost:13666/add_user", params = request.form).text
         return redirect("/")
+
+def is_public_fetch_source(kind):
+    public_fetch_sources = ['ena1', 'ena2']
+
+    return kind in public_fetch_sources
+
+def check_authentication(form_username, form_password):
+    r = requests.get(f"http://127.0.0.1:13666/check_user",
+                     params={'username': form_username,
+                             'password': form_password })
+
+    try:
+        token = str(uuid.UUID(r.text))
+        return token
+    except:
+        return None
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -225,7 +242,7 @@ def login():
         form_username = request.form['username']
         form_password = request.form['password']
 
-        token = authenticate.check_authentication(form_username, form_password)
+        token = check_authentication(form_username, form_password)
 
         if token:
             logger.warning(f"user {form_username} verified")
@@ -233,47 +250,31 @@ def login():
             logger.warning(f"invalid credentials for user {form_username}")
             return redirect(url_for('login', m='wrong_login'))
 
-        attribs = authenticate.attributes_from_user_token(token)
+        # --- credentials OK ---
 
-        if 'requires_review' in attribs:
+        session.permanent = True
+        session["token"] = token
+
+        user = User(form_username)
+
+        if user.requires_review():
             return redirect(url_for('login', m='not_active'))
 
-        # organisation stuff
-        org_name = attribs['catweb_organisation']
-        org_data = authenticate.get_organisation(org_name)
-
-        if not org_data:
+        if not user.org_data():
             return redirect(url_for('login', m='no_org'))
-        if not 'upload_dirs' in org_data:
+        if not 'upload_dirs' in user.org_data():
             return redirect(url_for('login', m='wrong_org'))
-        if not 'pipelines' in org_data:
+        if not 'pipelines' in user.org_data():
             return redirect(url_for('login', m='wrong_org'))
-
-        upload_dirs = org_data['upload_dirs']
-        user_upload_dir = pathlib.Path(f'/data/inputs/users/{ form_username }')
-        if not user_upload_dir.exists():
-            user_upload_dir.mkdir()
-
-        upload_dirs.append(str(user_upload_dir))
-
 
         '''
         User is authorized
         '''
-        user = User()
-        user.id = form_username
         flask_login.login_user(user)
 
-        users[user.id] = {
-            'name': form_username,
-            'org_name': org_name,
-            'org_data': org_data,
-            'token': token,
-            'upload_dirs': upload_dirs,
-            'attributes': attribs
-        }
-
-        logger.warning(f"{form_username} - {users[user.id]}")
+        user_upload_dir = pathlib.Path(f'/data/inputs/users/{ form_username }')
+        if not user_upload_dir.exists():
+            user_upload_dir.mkdir()
 
         if request.args.get('api'):
             return "OK"
@@ -289,22 +290,23 @@ def login():
     assert False, "unreachable"
 
 @app.route('/password' , methods=['GET', 'POST'])
-@flask_login.login_required
+@flask_login.fresh_login_required
 def change_pw():
-    username = flask_login.current_user.id
+    username = current_user.id
     logger.debug(f'username: {username}')
-    token = users[username]["token"]
 
     if request.method == 'GET':
         logger.debug(f'username: {username}')
-        return render_template('password.template',
-        username = username)
+        return render_template('password.template', username = username)
     else:
         form_password1 = request.form['password1']
         form_password2 = request.form['password2']
 
         if form_password1 == form_password2:
-            res = requests.get(f'http://localhost:13666/change_password/{token}', params={'new_password':form_password1})
+            token = session.get("token")
+            res = requests.get(f'http://localhost:13666/change_password/{token}',
+                               params={ 'token': token,
+                                        'new_password': form_password1 })
             logger.debug(f'Call catdap changing password for {username}: {res}')
             if res.text == 'OK':
                 return redirect('/')
@@ -325,40 +327,36 @@ def am_i_logged_in():
 
 def get_user_pipelines(username):
     ret = list()
-    if is_admin():
+    if current_user.is_admin():
         return flows.keys()
     else:
-        return get_user_dict()['org_data']['pipelines']
+        return current_user.org_data().get('pipelines')
 
 # todo move this and similar to nflib.py
 @app.route('/')
 @flask_login.login_required
 def status():
-    if 'org_name' in get_user_dict():
-        org = get_user_dict()['org_name']
-    else:
-        org = 'None'
+    org = current_user.get_org_name()
 
-    response = api_get_request('nfweb_api', f'/status/{org}/{str(is_admin())}')
-    logging.error("recent: {response['recent']}")
+    response = api_get_request('nfweb_api', f'/status/{org}/{str(current_user.is_admin())}')
+    logging.error(f"recent: {response['recent']}")
     running, recent, failed = response['running'], response['recent'], response['failed']
 
     if request.args.get('api'):
         return json.dumps([running, recent, failed])
 
     return render_template('status.template', running=running, recent=recent, failed=failed,
-                           user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
+                           user_pipeline_list=get_user_pipelines(current_user.id))
 
 @app.route('/userinfo/<username>', methods=['GET', 'POST'])
 @flask_login.login_required
 def userinfo(username: str):
-    is_same = username == flask_login.current_user.id
-    username_exists = username in users
+    is_same = username == current_user.id
 
-    if (not is_same and not is_admin()) or not username_exists:
+    if not is_same and not current_user.is_admin():
         return redirect('/')
 
-    return render_template('userinfo.template', userinfo=users[username])
+    return render_template('userinfo.template')
 
 @app.route('/flow/<flow_name>/nf_script')
 @flask_login.login_required
@@ -384,7 +382,7 @@ def edit_flow_config(flow_name):
 @app.route('/admin_edit_user', methods=['GET', 'POST'])
 @flask_login.login_required
 def admin_edit_user():
-    if not is_admin():
+    if not current_user.is_admin():
         return redirect('/')
 
     username = request.args['username']
@@ -412,7 +410,7 @@ def epochtodate(value):
 @app.route('/admin')
 @flask_login.login_required
 def admin():
-    if not is_admin():
+    if not current_user.is_admin():
         return redirect('/')
 
     with open('config.yaml') as f:
@@ -430,7 +428,7 @@ def list_flows():
     if request.args.get('api'):
         return json.dumps(flows)
     return render_template('list_flows.template', flows=flows,
-                           user_pipeline_list=get_user_pipelines(flask_login.current_user.id))
+                           user_pipeline_list=get_user_pipelines(current_user.id))
 
 def get_user_params_dict(flow_name, run_uuid):
     ret = dict()
@@ -468,7 +466,7 @@ def new_run1(flow_name, flow_cfg, form):
         reference_map = json.loads(r['reference_json'])
         logger.debug(f'reference_map: {reference_map}')
 
-    current_user = users[flask_login.current_user.id]
+    current_user = current_user.id
 
     # user parameters, grabbed from run from
     user_param_dict = dict()
@@ -504,7 +502,7 @@ def new_run1(flow_name, flow_cfg, form):
         # user arguments to nextflow
         'user_param_dict' : user_param_dict,
         # web user id that started the run
-        'user_name': flask_login.current_user.id,
+        'user_name': current_user.id,
         # input directory (if it exists or "" otherwise)
         'indir': indir,
         # filtering regular expression (if it exists or "" otherwise)
@@ -654,8 +652,7 @@ def list_runs(flow_name : str):
     return render_template('list_runs.template',
                            stuff=cfg,
                            has_dagpng=has_dagpng,
-                           data=data,
-                           is_readonly_user=is_readonly_user())
+                           data=data)
 
 @app.route('/flow/<flow_name>/dagpng')
 @flask_login.login_required
@@ -844,8 +841,7 @@ def run_details(flow_name : str, run_uuid: int):
                            user_param_dict=user_param_dict,
                            task_count=task_count,
                            expected_tasks=expected_tasks,
-                           pipeline_no_report = pipeline_no_report,
-                           is_readonly_user=is_readonly_user())
+                           pipeline_no_report = pipeline_no_report)
 
 @app.route('/flow/<flow_name>/log/<run_uuid>')
 @flask_login.login_required
@@ -928,7 +924,7 @@ def kill_nextflow(flow_name : str, run_uuid: int):
 @app.route('/terminate_job/<job_id>')
 @flask_login.login_required
 def terminate_job(job_id):
-    if not is_admin():
+    if not current_user.is_admin():
         abort(403)
     data_json = { 'job_id': job_id }
     response = api_post_request('nfweb_api', '/terminate_job', data_json)
@@ -1001,7 +997,7 @@ def cluster():
 @flask_login.login_required
 def upload_data():
     subfolder = str(uuid.uuid4())
-    rootpath = pathlib.Path(f'/data/inputs/users/{ get_user_dict()["name"] }')
+    rootpath = pathlib.Path(f'/data/inputs/users/{ current_user.id }')
     newpath = str(rootpath / subfolder)
     newpath_encoded = base64.b16encode(bytes(newpath, encoding='utf-8')).decode('utf-8')
 
@@ -1015,7 +1011,7 @@ def upload_data():
 def upload_data2(subfolder):
     file = request.files['file']
     if file.filename[-9:] == '.fastq.gz' or file.filename[-4:] == '.bam':
-        rootpath = pathlib.Path(f'/data/inputs/users/{ get_user_dict()["name"] }')
+        rootpath = pathlib.Path(f'/data/inputs/users/{ current_user.id }')
         newpath = str(rootpath / subfolder)
         logger.warning(newpath)
         if not (os.path.isdir(newpath)):
@@ -1050,14 +1046,13 @@ def get_files():
     dict_filenames = dict(filenames=filenames)
     return jsonify(dict_filenames)
 
-def get_user_dict():
-    return users[flask_login.current_user.id]
-
 @app.route('/fetch_data2/<fetch_kind>')
 @flask_login.login_required
 def fetch_data2(fetch_kind):
     r = api_get_request('fetch_api', '/api/fetch/describe')
-    source = r['sources'][fetch_kind]
+    source = r.get("sources", dict()).get(fetch_kind)
+    if not source:
+        abort(404)
 
     # allow prefilling of the new fetch form
     in_data_kind = None
@@ -1071,10 +1066,12 @@ def fetch_data2(fetch_kind):
     paths = list()
     if 'local_glob_directories' in source:
         for d in source['local_glob_directories']:
-            if authenticate.user_can_see_upload_dir(get_user_dict(), d):
+            if current_user.can_see_upload_dir(d):
                 for p in glob.glob(d):
                     paths.append(p)
-        paths.sort()
+    for d in glob.glob(f"/data/inputs/users/{current_user.id}/*"):
+        paths.append(d)
+    paths.sort()
 
     if fetch_kind == 'ena1':
         return render_template('new_fetch2_ena1.template',
@@ -1127,12 +1124,12 @@ def fetch():
         })
 
     # filter fetches by what the user can see
-    fetches = { k:v for k,v in fetches.items() if authenticate.is_public_fetch_source(v['kind']) or authenticate.user_can_see_upload_dir(get_user_dict(), v['name']) }
+    fetches = { k:v for k,v in fetches.items() if is_public_fetch_source(v['kind']) or current_user.can_see_upload_dir(v['name']) }
 
     # sort fetches by time
-    fetches = dict(reversed(sorted(fetches.items(), key=lambda x: authenticate.is_public_fetch_source(x[1]['started']))))
+    fetches = dict(reversed(sorted(fetches.items(), key=lambda x: is_public_fetch_source(x[1]['started']))))
 
-    return render_template('fetch.template', fetches=fetches, sources=sources, is_readonly_user=is_readonly_user())
+    return render_template('fetch.template', fetches=fetches, sources=sources)
 
 @app.route('/fetch_new', methods=['POST'])
 @flask_login.login_required
@@ -1204,7 +1201,7 @@ def select_flow(guid):
     # to allow users to change what to run
     all_flow_names = [x['name'] for x in cfg.get('nextflows')]
 
-    user_pipelines = get_user_pipelines(flask_login.current_user.id)
+    user_pipelines = get_user_pipelines(current_user.id)
     if not flow_name:
         if user_pipelines:
             flow_name = list(user_pipelines)[0]
@@ -1313,8 +1310,8 @@ def get_report_pdf(run_uuid, dataset_id):
     with open(jf, "w") as f:
         f.write(json.dumps(template_report_data))
     brand_arg = ""
-    if 'org_name' in get_user_dict():
-        brand_arg = "--brand=" + get_user_dict()['org_name']
+    if 'org_name' in current_user:
+        brand_arg = "--brand=" + current_user['org_name']
     cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catdoc/catdoc.py {shlex.quote(jf)} {shlex.quote(rf)} {shlex.quote(brand_arg)}"
     logging.warning(cmd)
     os.system(cmd)
@@ -1393,7 +1390,7 @@ def list_trees():
 def submit_tree():
     run_ids_sample_names = request.form.get('run_ids_sample_names')
     my_tree_name = request.form.get('my_tree_name')
-    u = get_user_dict()
+    u = current_user
     logger.warning("run ids sample names: ", run_ids_sample_names)
     requests.post('https://persistence.mmmoxford.uk/api_submit_tree', json={ 'my_tree_name': my_tree_name,
                                                               'run_ids_sample_names': run_ids_sample_names,
@@ -1499,7 +1496,6 @@ def list_reports():
 def proxy_get_cluster_stats():
     response = api_get_request('catstat_api', '/data')
     return json.dumps(response)
-
 
 def main():
     waitress.serve(app, listen='127.0.0.1:7000')

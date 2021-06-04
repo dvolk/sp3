@@ -52,9 +52,9 @@
     {% for job_dict in node['jobs'] %}
       {% for job_uuid, job in job_dict.items() %}
       {% if 'h' in job['duration'] %}
-        <span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm btn-warning">{{ job['name'] }} ({{ job['duration'] }}) {% if is_admin %}<a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a>{% endif %}</span>
+        <span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm btn-warning">{{ job['name'] }} ({{ job['duration'] }}) {% if current_user.is_admin() %}<a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a>{% endif %}</span>
       {% else %}
-	<span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm    btn-info">{{ job['name'] }} ({{ job['duration'] }}) {% if is_admin %}<a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a>{% endif %}</span>
+	<span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm    btn-info">{{ job['name'] }} ({{ job['duration'] }}) {% if current_user.is_admin() %}<a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a>{% endif %}</span>
       {% endif %}
       {% endfor %}
     {% endfor %}

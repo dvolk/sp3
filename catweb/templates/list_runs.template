@@ -2,7 +2,7 @@
 {% block content %}
   <h4>{{ stuff['display_name'] }}</h4>
 <p>
-  {% if not is_readonly_user %}
+  {% if not current_user.is_readonly_user() %}
     <a href="/fetch"><button type="button" class="btn btn-primary">Fetch and Run</button></a>
     <a href="/flow/{{ stuff['flow_name'] }}/new"><button type="button" class="btn btn-primary">New Run</button></a>
     <a href="/edit_flow_config/{{ stuff['flow_name'] }}"><button type="button" class="btn btn-info">Edit Config</button></a>
