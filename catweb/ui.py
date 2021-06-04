@@ -179,7 +179,11 @@ class User(flask_login.UserMixin):
     def get_pipelines(self):
         return self.org_data.get("pipelines")
     def can_see_upload_dir(self, p2):
-        for p1 in self.g["upload_dirs"]:
+        if path_begins_with(p2, f"/data/inputs/users/{self.id}"):
+            return True
+        if self.is_admin():
+            return True
+        for p1 in self.g.get("upload_dirs", list()):
             if path_begins_with(p2, p1):
                 return True
         return False
@@ -457,7 +461,7 @@ def new_run1(flow_name, flow_cfg, form):
                          json.dumps({ 'fetch_uuid': fetch_uuid,
                                       'pipeline_run_uuid': run_uuid }))
     except Exception as e:
-        logger.error("catpile failed linking fetch and run: {str(e)}")
+        logger.error(f"catpile failed linking fetch and run: {str(e)}")
 
     reference_map = '{}'
     if 'ref_uuid' in form and form['ref_uuid'] and 'refmap' in flow_cfg:
@@ -465,8 +469,6 @@ def new_run1(flow_name, flow_cfg, form):
         r = api_get_request('nfweb_api', f'/get_reference_cache/{ request.form["ref_uuid"] }')
         reference_map = json.loads(r['reference_json'])
         logger.debug(f'reference_map: {reference_map}')
-
-    current_user = current_user.id
 
     # user parameters, grabbed from run from
     user_param_dict = dict()
@@ -1069,8 +1071,6 @@ def fetch_data2(fetch_kind):
             if current_user.can_see_upload_dir(d):
                 for p in glob.glob(d):
                     paths.append(p)
-    for d in glob.glob(f"/data/inputs/users/{current_user.id}/*"):
-        paths.append(d)
     paths.sort()
 
     if fetch_kind == 'ena1':
@@ -1124,10 +1124,16 @@ def fetch():
         })
 
     # filter fetches by what the user can see
-    fetches = { k:v for k,v in fetches.items() if is_public_fetch_source(v['kind']) or current_user.can_see_upload_dir(v['name']) }
+    logging.warning(fetches)
+    user_fetches = dict()
+    for k,v in fetches.items():
+        if is_public_fetch_source(v["kind"]) or current_user.can_see_upload_dir(v["name"]):
+            user_fetches[k] = v
+    fetches = user_fetches
+    logging.warning(fetches)
 
     # sort fetches by time
-    fetches = dict(reversed(sorted(fetches.items(), key=lambda x: is_public_fetch_source(x[1]['started']))))
+    fetches = dict(reversed(sorted(fetches.items(), key=lambda x: x[1]['started'])))
 
     return render_template('fetch.template', fetches=fetches, sources=sources)
 
@@ -1309,9 +1315,7 @@ def get_report_pdf(run_uuid, dataset_id):
     rf = f"/tmp/{run_uuid}_{dataset_id}_report.pdf"
     with open(jf, "w") as f:
         f.write(json.dumps(template_report_data))
-    brand_arg = ""
-    if 'org_name' in current_user:
-        brand_arg = "--brand=" + current_user['org_name']
+    brand_arg = "--brand=" + current_user.get_org_name()
     cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catdoc/catdoc.py {shlex.quote(jf)} {shlex.quote(rf)} {shlex.quote(brand_arg)}"
     logging.warning(cmd)
     os.system(cmd)
@@ -1395,8 +1399,8 @@ def submit_tree():
     requests.post('https://persistence.mmmoxford.uk/api_submit_tree', json={ 'my_tree_name': my_tree_name,
                                                               'run_ids_sample_names': run_ids_sample_names,
                                                               'provider': 'iqtree1',
-                                                              'user': u['name'],
-                                                              'org': u['org_name'] })
+                                                              'user': current_user.id,
+                                                              'org': current_user.get_org_name() })
     return redirect("/list_trees")
 
 @app.route('/view_tree/<guid>')
