@@ -10,11 +10,11 @@ sudo systemctl restart nfs-server
 
 ###### catweb
 
-SUBDOMAIN=$(jq -r .deployment_id /home/ubuntu/stack_info.json)
+SP3URL=$(jq -r .sp3_url /home/ubuntu/stack_info.json)
 cd /home/ubuntu/sp3/catweb/
 cp config.yaml-example config.yaml
 sed -i 's/192.168.9.9/10.0.1.2/g' config.yaml
-sed -i 's/cats./'$SUBDOMAIN'/g' config.yaml
+sed -i 's;https://cats.oxfordfun.com;'$SP3URL';g' config.yaml
 
 # configure covid pipeline
 cd /home/ubuntu/sp3/catweb/config.yaml.d
@@ -43,7 +43,7 @@ sed -i 's/10.218.117.11/10.0.1.2/g' config.yaml
 ###### download
 cd /home/ubuntu/sp3/download-api/
 cp config.yaml-example config.yaml
-sed -i 's/cats./'$SUBDOMAIN.'/g' config.yaml
+sed -i 's;https://cats.oxfordfun.com;'$SP3URL';g' config.yaml
 
 ###### fetch
 cd /home/ubuntu/sp3/fetch-api/
