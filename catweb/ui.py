@@ -469,8 +469,6 @@ def new_run1(flow_name, flow_cfg, form):
         reference_map = json.loads(r['reference_json'])
         logger.debug(f'reference_map: {reference_map}')
 
-    current_user = current_user.id
-
     # user parameters, grabbed from run from
     user_param_dict = dict()
 
@@ -1312,9 +1310,7 @@ def get_report_pdf(run_uuid, dataset_id):
     rf = f"/tmp/{run_uuid}_{dataset_id}_report.pdf"
     with open(jf, "w") as f:
         f.write(json.dumps(template_report_data))
-    brand_arg = ""
-    if 'org_name' in current_user:
-        brand_arg = "--brand=" + current_user['org_name']
+    brand_arg = f"--brand={current_user.get_org_name()}"
     cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catdoc/catdoc.py {shlex.quote(jf)} {shlex.quote(rf)} {shlex.quote(brand_arg)}"
     logging.warning(cmd)
     os.system(cmd)
