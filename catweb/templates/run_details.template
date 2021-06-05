@@ -19,7 +19,6 @@
     {% if not buttons['stop'] %}<a href="/flow/{{ flow_name }}/delete_run/{{ uuid }}" id="delete_run" data-confirm="Are you sure you want to delete the run?"><button type="button" class="btn btn-danger">Delete run</button></a>{% endif %}
   {% endif %}
 </p>
-  <hr>
 <p>
   {% if not pipeline_no_report %}
      To view the report, click on the sample name in the left section of the table below.
@@ -30,7 +29,7 @@
 </p>
 <div class="form-group form-inline">
   <label for="promt"><strong>Filter samples by species: </strong> </label>
-  <input type="text" size="40"  class="form-control" id="search_sample" placeholder="e.g. tuberculosis, bovis, abscessus or failed"><span id="samplecount"> {{ trace_nice | length - 1}} samples</span>
+  <input type="text" size="40" class="form-control" id="search_sample" placeholder="e.g. tuberculosis, bovis, abscessus or failed"><span id="samplecount"> {{ trace_nice | length - 1}} samples</span>
 </div>
 
   {% if trace_nice %}
@@ -40,10 +39,10 @@
       <h4>{{ percent_done }}% ({{ task_count }} / {{ expected_tasks }}) tasks done</h4>
     {% endif %}
 
-    {% set status_map = { 'COMPLETED': 'btn-info',
-    'ABORTED': 'btn-warning',
-    'FAILED': 'btn-danger' } %}
-    <table style="margin-top: 10px" class="table-striped table table-hover table-sm" style="border: none" id="list_table">
+    {% set status_map = { 'COMPLETED': 'w3-green',
+    'ABORTED': 'w3-orange',
+    'FAILED': 'w3-red' } %}
+    <table style="margin-top: 10px" class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" style="border: none" id="list_table">
       <thead>
         <tr>
           <th scope="col">Sample </th>

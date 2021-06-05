@@ -11,10 +11,11 @@
   {% endif %}
 <p>
     <hr/>
-    <h4>Command run:</h4><pre>
-{{ files['.command.sh'] }}</pre><h4>Command output:</h4><h5>Stdout:</h5>
-    <pre>
-{{ files['.command.out'] }}</pre></pre><h5>Stderr:</h5>
-    <pre>
-{{ files['.command.err'] }}</pre>
+    <h4>Command run:</h4>
+    <div class="w3-white"><pre style="white-space: pre-wrap">
+{{ files['.command.sh'] }}</pre></div><h4>Command output:</h4><h5>Stdout:</h5>
+    <div class="w3-white"><pre style="white-space: pre-wrap">
+{{ files['.command.out'] }}</pre></div></pre><h5>Stderr:</h5>
+    <div class="w3-white"><pre style="white-space: pre-wrap">
+{{ files['.command.err'] }}</pre></div>
 {% endblock content %}

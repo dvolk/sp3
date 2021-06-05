@@ -18,7 +18,7 @@
 <p>
   Click on details on the right in the table below for more information, including sample reports.
 </p>
-<table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top:10px">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default" style="margin-top:10px">
   <thead>
     <tr>
       <th scope="col"><a href="#">Started On</a></th>
