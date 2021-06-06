@@ -30,7 +30,7 @@
       {% for k, v in current_user.g.items() %}
 	<tr>
 	  <td>{{ k }}</td>
-	  <td>{{ v }}</td>
+	  <td>{% if v is iterable and (v is not string and v is not mapping) %}{{ v|join(", ") }}{% else %}{{ v }}{% endif %}</td>
 	</tr>
       {% endfor %}
     </tbody>

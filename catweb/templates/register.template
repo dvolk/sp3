@@ -11,7 +11,7 @@
   <body class="w3-light-grey">
     <!-- Top container -->
     <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
-      <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
+      <span class="w3-bar-item w3-right">Oxford SP3</span>
     </div>
 
     <div class="w3-container w3-auto" style="margin-top: 5%;">
@@ -45,10 +45,10 @@
 
     </div>
 
-    <!-- Footer -->
-    <footer class="w3-container w3-light-grey">
-      <p>Version {{ catweb_version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
-    </footer>
+<!-- Footer -->
+<div class="w3-bar w3-bottom w3-white w3-large" style="z-index:4">
+  <span class="w3-bar-item w3-left">Version {{ catweb_version }} - by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a></span>
+</div>
 
     <!-- End page content -->
   </body>

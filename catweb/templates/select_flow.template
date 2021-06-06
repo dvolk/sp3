@@ -27,6 +27,6 @@
 <p>Selected pipeline: <strong><span id="selected_flow">{{ flow_name }}</span></strong></p>
 </div>
 <br/>
-<a class="w3-input w3-btn w3-green" id='submit_pipeline' href='/flow/{{ flow_name }}/new?given_input={{ output_dir_b16 }}&fetch_uuid={{ guid }}' data-confirm="Are you sure you want to run the pipeline {{ flow_name }}?">Run</a>
+<a class="w3-input w3-btn w3-green" id='submit_pipeline' href='/flow/{{ flow_name }}/new?given_input={{ output_dir_b16 }}&fetch_uuid={{ guid }}' data-confirm="Are you sure you want to run the pipeline {{ flow_name }}?">Continue</a>
 
 {% endblock %}

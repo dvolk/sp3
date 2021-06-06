@@ -16,7 +16,7 @@ Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 <!-- Top container -->
 <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
   <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
-  <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
+  <span class="w3-bar-item w3-right">Oxford SP3</span>
 </div>
 
 <!-- Sidebar/menu -->
@@ -59,7 +59,7 @@ Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 <!-- !PAGE CONTENT! -->
 <div class="w3-main" style="margin-left:300px;margin-top:43px;">
 
-  <div class="w3-row-padding w3-margin-bottom">
+  <div class="w3-row-padding w3-margin-bottom" style="padding-bottom: 100px;">
   {% block header %}
   {% endblock header %}
 
@@ -67,13 +67,12 @@ Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
   {% endblock content %}
   </div>
 
-  <!-- Footer -->
-  <footer class="w3-container w3-padding-16 w3-light-grey">
-    <h4>About</h4>
-    <p>{{ catweb_version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
-  </footer>
 
   <!-- End page content -->
+</div>
+<!-- Footer -->
+<div class="w3-bar w3-bottom w3-white w3-large" style="z-index:4">
+  <span class="w3-bar-item w3-left">Version {{ catweb_version }} - by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a></span>
 </div>
 
 <script>
