@@ -23,9 +23,9 @@
 {% for k,v in tbl_df.iterrows() %}
   {% if v['Mounted'] != '/boot/efi' %}
     {% set percent_used = v['Use%'][:-1]|int %}
-    {% if percent_used < 40 %} {% set color_class = "w3-green" %} {% endif %}
-    {% if percent_used > 40 and percent_used < 80 %} {% set color_class = "w3-yellow" %} {% endif %}
-    {% if percent_used > 80 %} {% set color_class = "w3-red" %} {% endif %}
+    {% if percent_used <= 60 %} {% set color_class = "w3-green" %} {% endif %}
+    {% if percent_used > 60 and percent_used <= 85 %} {% set color_class = "w3-yellow" %} {% endif %}
+    {% if percent_used > 85 %} {% set color_class = "w3-red" %} {% endif %}
 
     <div class="w3-border">
       <div class="{{ color_class }}" style="height:24px;width:{{ percent_used }}%">
