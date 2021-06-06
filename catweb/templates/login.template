@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="height: 100%;">
   <title>Oxford SP3</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,12 +9,12 @@
   <style>
     html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
   </style>
-  <body class="w3-light-grey">
+  <body class="w3-light-grey" style="background-image: url('/static/_DSC1218-3.jpg'); height: 100%; background-repeat: no-repeat; background-size: cover;">
     <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
       <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
     </div>
 
-    <div class="w3-content w3-display-middle" style="width:300px;">
+    <div class="w3-content w3-display-middle" style="width:300px; background-color: #fff; padding: 20px;">
 
       <h2>Sign in</h2>
       {% if msg %}
@@ -32,10 +32,8 @@
       {% endif %}
 
     </div>
-
     <!-- Footer -->
-    <footer class="w3-container w3-light-grey" style="position: fixed; bottom: 10px;">
-      <h4>About</h4>
+    <footer class="w3-container w3-light-grey" style="position: fixed; bottom: 0px;">
       <p>Version {{ catweb_version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
     </footer>
 
