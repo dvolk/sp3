@@ -118,6 +118,8 @@ def add_user():
 
     if len(username) < 3:
         return "err-username_too_short"
+    if len(username) > 64:
+        return "err-username_too_long"
 
     if len(password) < 12:
         return "err-password_too_short"
