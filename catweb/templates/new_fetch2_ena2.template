@@ -5,23 +5,15 @@
 <p>{{ source['description'] }}</p>
 <hr/>
 <form action="/fetch_new" method="post">
-  <div class="input-group">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Fetch Name: (required and editable)</span>
-    </div>
-    <input name="fetch_name" type=text class="form-control" value="{{ name }}" required>
-  </div>
-  <br>
+  <label>Fetch Name: (required and editable)</label>
+  <input name="fetch_name" type=text class="w3-input" value="{{ name }}" required>
   <p>Paste accession numbers in the text box below, one accession per row, only accession numbers, no quote, or comma etc. in one row.</p>
-  <textarea style="font-family: monospace;" rows=20 class="form-control" name="fetch_samples" id="fetch_samples">
-  </textarea>
-
+  <textarea style="font-family: monospace; width:100%" rows=20 class="w3-input" name="fetch_samples" id="fetch_samples">
+</textarea>
   <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
   <input type="hidden" id="fetch_type" name="fetch_type" value="all">
   <input type="hidden" id="fetch_range" name="fetch_range" value="">
   <p>The list of above accessions would be one dataset for you to run, suggest 500 samples maximum.</p>
-  <div class="input-group ">
-    <button type="Submit" class="btn btn-primary">Start Fetch</button>
-  </div>
+  <button type="Submit" class="w3-input w3-blue">Start Fetch</button>
 </form>
 {% endblock content %}

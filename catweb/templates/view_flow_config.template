@@ -2,5 +2,5 @@
 {% block content %}
 
 <h2>Pipeline configuration file</h2>
-  <textarea style="font-family: monospace;" rows=20 class="form-control" name="config">{{ config_yaml }}</textarea>
+  <textarea style="font-family: monospace; width: 100%;" rows=30 name="config">{{ config_yaml }}</textarea>
 {% endblock content %}

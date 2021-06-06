@@ -1,14 +1,21 @@
 {% extends "base1.template" %}
-{% block content %}
 
+{% block header %}
+
+  <header class="w3-container" style="padding-top:22px">
+    <h5><b><i class="fa fa-cog fa-fw"></i> My Admin</b></h5>
+  </header>
+
+{% endblock header %}
+
+{% block content %}
 <h2>Users</h2>
 
 <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
   <thead>
     <tr>
       <th scope="col"><a href="#">Username</a></th>
-      <th scope="col"><a href="#">Catweb user</a></th>
-      <th scope="col"><a href="#">Catweb org</a></th>
+      <th scope="col"><a href="#">Organisation</a></th>
       <th scope="col"><a href="#">Email</a></th>
       <th scope="col"><a href="#">Added date</a></th>
       <th scope="col"><a href="#">Activated</a></th>
@@ -19,7 +26,6 @@
     {% for username, user in user_d.items() %}
     <tr>
       <td scope="row">{{ username }}</td>
-      <td scope="row">{% if 'catweb_user' in user['attributes'] %}{{ user['attributes']['catweb_user'] }} {% else %}False{% endif %}</td>
       <td scope="row">{% if 'catweb_organisation' in user['attributes'] %}{{ user['attributes']['catweb_organisation'] }} {% else %}None{% endif %}</td>
       <td scope="row">{% if 'email' in user['attributes'] %}{{ user['attributes']['email'] }} {% else %}None{% endif %}</td>
       <td scope="row">{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>

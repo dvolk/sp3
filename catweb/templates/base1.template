@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
-<title>W3.CSS Template</title>
+<title>Oxford SP3</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
-html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 </style>
 {% block head %}
 {% endblock head %}
@@ -24,16 +24,15 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
   <div class="w3-container w3-row">
     <div class="w3-col s4">
       {% if current_user.is_authenticated %}
-      <img src="https://www.gravatar.com/avatar/{{ current_user.email_hash() }}?d=identicon" class="w3-circle w3-margin-right" style="width:46px; filter: grayscale(100%)">
+      <img src="https://www.gravatar.com/avatar/{{ current_user.email_hash() }}?d=identicon" class="w3-circle w3-margin-right" style="width:46px; {#filter: grayscale(100%)#}">
       {% endif %}
     </div>
     <div class="w3-col s8 w3-bar">
       {% if current_user.is_authenticated %}
       <span>Welcome, <strong>{{ current_user.id }}</strong></span><br>
       {% endif %}
-      <a href="#" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i></a>
-      <a href="#" class="w3-bar-item w3-button"><i class="fa fa-user"></i></a>
-      <a href="#" class="w3-bar-item w3-button"><i class="fa fa-cog"></i></a>
+      <a href="/userinfo/{{ current_user.id }}" class="w3-bar-item w3-button"><i class="fa fa-id-card fa-fw"></i></a>
+      <a href="/logout" class="w3-bar-item w3-button"><i class="fa fa-power-off fa-fw"></i></a>
     </div>
   </div>
   <hr>
@@ -42,15 +41,22 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
   </div>
   <div class="w3-bar-block">
     <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
-    <a href="/" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-users fa-fw"></i>  Dashboard</a>
+    {% for name, icon_class, link in nav_links %}
+      <a href="{{ link }}" class="w3-bar-item w3-button w3-padding {% if sel == name %}w3-blue{% endif %}"><i class="{{ icon_class }}"></i>  {{ name }}</a>
+    {% endfor %}
+
+    {#<a href="/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>  Dashboard</a>
     <a href="/fetch" class="w3-bar-item w3-button w3-padding"><i class="fa fa-eye fa-fw"></i>  Datasets</a>
-    <a href="/flows" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>  Runs/Outputs</a>
+    <a href="/flows" class="w3-bar-item w3-button w3-padding"><i class="fa fa-file fa-fw"></i>  Runs/Outputs</a>
     <a href="/list_trees" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bullseye fa-fw"></i>  Trees</a>
-    <a href="/cluster" class="w3-bar-item w3-button w3-padding"><i class="fa fa-diamond fa-fw"></i>  Compute</a>
+    <a href="/cluster" class="w3-bar-item w3-button w3-padding"><i class="fa fa-server fa-fw"></i>  Compute</a>
     <a href="https://sp3docs.mmmoxford.uk/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bell fa-fw"></i>  Documentation</a>
     <a href="https://sp3forum.mmmoxford.uk/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bank fa-fw"></i>  Forum</a>
     <a href="https://sp3forum.mmmoxford.uk/post/new?post_template=issue" class="w3-bar-item w3-button w3-padding"><i class="fa fa-history fa-fw"></i>  Report Issue</a>
-    <a href="/admin" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cog fa-fw"></i>  Admin</a><br><br>
+    {% if current_user.is_admin() %}
+      <a href="/admin" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cog fa-fw"></i>  Admin</a><br><br>
+    {% endif %}
+    #}
   </div>
 </nav>
 
@@ -61,14 +67,12 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 <!-- !PAGE CONTENT! -->
 <div class="w3-main" style="margin-left:300px;margin-top:43px;">
 
-  <!-- Header -->
-  <header class="w3-container" style="padding-top:22px">
-    <h5><b><i class="fa fa-dashboard"></i> My Dashboard</b></h5>
-  </header>
-
   <div class="w3-row-padding w3-margin-bottom">
-    {% block content %}
-    {% endblock content %}
+  {% block header %}
+  {% endblock header %}
+
+  {% block content %}
+  {% endblock content %}
   </div>
 
   <!-- Footer -->
@@ -104,6 +108,10 @@ function w3_close() {
   overlayBg.style.display = "none";
 }
 </script>
-
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="/static/scripts/jquery.tablesorter.js"></script>
+<script src="/static/scripts/site.js"></script>
+{% block scripts  %}
+{% endblock scripts %}
 </body>
 </html>

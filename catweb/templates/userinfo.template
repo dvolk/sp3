@@ -1,36 +1,39 @@
 {% extends 'base1.template' %}
 
 {% block content %}
-<h4>Account Info</h4>
 
-<table class="table table-hover table-sm">
-  <thead>
-  </thead>
-  <tbody>
-    {% for k,v in current_user.u.items() %}
-    <tr>
-      <td>{{ k }}</td>
-      <td>{{ v }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <h4>Actions</h4>
 
-<h4>Organisation</h4>
+  <a href="/password"><button type="button" class="w3-btn w3-red">Change Password</button></a>
 
-<table class="table table-hover table-sm">
-  <thead>
-  </thead>
-  <tbody>
-    {% for k, v in current_user.g.items() %}
-    <tr>
-      <td>{{ k }}</td>
-      <td>{{ v }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <h4>Account Info</h4>
 
-<a href="/password"><button type="button" class="btn btn-primary">Change Password</button></a>
+  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+    <thead>
+    </thead>
+    <tbody>
+      {% for k,v in current_user.u.items() %}
+	<tr>
+	  <td>{{ k }}</td>
+	  <td>{{ v }}</td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h4>Organisation</h4>
+
+  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+    <thead>
+    </thead>
+    <tbody>
+      {% for k, v in current_user.g.items() %}
+	<tr>
+	  <td>{{ k }}</td>
+	  <td>{{ v }}</td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
 {% endblock %}

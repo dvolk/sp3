@@ -1,5 +1,5 @@
 <html>
-  <title>W3.CSS Template</title>
+  <title>Oxford SP3</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -14,7 +14,7 @@
       <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
     </div>
 
-    <div class="w3-container" style="margin-top: 5%;">
+    <div class="w3-container w3-auto" style="margin-top: 5%;">
 
     <h2>Register a SP3 user account</h2>
 
@@ -36,9 +36,9 @@
       <label>Purpose of registration</label>
       <input name="referal" id="referal" type=text class="w3-input" aria-label="referal">
       <label>Username (only letters and numbers)*</label>
-      <input name="username" id="username" type=text class="w3-input" aria-label="username" minlength=3>
+      <input name="username" id="username" type=text class="w3-input" aria-label="username" minlength=3 maxlength=64>
       <label>Password (minimum length: 12 characters)*</label>
-      <input name="password" id="password" type="password" class="w3-input" aria-label="password" minlength=12>
+      <input name="password" id="password" type="password" class="w3-input" aria-label="password" minlength=12 maxlength=384>
       <p>You will be emailed when your account is activated.</p>
       <button class="w3-input w3-blue" id="submitButton" type="submit">Submit</button>
     </form>
