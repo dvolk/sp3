@@ -1,37 +1,32 @@
 {% extends 'base1.template' %}
 {% block content %}
 
-<h2 id='details'>{{ name }}</h2>
-<p>Fetch UUID: {{ guid }}</p>
-<p>Accession: {{ name }}</p>
-<p>Fetch range: {{ fetch_range }}</p>
-<p>Status: {{ status }}</p>
-<p>Progress: {{ progress }} / {{ total }}</p>
-<p>Pipeline input dir: {{ input_dir }}</p>
+  <h3>Fetch information</h3>
 
-{# 
-<a class='text-primary' href="/flow/{{ flow_name }}/new?given_input={{ v['output_dir'] }}">run {{ flow_name }}</a>
-#}
+  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+    <tr>
+      <td>Fetch UUID</td><td>{{ guid }}</td>
+    </tr>
+    <tr>
+      <td>Fetch name</td><td>{{ name }}</td>
+    </tr>
+  </table>
+  <br>
 
-<h4>Select Pipeline</h4>
-<p>After select, please click "Update".</p>
-<div class="row">
-  <div class="col col-lg-6">
+<div class="w3-padding w3-border w3-pale-red">
+<h3>Select Pipeline</h3>
+<p>After selecting a pipeline, please click "Update".</p>
     <form action="/select_flow/{{ guid }}" method="get">
-      <div class="form-group">
-	<div class="input-group mb-3">
-	  <select name="flow_name" class="form-control" id="flow_option">
+	  <select name="flow_name" class="w3-input" id="flow_option">
 	    {% for name in user_pipelines %}
 	    <option {% if flow_name == name %}selected{% endif %}>{{ name }}</option>
 	    {% endfor %}
 	  </select>
-	  <button type="Submit" class="btn btn-primary">Update</button>
-	</div>
-      </div>
+	  <button type="Submit" class="w3-input w3-blue">Update</button>
     </form>
-  </div>
-</div>
 <p>Selected pipeline: <strong><span id="selected_flow">{{ flow_name }}</span></strong></p>
-<a class='btn btn-success' id='submit_pipeline' href='/flow/{{ flow_name }}/new?given_input={{ output_dir_b16 }}&fetch_uuid={{ guid }}' data-confirm="Are you sure to run pipeline {{ flow_name }}?">Run</a>
+</div>
+<br/>
+<a class="w3-input w3-btn w3-green" id='submit_pipeline' href='/flow/{{ flow_name }}/new?given_input={{ output_dir_b16 }}&fetch_uuid={{ guid }}' data-confirm="Are you sure you want to run the pipeline {{ flow_name }}?">Run</a>
 
 {% endblock %}
