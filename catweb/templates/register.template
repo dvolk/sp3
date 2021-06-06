@@ -48,7 +48,7 @@
     <!-- Footer -->
     <footer class="w3-container w3-light-grey">
       <h4>About</h4>
-      <p>Version 0.7-309-gf24e7c1-dirty - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
+      <p>Version {{ version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
     </footer>
 
     <!-- End page content -->
