@@ -35,7 +35,7 @@
       <td scope="row">{{ v['name'] }}</td>
       <td scope="row">{{ v['progress'] }} / {{ v['total'] }}</td>
       <td scope="row">
-	<span href="#" style="padding: 3px;" class="{% if v['status'] == 'failure' %}w3-red{% else %}w3-green{% endif %}">{{ v['status'] }}</span>
+	<span href="#" style="padding: 3px;" class="{% if v['status'] == 'failure' or v['status'] == 'failed' %}w3-red{% else %}w3-green{% endif %}">{{ v['status'] }}</span>
       </td>
       <td scope="row" class='text-right'>
 	{% if v['status'] == 'queued' %}
