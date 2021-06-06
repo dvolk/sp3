@@ -204,7 +204,8 @@ def user_loader(username):
 
 @app.context_processor
 def inject_globals():
-    return { 'catweb_version': cfg.get('catweb_version'), 'nav_links': template_nav_links }
+    return { 'catweb_version': cfg.get('catweb_version'),
+             'nav_links': template_nav_links }
 
 @app.route('/register_sp3_user', methods=["GET", "POST"])
 def register_sp3_user():
