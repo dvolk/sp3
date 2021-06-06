@@ -16,7 +16,7 @@
   {% if v['Mounted'] != '/boot/efi' %}
     {% set percent_used = v['Use%'][:-1]|int %}
     {% if percent_used < 40 %} {% set color_class = "w3-green" %} {% endif %}
-    {% if percent_used > 40 and percent_used < 80 %} {% set color_class = "w3-blue" %} {% endif %}
+    {% if percent_used > 40 and percent_used < 80 %} {% set color_class = "w3-yellow" %} {% endif %}
     {% if percent_used > 80 %} {% set color_class = "w3-red" %} {% endif %}
 
     <div class="w3-border">
