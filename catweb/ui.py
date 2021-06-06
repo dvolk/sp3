@@ -19,6 +19,7 @@ import sys
 import glob
 import csv
 import io
+import hashlib
 
 import pandas
 import requests
@@ -89,6 +90,17 @@ def reload_cfg():
         pass
 
 reload_cfg()
+
+template_nav_links = [
+    ["Dashboard", "fa fa-users fa-fw", "/"],
+    ["Datasets", "fa fa-eye fa-fw", "/fetch"],
+    ["Runs/Outputs", "fa fa-file fa-fw", "/flows"],
+    ["Trees", "fa fa-bullseye fa-fw", "/list_trees"],
+    ["Compute", "fa fa-server fa-fw", "/cluster"],
+    ["Documentation", "fa fa-bell fa-fw", "https://sp3docs.mmmoxford.uk/"],
+    ["Forum", "fa fa-bank fa-fw", "https://sp3forum.mmmoxford.uk/"],
+    ["Report Issue", "fa fa-history fa-fw", "https://sp3forum.mmmoxford.uk/post/new?post_template=issue"],
+    ["Admin", "fa fa-cog fa-fw", "/admin"] ]
 
 # really could just be one function
 def api_get_request(api, api_request):
@@ -187,6 +199,8 @@ class User(flask_login.UserMixin):
             if path_begins_with(p2, p1):
                 return True
         return False
+    def email_hash(self):
+        return hashlib.md5(self.user_data().get("email").encode()).hexdigest()
 
 @login_manager.user_loader
 def user_loader(username):
@@ -194,7 +208,8 @@ def user_loader(username):
 
 @app.context_processor
 def inject_globals():
-    return { 'catweb_version': cfg.get('catweb_version') }
+    return { 'catweb_version': cfg.get('catweb_version'),
+             'nav_links': template_nav_links }
 
 @app.route('/register_sp3_user', methods=["GET", "POST"])
 def register_sp3_user():
@@ -349,8 +364,8 @@ def status():
     if request.args.get('api'):
         return json.dumps([running, recent, failed])
 
-    return render_template('status.template', running=running, recent=recent, failed=failed,
-                           user_pipeline_list=get_user_pipelines(current_user.id))
+    tbl_df = run_df()
+    return render_template('status.template', sel="Dashboard", running=running, recent=recent, failed=failed, user_pipeline_list=get_user_pipelines(current_user.id), tbl_df = tbl_df)
 
 @app.route('/userinfo/<username>', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -372,7 +387,7 @@ def view_nf_script(flow_name):
 
     config_content = response['nf_script_txt']
 
-    return render_template('view_nf_script.template', config_yaml=config_content)
+    return render_template('view_nf_script.template', sel="Runs/Outputs", config_yaml=config_content)
 
 @app.route('/edit_flow_config/<flow_name>')
 @flask_login.login_required
@@ -381,7 +396,7 @@ def edit_flow_config(flow_name):
 
     config_content = response['config_content']
 
-    return render_template('view_flow_config.template', config_yaml=config_content)
+    return render_template('view_flow_config.template', sel="Runs/Outputs", config_yaml=config_content)
 
 @app.route('/admin_edit_user', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -395,7 +410,7 @@ def admin_edit_user():
         user_data = json.dumps(requests.get('http://localhost:13666/get_user',
                                             params={ 'username': username }).json(),
                                indent=4)
-        return render_template('admin_edit_user.template',
+        return render_template('admin_edit_user.template', sel="Admin",
                                username=username,
                                user_data=user_data)
 
@@ -419,7 +434,7 @@ def admin():
 
     with open('config.yaml') as f:
         user_d = requests.get("http://localhost:13666/get_users").json()
-        return render_template('admin.template',
+        return render_template('admin.template', sel="Admin",
                                config_yaml=f.read(),
                                user_d=user_d)
 
@@ -431,7 +446,7 @@ def list_flows():
         flows.append(flow)
     if request.args.get('api'):
         return json.dumps(flows)
-    return render_template('list_flows.template', flows=flows,
+    return render_template('list_flows.template', flows=flows, sel="Runs/Outputs",
                            user_pipeline_list=get_user_pipelines(current_user.id))
 
 def get_user_params_dict(flow_name, run_uuid):
@@ -568,7 +583,7 @@ def begin_run(flow_name: str):
 
         logger.debug(sample_names)
         logger.debug(references)
-        return render_template('start_run.template',
+        return render_template('start_run.template', sel="Runs/Outputs",
                                ref_uuid=ref_uuid,
                                flow_cfg=flow_cfg,
                                sample_names=sample_names,
@@ -597,7 +612,7 @@ def map_samples():
             fetch_uuid = request.form['fetch_uuid']
         else:
             fetch_uuid = ""
-        return render_template('refmap.template',
+        return render_template('refmap.template', sel="Runs/Outputs",
                                sample_names=ast.literal_eval(request.form['sample_names']),
                                references=ast.literal_eval(request.form['references']),
                                flow_name=request.form['flow_name'],
@@ -651,7 +666,7 @@ def list_runs(flow_name : str):
     else:
         cfg = { 'display_name': flow_cfg['display_name'],'flow_name': flow_cfg['name'] }
 
-    return render_template('list_runs.template',
+    return render_template('list_runs.template', sel="Runs/Outputs",
                            stuff=cfg,
                            has_dagpng=has_dagpng,
                            data=data)
@@ -670,7 +685,7 @@ def show_dagpng(flow_name : str):
     with open(dagpng_path, "rb") as f:
         dagpng_b64 = base64.b64encode(f.read()).decode()
 
-    return render_template('show_dagpng.template',
+    return render_template('show_dagpng.template', sel="Runs/Outputs",
                            flow_name=flow_name,
                            dagpng_b64=dagpng_b64)
 
@@ -682,7 +697,7 @@ def go_details(flow_name : str, run_uuid: str):
     # remove flow_name
     response = api_get_request('nfweb_api', '/flow/{0}/go_details/{1}'.format(flow_name, run_uuid))
     content = response['go_details']
-    return render_template('show_log.template', content=content, uuid=uuid)
+    return render_template('show_log.template', content=content, uuid=uuid, sel="Runs/Outputs")
 
 
 @app.route('/flow/<flow_name>/details/<run_uuid>/task/<sample_name>/<task_name>')
@@ -712,7 +727,7 @@ def run_details_task_nice(flow_name, run_uuid, sample_name, task_name):
     else:
         abort(404, description="Task not found")
 
-    return render_template('show_task.template',
+    return render_template('show_task.template', sel="Runs/Outputs",
                            flow_name=flow_name,
                            run_uuid=run_uuid,
                            task_id=task_id,
@@ -738,7 +753,7 @@ def run_details_task(flow_name, run_uuid, task_id):
     response = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid))
     run_name = response['data'][0][19]
 
-    return render_template('show_task.template',
+    return render_template('show_task.template', sel="Runs/Outputs",
                            flow_name=flow_name,
                            run_uuid=run_uuid,
                            task_id=task_id,
@@ -829,7 +844,7 @@ def run_details(flow_name : str, run_uuid: int):
         abort(404, description="Flow not found")
 
 
-    return render_template('run_details.template',
+    return render_template('run_details.template', sel="Runs/Outputs",
                            uuid=run_uuid,
                            flow_name=flow_name,
                            tags=tags,
@@ -851,7 +866,7 @@ def show_log(flow_name : str, run_uuid: int):
     response = api_get_request('nfweb_api', '/flow/{0}/log/{1}'.format(flow_name, run_uuid))
     content = response['log']
 
-    return render_template('show_log.template', content=content, flow_name=flow_name, uuid=run_uuid)
+    return render_template('show_log.template', sel="Runs/Outputs", content=content, flow_name=flow_name, uuid=run_uuid)
 
 @app.route('/flow/<flow_name>/output_files/<run_uuid>')
 @flask_login.login_required
@@ -864,7 +879,7 @@ def show_output_files(flow_name : str, run_uuid: int):
 
     download_url = cfg.get('download_url')
 
-    return render_template('show_files.template', content=content, flow_name=flow_name, uuid=run_uuid,
+    return render_template('show_files.template', sel="Runs/Outputs", content=content, flow_name=flow_name, uuid=run_uuid,
                            download_url=download_url)
 
 @app.route('/flow/<flow_name>/delete_output_files/<run_uuid>')
@@ -958,10 +973,22 @@ def storage_analysis():
     total_used_run = sum([row['du_run_space'] for row in catspace_all_sorted])
     total_used_output = sum([row['du_output_space'] for row in catspace_all_sorted])
 
-    return render_template('storage_analysis.template',
+    return render_template('storage_analysis.template', sel="Compute",
                            catspace_all_sorted=catspace_all_sorted,
                            total_used_run=total_used_run,
                            total_used_output=total_used_output)
+
+def run_df():
+    try:
+        df = subprocess.check_output(shlex.split("df -h"), stderr=subprocess.PIPE, universal_newlines=True)
+    except FileNotFoundError as e:
+        abort(500, description=e)
+    except subprocess.CalledProcessError as e:
+        abort(500, description=e)
+    disk_filter = cfg.get("cluster_view")['disk_filter']
+    tbl_df     = pandas.read_csv(StringIO(df), sep='\s+')
+    tbl_df = tbl_df[tbl_df.Filesystem.str.contains(disk_filter)][['Mounted', 'Use%', 'Used', 'Size']]
+    return tbl_df
 
 @app.route('/cluster')
 @flask_login.login_required
@@ -977,23 +1004,9 @@ def cluster():
             for job_id, job in j.items():
                 job['duration'] = hm_timediff(job['started'], int(time.time()))
 
-    try:
-        df = subprocess.check_output(shlex.split("df -h"), stderr=subprocess.PIPE, universal_newlines=True)
-    except FileNotFoundError as e:
-        abort(500, description=e)
-    except subprocess.CalledProcessError as e:
-        abort(500, description=e)
+    tbl_df = run_df()
 
-    disk_filter = cfg.get("cluster_view")['disk_filter']
-    tbl_df     = pandas.read_csv(StringIO(df), sep='\s+')
-    tbl_df = tbl_df[tbl_df.Filesystem.str.contains(disk_filter)][['Mounted', 'Use%', 'Used', 'Size']]
-
-    # embedded content
-    embeds = None
-    if 'embeds' in cfg.get("cluster_view"):
-        embeds = cfg.get("cluster_view")['embeds']
-
-    return render_template('cluster.template', cluster_info=cluster_info, tbl_df=tbl_df, embeds=embeds)
+    return render_template('cluster.template', sel="Compute", cluster_info=cluster_info, tbl_df=tbl_df)
 
 @app.route('/drop_upload')
 @flask_login.login_required
@@ -1003,7 +1016,7 @@ def upload_data():
     newpath = str(rootpath / subfolder)
     newpath_encoded = base64.b16encode(bytes(newpath, encoding='utf-8')).decode('utf-8')
 
-    return render_template('upload.template',
+    return render_template('upload.template', sel="Datasets",
                            subfolder=subfolder,
                            fetchpath=newpath,
                            fetchpath_encoded=newpath_encoded)
@@ -1033,7 +1046,7 @@ def fetch_data():
     r = api_get_request('fetch_api', '/api/fetch/describe')
     sources = r['sources']
 
-    return render_template('new_fetch.template', sources=sources)
+    return render_template('new_fetch.template', sel="Datasets", sources=sources)
 
 @app.route('/get_files', methods=['POST'])
 @flask_login.login_required
@@ -1074,7 +1087,7 @@ def fetch_data2(fetch_kind):
     paths.sort()
 
     if fetch_kind == 'ena1':
-        return render_template('new_fetch2_ena1.template',
+        return render_template('new_fetch2_ena1.template', sel="Datasets",
                                source=source,
                                fetch_kind=fetch_kind,
                                data_kind=in_data_kind,
@@ -1083,7 +1096,7 @@ def fetch_data2(fetch_kind):
     if fetch_kind == 'ena2':
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         name = 'ENA_' + timestamp
-        return render_template('new_fetch2_ena2.template',
+        return render_template('new_fetch2_ena2.template', sel="Datasets",
                                name=name,
                                source=source,
                                fetch_kind=fetch_kind,
@@ -1092,7 +1105,7 @@ def fetch_data2(fetch_kind):
                                paths=paths)
 
     if fetch_kind == 'local1':
-        return render_template('new_fetch2_local1.template',
+        return render_template('new_fetch2_local1.template', sel="Datasets",
                                source=source,
                                fetch_kind=fetch_kind,
                                data_kind=in_data_kind,
@@ -1135,7 +1148,7 @@ def fetch():
     # sort fetches by time
     fetches = dict(reversed(sorted(fetches.items(), key=lambda x: x[1]['started'])))
 
-    return render_template('fetch.template', fetches=fetches, sources=sources)
+    return render_template('fetch.template', sel="Datasets", fetches=fetches, sources=sources)
 
 @app.route('/fetch_new', methods=['POST'])
 @flask_login.login_required
@@ -1212,7 +1225,7 @@ def select_flow(guid):
         if user_pipelines:
             flow_name = list(user_pipelines)[0]
 
-    return render_template('select_flow.template',
+    return render_template('select_flow.template', sel="Datasets",
                            guid=guid,
                            name=accession,
                            fetch_range=fetch_range,
@@ -1230,7 +1243,7 @@ def fetch_metadata(flow_name, pipeline_run_uuid):
     sp3data = api_get_request('catpile_api', f'/get_sp3_data_for_run/{pipeline_run_uuid}')
     sp3data = list(enumerate(sp3data))
 
-    return render_template('show_sp3data.template',
+    return render_template('show_sp3data.template', sel="Runs/Outputs",
                            pipeline_run_uuid=pipeline_run_uuid,
                            sp3data=sp3data)
 
@@ -1285,7 +1298,7 @@ def fetch_details(guid):
         sp3data = api_get_request('catpile_api', f'/get_sp3_data_for_fetch/{guid}')
         sp3data = list(enumerate(sp3data))
 
-    return render_template('fetch_details.template',
+    return render_template('fetch_details.template', sel="Datasets",
                            guid=guid,
                            name=accession,
                            fetch_range=fetch_range,
@@ -1315,7 +1328,7 @@ def get_report_pdf(run_uuid, dataset_id):
     rf = f"/tmp/{run_uuid}_{dataset_id}_report.pdf"
     with open(jf, "w") as f:
         f.write(json.dumps(template_report_data))
-    brand_arg = "--brand=" + current_user.get_org_name()
+    brand_arg = f"--brand={current_user.get_org_name()}"
     cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catdoc/catdoc.py {shlex.quote(jf)} {shlex.quote(rf)} {shlex.quote(brand_arg)}"
     logging.warning(cmd)
     os.system(cmd)
@@ -1338,7 +1351,7 @@ def get_report(run_uuid : str, dataset_id: str):
     if request.args.get('api'):
         return json.dumps(template_report_data)
 
-    return render_template('report.template',
+    return render_template('report.template', sel="Runs/Outputs",
                            list = list,
                            pipeline_run_uuid=run_uuid,
                            dataset_id=dataset_id,
@@ -1362,7 +1375,7 @@ def get_report_raw_data(run_uuid, dataset_id, report_type):
     if report_type == 'resistance':
         raw_data = json.dumps(json.loads(raw_data), indent=4)
 
-    return render_template('report_raw_data.template',
+    return render_template('report_raw_data.template', sel="Runs/Outputs",
                            raw_data=raw_data)
 
 @app.route('/make_a_tree', methods=['POST'])
@@ -1371,7 +1384,7 @@ def make_a_tree():
     run_ids_sample_names =  json.dumps(list(request.form.keys()))
     run_names_sample_names = list(request.form.values())
     logger.warning(f'tree requests: {request.form}')
-    return render_template('make_a_tree.template',
+    return render_template('make_a_tree.template', sel="Trees",
                            run_names_sample_names = run_names_sample_names,
                            run_ids_sample_names = run_ids_sample_names)
 
@@ -1385,7 +1398,7 @@ def list_trees():
                                                                           'sample_name': sample_name }).json()
     else:
         trees = requests.get('https://persistence.mmmoxford.uk/api_list_trees').json()
-    return render_template("list_trees.template", trees=trees, strftime=time.strftime, localtime=time.localtime,
+    return render_template("list_trees.template", sel="Trees", trees=trees, strftime=time.strftime, localtime=time.localtime,
                            pipeline_run_uuid=pipeline_run_uuid,
                            sample_name=sample_name)
 
@@ -1430,7 +1443,7 @@ def view_tree(guid):
                         node.name = f"{sample_name} [{runs_names_map[pipeline_run_uuid]['run_name']}]"
         tree_nwk = newick.dumps(xs)
 
-    return render_template("view_tree.template",
+    return render_template("view_tree.template", sel="Trees",
                            tree_nwk=tree_nwk,
                            data=data,
                            data2=json.loads(data['results']))
@@ -1449,7 +1462,7 @@ def cw_query():
     neighbours_ok = False
 
     if not (run_id and sample_name and distance):
-        return render_template('cw_query.template',
+        return render_template('cw_query.template', sel="Trees",
                                distance = 12)
 
     else:
@@ -1477,7 +1490,7 @@ def cw_query():
         except:
             pass
         logger.debug(f'cw_query end: sample_name: {sample_name}')
-        return render_template('cw_query.template',
+        return render_template('cw_query.template', sel="Trees",
                                neighbours_ok = neighbours_ok,
                                all_runs = all_runs,
                                run_id = run_id,
@@ -1489,7 +1502,7 @@ def cw_query():
 @flask_login.login_required
 def list_reports():
     reports = api_get_request('reportreader_api','/list_reports')
-    return render_template('list_reports.template',
+    return render_template('list_reports.template', sel="Runs/Outputs",
                            int = int,
                            strftime=time.strftime,
                            localtime=time.localtime,

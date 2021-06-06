@@ -33,8 +33,8 @@ def is_token_valid(token):
     token_added_age = time.time() - token['added_epochtime']
     token_last_active_age = time.time() - token['last_active_epochtime']
 
-    token_last_active_age_max = 24 * 3600 # 8h
-    token_added_age_max = 5 * 24 * 3600  # 5d
+    token_last_active_age_max = 4 * 24 * 3600 # 4d
+    token_added_age_max = 30 * 24 * 3600  # 30d
 
     if token_last_active_age > token_last_active_age_max or token_added_age > token_added_age_max:
         return False
@@ -118,6 +118,8 @@ def add_user():
 
     if len(username) < 3:
         return "err-username_too_short"
+    if len(username) > 64:
+        return "err-username_too_long"
 
     if len(password) < 12:
         return "err-password_too_short"

@@ -3,15 +3,6 @@
 {% block head %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
-<style>
-  .tablearea {
-      width: 400px;
-      min-height: 150px;
-      border-style: solid;
-      border-width: 0.5px;
-      border-color: gray;
-   }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -23,48 +14,33 @@
 
 <form action="/fetch_new" method="post">
   <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
- 
+
 {% if not paths %}
   <p>No paths found</p>
 
-  {% else %}
-<div class="row">
-<div class="col-md-6">  
-  <div class="input-group">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">{{ source['data_identifier_display_name'] }}</span>
-    </div>
-    <select name="fetch_name" class="form-control" onchange="load_filenames(this)" id="fetch_name">
+{% else %}
+  <div class="w3-container w3-half">
+    <label>{{ source['data_identifier_display_name'] }}</label>
+    <select name="fetch_name" class="w3-input" onchange="load_filenames(this)" id="fetch_name">
       {% for p in paths %}
-      <option {% if p == data_identifier %} selected {% endif %}>{{ p }}</option>
+	<option {% if p == data_identifier %} selected {% endif %}>{{ p }}</option>
       {% endfor %}
     </select>
-  </div>
+    {% if source['fetch_methods'] %}
+      <label>Fetch method</label>
+      <select name="fetch_method" class="w3-input">
+	{% for m in source['fetch_methods'] %}
+	  <option>{{ m }}</option>
+	{% endfor %}
+      </select>
+    {% endif %} {# if source['fetch_methods'] #}
+    <p>For fetch from <b>S3 buckets (catsup upload)</b>, please choose <b>copy</b> as fetch method</p>
+    <br/>
 
-  <br/>
-
-  {% if source['fetch_methods'] %}
-  <div class="input-group ">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Fetch method</span>
-    </div>
-    <select name="fetch_method" class="form-control">
-      {% for m in source['fetch_methods'] %}
-      <option>{{ m }}</option>
-      {% endfor %}
-    </select>
+    <button type="Submit" class="w3-input w3-blue">Start Fetch</button>
   </div>
-  {% endif %} {# if source['fetch_methods'] #}
-  <p>For fetch from <b>S3 buckets (catsup upload)</b>, please choose <b>copy</b> as fetch method</p>
-  <br/>
-
-  <div class="input-group ">
-    <button type="Submit" class="btn btn-primary">Start Fetch</button>
-  </div>
-</div> {# div input #}
-<div class="col-md-6 tablearea" id="tablearea">
+<div class="w3-container w3-half" id="tablearea">
 </div>
-</div> {# div row #}
 </form>
 
 {% endif %} {# if not paths #}
@@ -95,11 +71,12 @@ function load_filenames(){
             .then((data) => {
                 refresh_list(data)
             })
-       };      
+       };
 load_filenames();
 </script>
 <script type="text/x-handlebars-template" id="tableTemplate">
-  <table class="table table-sm table-striped">
+  <h3>Files in directory:</h3>
+  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
     {% raw %}
     {{#each filenames}}
     <tr>

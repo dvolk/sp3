@@ -6,20 +6,19 @@
   <a href="/flow/{{ flow_name }}/details/{{ uuid }}">{{ run_name }}</a>
 </p>
 <p>
-  {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/output_files/{{ uuid }}"><button type="button" class="btn btn-primary">Download Output</button></a>{% endif %}
-  {% if buttons['log'] %}<a href="/flow/{{ flow_name }}/log/{{ uuid }}"><button type="button" class="btn btn-info">View Log</button></a>{% endif %}
-  {% if buttons['report'] %}<a href="/flow/{{ flow_name }}/report/{{ uuid }}"><button type="button" class="btn btn-info">View report</button></a>{% endif %}
-  {% if buttons['timeline'] %}<a href="/flow/{{ flow_name }}/timeline/{{ uuid }}"><button type="button" class="btn btn-info">View timeline</button></a>{% endif %}
-  {% if buttons['dagdot'] %}<a href="/flow/{{ flow_name }}/dagdot/{{ uuid }}"><button type="button" class="btn btn-info">View Graph</button></a>{% endif %}
-  <a href="/flow/{{ flow_name }}/show_metadata/{{ uuid }}"><button type="button" class="btn btn-info">View metadata</button></a>
+  {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/output_files/{{ uuid }}"><button type="button" class="w3-btn w3-blue">Download Output</button></a>{% endif %}
+  {% if buttons['log'] %}<a href="/flow/{{ flow_name }}/log/{{ uuid }}"><button type="button" class="w3-btn w3-green">View Log</button></a>{% endif %}
+  {% if buttons['report'] %}<a href="/flow/{{ flow_name }}/report/{{ uuid }}"><button type="button" class="w3-btn w3-green">View report</button></a>{% endif %}
+  {% if buttons['timeline'] %}<a href="/flow/{{ flow_name }}/timeline/{{ uuid }}"><button type="button" class="w3-btn w3-green">View timeline</button></a>{% endif %}
+  {% if buttons['dagdot'] %}<a href="/flow/{{ flow_name }}/dagdot/{{ uuid }}"><button type="button" class="w3-btn w3-green">View Graph</button></a>{% endif %}
+  <a href="/flow/{{ flow_name }}/show_metadata/{{ uuid }}"><button type="button" class="w3-btn w3-green">View metadata</button></a>
   {% if not current_user.is_readonly_user() %}
-    {% if buttons['stop'] %}<a href="/flow/{{ flow_name }}/stop/{{ uuid }}"><button type="button" class="btn btn-danger">Stop</button></a>{% endif %}
-    {% if buttons['rerun'] %}<a href="/flow/{{ flow_name }}/new?replay={{ uuid }}"><button type="button" class="btn btn-warning">Repeat Run</button></a>{% endif %}
-    {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/delete_output_files/{{ uuid }}" id="delete_output" data-confirm="Are you sure to delete output files?"><button type="button" class="btn btn-danger">Delete output files</button></a>{% endif %}
-    {% if not buttons['stop'] %}<a href="/flow/{{ flow_name }}/delete_run/{{ uuid }}" id="delete_run" data-confirm="Are you sure you want to delete the run?"><button type="button" class="btn btn-danger">Delete run</button></a>{% endif %}
+    {% if buttons['stop'] %}<a href="/flow/{{ flow_name }}/stop/{{ uuid }}"><button type="button" class="w3-btn w3-red">Stop</button></a>{% endif %}
+    {% if buttons['rerun'] %}<a href="/flow/{{ flow_name }}/new?replay={{ uuid }}"><button type="button" class="w3-btn w3-yellow">Repeat Run</button></a>{% endif %}
+    {% if buttons['output_files'] %}<a href="/flow/{{ flow_name }}/delete_output_files/{{ uuid }}" id="delete_output" data-confirm="Are you sure to delete output files?"><button type="button" class="w3-btn w3-red">Delete output files</button></a>{% endif %}
+    {% if not buttons['stop'] %}<a href="/flow/{{ flow_name }}/delete_run/{{ uuid }}" id="delete_run" data-confirm="Are you sure you want to delete the run?"><button type="button" class="w3-btn w3-red">Delete run</button></a>{% endif %}
   {% endif %}
 </p>
-  <hr>
 <p>
   {% if not pipeline_no_report %}
      To view the report, click on the sample name in the left section of the table below.
@@ -29,8 +28,8 @@
   To view the task command and output, click on the task name on the right section of the table below.
 </p>
 <div class="form-group form-inline">
-  <label for="promt"><strong>Filter samples by species: </strong> </label>
-  <input type="text" size="40"  class="form-control" id="search_sample" placeholder="e.g. tuberculosis, bovis, abscessus or failed"><span id="samplecount"> {{ trace_nice | length - 1}} samples</span>
+  <label for="promt"><strong>Filter samples by species: </strong></label>
+  <input type="text" size="40" class="w3-input" id="search_sample" placeholder="e.g. tuberculosis, bovis, abscessus or failed"><span id="samplecount"> {{ trace_nice | length - 1}} samples</span>
 </div>
 
   {% if trace_nice %}
@@ -40,10 +39,10 @@
       <h4>{{ percent_done }}% ({{ task_count }} / {{ expected_tasks }}) tasks done</h4>
     {% endif %}
 
-    {% set status_map = { 'COMPLETED': 'btn-info',
-    'ABORTED': 'btn-warning',
-    'FAILED': 'btn-danger' } %}
-    <table style="margin-top: 10px" class="table-striped table table-hover table-sm" style="border: none" id="list_table">
+    {% set status_map = { 'COMPLETED': 'w3-green',
+    'ABORTED': 'w3-orange',
+    'FAILED': 'w3-red' } %}
+    <table style="margin-top: 10px" class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" style="border: none" id="list_table">
       <thead>
         <tr>
           <th scope="col">Sample </th>

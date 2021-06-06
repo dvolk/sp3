@@ -1,40 +1,44 @@
 {% extends "base1.template" %}
 
+{% block header %}
+
+  <header class="w3-container" style="padding-top:22px">
+    <h5><b><i class="fa fa-server fa-fw"></i> My Cluster</b></h5>
+  </header>
+
+{% endblock header %}
+
 {% block head %}
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock head %}
 
 {% block content %}
-  <h4>Cluster status</h4>
 
-<div id="catgrid_stats" style="width:1000px;height:400px;"></div>
+<h3>Cluster status</h3>
 
-<h5>Disks</h5>
+<div id="catgrid_stats" style="width:100%;height:400px;"></div>
 
-<table class="table table-hover table-sm tablesorter tablesorter-default">
-   <thead>
-    <tr>
-      <th scope="col"><a href="#">Location</a></th>
-      <th scope="col"><a href="#">Use%</a></th>
-      <th scope="col"><a href="#">Used</a></th>
-      <th scope="col"><a href="#">Size</a></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for k,v in tbl_df.iterrows() %}
-    <tr>
-      <td scope="row">{{ v['Mounted'] }}</th>
-      <td scope="row">{{ v['Use%'] }}</td>
-      <td scope="row">{{ v['Used'] }}</td>
-      <td scope="row">{{ v['Size'] }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<h3>Disk use</h3>
 
-<h5>Catgrid nodes</h5>
+{% for k,v in tbl_df.iterrows() %}
+  {% if v['Mounted'] != '/boot/efi' %}
+    {% set percent_used = v['Use%'][:-1]|int %}
+    {% if percent_used < 40 %} {% set color_class = "w3-green" %} {% endif %}
+    {% if percent_used > 40 and percent_used < 80 %} {% set color_class = "w3-blue" %} {% endif %}
+    {% if percent_used > 80 %} {% set color_class = "w3-red" %} {% endif %}
 
-<table style="margin-top: 10px" class="table-striped table table-hover table-sm" style="border: none">
+    <div class="w3-border">
+      <div class="{{ color_class }}" style="height:24px;width:{{ percent_used }}%">
+	<strong>{{ v['Mounted'].strip() }} ({{ v['Used'] }} used out of {{ v['Size'] }} - {{ percent_used }}%)</strong>
+      </div>
+    </div>
+    <br/>
+  {% endif %}
+{% endfor %}
+
+<h3>Catgrid nodes</h3>
+
+<table style="margin-top: 10px" class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white table-sm" style="border: none">
   <thead>
     <tr>
       <th style="padding-right: 50px" scope="col">Node</th>
@@ -128,7 +132,7 @@ getData('/get_cluster_stats').then((data) => {
     var trace7 = {
 	type: "scatter",
 	mode: "lines",
-	name: 'Free% /',
+	name: 'Used% /',
 	x: data[0],
 	y: data[7],
 	line: {color: '#8B008B'}
@@ -136,7 +140,7 @@ getData('/get_cluster_stats').then((data) => {
     var trace8 = {
 	type: "scatter",
 	mode: "lines",
-	name: 'Free% /data',
+	name: 'Used% /data',
 	x: data[0],
 	y: data[8],
 	line: {color: '#2F4F4F'}
@@ -144,7 +148,7 @@ getData('/get_cluster_stats').then((data) => {
     var trace9 = {
 	type: "scatter",
 	mode: "lines",
-	name: 'Free% /work',
+	name: 'Used% /work',
 	x: data[0],
 	y: data[9],
 	line: {color: '#7B68EE'}
@@ -152,7 +156,7 @@ getData('/get_cluster_stats').then((data) => {
 
     Plotly.newPlot(catgrid_stats,
 		   [trace1, trace2, trace3, trace4, trace5, trace6, trace7, trace8, trace9],
-		   { margin: { t: 0 } } );
+		   { margin: { t: 10, b: 40, l: 40 } } );
 });
 
 </script>

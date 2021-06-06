@@ -11,7 +11,7 @@
     <div class="input-group-prepend">
       <span class="input-group-text" id="basic-addon1">Run Name</span>
     </div>
-    <input name="run_name" id="run_name" type=text class="form-control" aria-label="Run Name"
+    <input class="w3-input" name="run_name" id="run_name" type=text class="w3-input form-control" aria-label="Run Name"
      value="{{ flow_cfg['name'] }}-{{ now }}"  aria-describedby="basic-addon1" >
   </div>
   {# ==============Execution Context ================ #}
@@ -19,7 +19,7 @@
     <div class="input-group-prepend">
       <label class="input-group-text" for="context">Execution context</label>
     </div>
-    <select class="custom-select" id="context" name="context">
+    <select class="w3-input custom-select" id="context" name="context">
       {% for context in flow_cfg['contexts'] %}
       <option value="{{ context['name'] }}">{{ context['name'] }}</option>
       {% endfor %}
@@ -34,7 +34,7 @@
             <span class="input-group-text" id="basic-addon1">{{ field['desc'] }}</span>
           </div>
 
-          <input name="{{ field['name'] }}-and-{{ field['arg'] }}"
+          <input class="w3-input" name="{{ field['name'] }}-and-{{ field['arg'] }}"
             id="{{ field['name'] }}" type="text"
             class="form-control"
             aria-describedby="basic-addon1"
@@ -53,14 +53,14 @@
           <span class="input-group-text" id="basic-addon1">{{ param['desc'] }}</span>
         </div>
       {% if param['type'] == 'switch' %}
-        <select class="custom-select" name="{{ param['name'] }}-and-{{ param['arg'] }}" id="text-outProj">
+        <select class="w3-input custom-select" name="{{ param['name'] }}-and-{{ param['arg'] }}" id="text-outProj">
         {% for k,v in param['options'].items() %}
           {% set is_selected = param['arg'] in user_param_dict and user_param_dict[param['arg']] == v %}
           <option value="{{ v }}"{% if is_selected %} selected{% endif %}>{{ k }}</option>
         {% endfor %}
         </select>
       {% else %}
-        <input name="{{ param['name'] }}-and-{{ param['arg'] }}"
+        <input class="w3-input" name="{{ param['name'] }}-and-{{ param['arg'] }}"
           id="{{ param['name'] }}" type="text"
           class="form-control"
           aria-describedby="basic-addon1"
@@ -84,7 +84,8 @@
     {% endif %}
   {% endfor %}
 
-  <button id="submitButton" type="submit" class="btn btn-primary">Submit run</button>
+  <br/>
+  <button id="submitButton" type="submit" class="w3-input w3-green btn btn-primary">Submit run</button>
 </form>
 
 {% if sample_names and references and 'refmap' in flow_cfg %}
@@ -94,7 +95,7 @@
   <input type="hidden" name="flow_name" id="flow_name" value="{{ flow_cfg['name'] }}">
   <input type="hidden" name="fetch_given_input_b" id="fetch_given_input_b" value="{{ fetch_given_input_b }}">
   <input type="hidden" id="fetch_uuid" name="fetch_uuid" value='{{ fetch_uuid }}'>
-  <button style="margin-top: 5px;" id="submitButton" type="submit" class="btn btn-primary">Map individual samples</button>
+  <button  class="w3-input" style="margin-top: 5px;" id="submitButton" type="submit" class="btn btn-primary">Map individual samples</button>
 </form>
 {% endif %}
 

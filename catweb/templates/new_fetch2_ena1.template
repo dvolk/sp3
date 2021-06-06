@@ -1,36 +1,20 @@
 {% extends "base1.template" %}
 {% block content %}
 
-<h4>{{ source['display_name'] }}</h4>
+  <h4>{{ source['display_name'] }}</h4>
 <p>{{ source['description'] }}</p>
-<hr/>
 
 <form action="/fetch_new" method="post">
   <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
-  <div class="input-group">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">{{ source['data_identifier_display_name'] }}</span>
-    </div>
-    <input name="fetch_name" type=text class="form-control" {% if data_identifier %}value='{{ data_identifier }}'{% endif %} required>
-  </div>
+  <label>{{ source['data_identifier_display_name'] }}</label>
+  <input name="fetch_name" type=text class="w3-input" {% if data_identifier %}value='{{ data_identifier }}'{% endif %} required>
   <p>Any accession number, such as PRJEB2221, SAMEA961610, ERS013327, ERX2005830 or ERR025833</p>
-  <br/>
-
   {% if source['has_data_filter'] == 'yes' %}
-  <div class="input-group ">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">{{ source['data_filter_display_name'] }}</span>
-    </div>
-    <input name="fetch_range" type=text class="form-control">
-  </div>
+    <label>{{ source['data_filter_display_name'] }}</label>
+    <input name="fetch_range" type=text class="w3-input">
   <p>Syntax example: 0,2,10-20</p>
-  {% endif %} {# source['has_data_filter'] == 'yes' #}
+{% endif %} {# source['has_data_filter'] == 'yes' #}
 
-  <br/>
-
-  <div class="input-group ">
-    <button type="Submit" class="btn btn-primary">Start Fetch</button>
-  </div>
-
+<button type="Submit" class="w3-input w3-blue">Start Fetch</button>
 </form>
 {% endblock content %}

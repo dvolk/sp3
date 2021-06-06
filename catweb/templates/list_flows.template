@@ -1,22 +1,29 @@
 {% extends "base1.template" %}
+
+{% block header %}
+
+  <header class="w3-container" style="padding-top:22px">
+    <h5><b><i class="fa fa-file fa-fw"></i> My Runs</b></h5>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
-<div class="list-group list-group-flush">
-  <h4>Flows</h4>
-  {% for flow in flows %}
-  {% if flow['show'] and flow['name'] in user_pipeline_list  %}
-  <a href="/flow/{{ flow['name'] }}" class="list-group-item list-group-item-action flex-column align-items-start">
-    <div class="d-flex w-100 justify-content-between">
-      <h4 class="mb-1">{% if 'display_name' in flow %}{{ flow['display_name'] }}{% else %}{{ flow['name'] }}{% endif %}</h4>
-      <small>{{ flow['version'] }}</small>
+  <div class="w3-container">
+    <h4>Flows</h4>
+    <div class="w3-row w3-border">
+      {% set colors = ["#fff", "#eee", "#eee", "#fff"] %}
+      {% for flow in flows %}
+	{% if flow['show'] and flow['name'] in user_pipeline_list  %}
+	  {% set color = colors[(loop.index-1) % (colors|length)] %}
+	  <div class="w3-container w3-half" style="background-color: {{ color }}">
+	    <h3><a href="/flow/{{ flow['name'] }}">{% if 'display_name' in flow %}{{ flow['display_name'] }}{% else %}{{ flow['name'] }}{% endif %}</a></h3>  
+	    <p>Version: {{ flow['git_version'] }}</p>
+	    <p>Last updated: {{ flow['last_commit_pretty'] }}</p>
+	  </div>
+	  
+	{% endif %}
+      {% endfor %}
     </div>
-    <div class="d-flex w-100 justify-content-between">
-      <p class="mb-1">{{ flow['description'] }}</p>
-      <p class="mb-1">
-	<span id="context" class="btn-sm btn-primary">{{ flow['organisation'] }}</span>
-      </p>
-    </div>
-  </a>
-  {% endif %}
-  {% endfor %}
-</div>
+  </div>
 {% endblock content %}

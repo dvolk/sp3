@@ -1,44 +1,45 @@
-{% extends 'base1.template' %}
+<!DOCTYPE html>
+<html>
+  <title>Oxford SP3</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+  </style>
+  <body class="w3-light-grey">
+    <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
+      <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
+    </div>
 
-{% block content %}
-<div class="row">
-  <div class="container">
-    <h4>Login Required</h4>
-    <hr />
-    {% if allow_registration %}
-    <p><span><b><a href="/register_sp3_user">Please click here to create your account</a></b></span></p>
-    {% endif %}
-    {% if msg %}
-    <span><h3 class='text-danger'>Error: {{ msgs[msg] }}</h3></span>
-    <br>
-    {% endif %}
-  </div>
-  <br>
-  <div class="col-md-6">
-    <form action="login" class="form-horizontal" method="post" role="form">
-      <input name="" type="hidden" value="" />
-      <input name="next" type="hidden" value="{{ next }}" />
-      <div class="form-group">
-        <div class="col-md-10">
-	  <label class="control-label" for="Email">Username</label>
-          <input class="form-control" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="username" type="text" value="" />
-          <span class="field-validation-valid text-danger" data-valmsg-for="Email" data-valmsg-replace="true"></span>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="col-md-10">
-          <label class="control-label" for="Password">Password</label>
-          <input class="form-control" data-val="true" data-val-required="The Password field is required." id="password" name="password" type="password" />
-          <span class="field-validation-valid text-danger" data-valmsg-for="Password" data-valmsg-replace="true"></span>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-          <input type="submit" value="Log in" class="btn btn-primary" />
-        </div>
-      </div>
-    </form>
-    <div class="col-md-6"></div>
-  </div>
+    <div class="w3-content w3-display-middle" style="width:300px;">
+
+      <h2>Sign in</h2>
+      {% if msg %}
+	<div class='w3-card w3-panel w3-red'><p><strong>Error: {{ msgs[msg] }}</strong><p></div>
+      {% endif %}
+      <form action="/login" method="post" style="display:inline">
+	<label>Username</label>
+	<input class="w3-input" type="text"     id="username" name="username" placeholder="Username" minlength=3><br>
+	<label>Password</label>
+	<input class="w3-input" type="password" id="password" name="password" placeholder="Password"><br>
+	<input type="submit" value="Continue" class="w3-btn w3-blue"/>
+      </form>
+      {% if allow_registration %}
+	<a href="/register_sp3_user"><button class="w3-btn w3-green">Register</button></a>
+      {% endif %}
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="w3-container w3-light-grey" style="position: fixed; bottom: 10px;">
+      <h4>About</h4>
+      <p>Version 0.7-309-gf24e7c1-dirty - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
+    </footer>
+
+    <!-- End page content -->
 </div>
-{% endblock %}
+</body>
+</html>

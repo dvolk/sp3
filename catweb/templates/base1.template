@@ -1,106 +1,117 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
+<title>Oxford SP3</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+</style>
+{% block head %}
+{% endblock head %}
+<body class="w3-light-grey">
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-	  crossorigin="anonymous">
-	  <link rel="stylesheet" src="/static/css/site.css" />
-	  <title>Oxford SP3</title>
-	  <style>
-	    body {
-	    font-size: 0.9em;
-	    padding-top: 10px;
-	    }
-	    pre {
-	    white-space: pre-wrap;
-	    }
-	  </style>
-	  {% block head %}
-	  {% endblock head %}
-  </head>
+<!-- Top container -->
+<div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
+  <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
+  <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
+</div>
 
-  <body>
-    <div class="container">
-      {% block navbar %}
-	<nav style="padding: 0px"  class="navbar navbar-expand-sm navbar-light">
-	  <div class="d-flex w-100 justify-content-between">
-            <span id="banner">
-	      <img style="width: 160px; height: 85px; float: left;" src="/static/mmmlogo_small.png">
-              <h1 style="position: relative; top: 10px; left: 10px;">
-		<a href="/" style="text-decoration: none; color: black">Oxford SP<sup>3</sup></a>
-	      </h1>
-              <p style="position: relative; left: 12px;">Oxford Scalable Pathogen Pipeline Platform</p>
-              <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-
-              <div class="collapse navbar-collapse" id="navbarCollapse">
-		<ul class="navbar-nav">
-		  {% if current_user.is_authenticated %}
-		    <li class="nav-item" style="margin-right: 20px">
-		      <a class="nav-link" href="/" style="font-size: 24px; padding-left: 0; ">Dashboard</a>
-		    </li>
-		  <li class="nav-item" style="margin-right: 20px">
-		    <a class="nav-link" href="/fetch" style="font-size: 24px">Datasets</a>
-		  </li>
-		  <li class="nav-item" style="margin-right: 20px">
-		    <a class="nav-link" href="/flows" style="font-size: 24px">Runs/Outputs</a>
-		  </li>
-		  <li class="nav-item" style="margin-right: 20px">
-		    <a class="nav-link" href="/list_trees" style="font-size: 24px">Trees</a>
-		  </li>
-		  <li class="nav-item" style="margin-right: 20px">
-		    <a class="nav-link" href="/cluster" style="font-size: 24px">Compute</a>
-		  </li>
-		  <li class="nav-item" style="margin-right: 20px">
-		    <a class="nav-link" target="_blank" href="https://sp3docs.mmmoxford.uk/" style="font-size: 24px">Document</a>
-		  </li>
-		  <li class="nav-item" style="margin-right: 20px">
-		    <a class="nav-link" href="https://sp3forum.mmmoxford.uk" style="font-size: 24px; padding-left: 0; ">Forum</a>
-		  </li>
-		  <li class="nav-item" style="margin-right: 20px">
-		    <a class="nav-link" href="https://sp3forum.mmmoxford.uk/post/new?post_template=issue" style="color: tomato; font-size: 24px">Report issue</a>
-		  </li>
-		  {% if current_user.is_admin() %}
-		    <li class="nav-item" style="margin-right: 20px">
-		      <a class="nav-link" href="/admin" style="font-size: 24px">Admin</a>
-		    </li>
-		  {% endif %}
-		{% endif %}
-		</ul>
-              </div>
-            </span>
-            <p>
-              {% if current_user.is_authenticated %}
-		<a href="/userinfo/{{ current_user.id }}"><span class="login">{{current_user.id }}</span></a>
-		<a href="/logout"><span class="btn-sm btn-primary">Logout</span></a>
-              {% endif %}
-            </p>
-	  </div>
-	</nav>
-      {% endblock navbar %}
-      <br />
-      {% block content %}
-      {% endblock content %}
-      {% block footer %}
-	<br>
-	<hr>
-	<footer>
-	  <p>Version {{ catweb_version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
-	</footer>
-      {% endblock footer %}
+<!-- Sidebar/menu -->
+<nav class="w3-sidebar w3-collapse w3-white w3-animate-left" style="z-index:3;width:300px;" id="mySidebar"><br>
+  <div class="w3-container w3-row">
+    <div class="w3-col s4">
+      {% if current_user.is_authenticated %}
+      <img src="https://www.gravatar.com/avatar/{{ current_user.email_hash() }}?d=identicon" class="w3-circle w3-margin-right" style="width:46px; {#filter: grayscale(100%)#}">
+      {% endif %}
     </div>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-	    crossorigin="anonymous"></script>
-	    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-		    crossorigin="anonymous"></script>
-		    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-			    crossorigin="anonymous"></script>
-			    <script src="/static/scripts/jquery.tablesorter.js"></script>
-			    <script src="/static/scripts/site.js"></script>
-      {% block scripts %}
-      {% endblock scripts %}
-  </body>
+    <div class="w3-col s8 w3-bar">
+      {% if current_user.is_authenticated %}
+      <span>Welcome, <strong>{{ current_user.id }}</strong></span><br>
+      {% endif %}
+      <a href="/userinfo/{{ current_user.id }}" class="w3-bar-item w3-button"><i class="fa fa-id-card fa-fw"></i></a>
+      <a href="/logout" class="w3-bar-item w3-button"><i class="fa fa-power-off fa-fw"></i></a>
+    </div>
+  </div>
+  <hr>
+  <div class="w3-container">
+    <h5>Menu</h5>
+  </div>
+  <div class="w3-bar-block">
+    <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+    {% for name, icon_class, link in nav_links %}
+      <a href="{{ link }}" class="w3-bar-item w3-button w3-padding {% if sel == name %}w3-blue{% endif %}"><i class="{{ icon_class }}"></i>  {{ name }}</a>
+    {% endfor %}
+
+    {#<a href="/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>  Dashboard</a>
+    <a href="/fetch" class="w3-bar-item w3-button w3-padding"><i class="fa fa-eye fa-fw"></i>  Datasets</a>
+    <a href="/flows" class="w3-bar-item w3-button w3-padding"><i class="fa fa-file fa-fw"></i>  Runs/Outputs</a>
+    <a href="/list_trees" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bullseye fa-fw"></i>  Trees</a>
+    <a href="/cluster" class="w3-bar-item w3-button w3-padding"><i class="fa fa-server fa-fw"></i>  Compute</a>
+    <a href="https://sp3docs.mmmoxford.uk/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bell fa-fw"></i>  Documentation</a>
+    <a href="https://sp3forum.mmmoxford.uk/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bank fa-fw"></i>  Forum</a>
+    <a href="https://sp3forum.mmmoxford.uk/post/new?post_template=issue" class="w3-bar-item w3-button w3-padding"><i class="fa fa-history fa-fw"></i>  Report Issue</a>
+    {% if current_user.is_admin() %}
+      <a href="/admin" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cog fa-fw"></i>  Admin</a><br><br>
+    {% endif %}
+    #}
+  </div>
+</nav>
+
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- !PAGE CONTENT! -->
+<div class="w3-main" style="margin-left:300px;margin-top:43px;">
+
+  <div class="w3-row-padding w3-margin-bottom">
+  {% block header %}
+  {% endblock header %}
+
+  {% block content %}
+  {% endblock content %}
+  </div>
+
+  <!-- Footer -->
+  <footer class="w3-container w3-padding-16 w3-light-grey">
+    <h4>About</h4>
+    <p>{{ catweb_version }} - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
+  </footer>
+
+  <!-- End page content -->
+</div>
+
+<script>
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+    overlayBg.style.display = "none";
+  } else {
+    mySidebar.style.display = 'block';
+    overlayBg.style.display = "block";
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+  mySidebar.style.display = "none";
+  overlayBg.style.display = "none";
+}
+</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="/static/scripts/jquery.tablesorter.js"></script>
+<script src="/static/scripts/site.js"></script>
+{% block scripts  %}
+{% endblock scripts %}
+</body>
 </html>

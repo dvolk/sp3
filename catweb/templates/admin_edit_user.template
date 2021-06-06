@@ -5,7 +5,7 @@
 <h2>Edit User</h2>
 
 <form action='/admin_edit_user?username={{ username }}' method='POST'>
-  <textarea style="font-family: monospace;" rows=20 class="form-control" name="user_data" id="user_data">
+  <textarea style="width: 100%; font-family: monospace;" rows=20 class="form-control" name="user_data" id="user_data">
     {{ user_data }}
   </textarea>
 

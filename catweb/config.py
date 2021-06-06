@@ -82,6 +82,7 @@ class Config:
             nextflow['last_commit'] = self.git_last_commit(new)
             nextflow['git_version'] = self.git_describe(new)
             last_commit_pretty = datetime.datetime.fromtimestamp(int(nextflow['last_commit'])).strftime("%F %T")
+            nextflow['last_commit_pretty'] = last_commit_pretty
             nextflow['version'] = f"Version: {last_commit_pretty} Last commit: {nextflow['git_version']}"
 
             print(f"{new} {nextflow['version']}")

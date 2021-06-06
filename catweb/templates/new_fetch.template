@@ -1,12 +1,14 @@
 {% extends "base1.template" %}
 {% block content %}
-  <h4>Fetch Dataset</h4>
-  <ul>
+
+  <div class="w3-container">
+  <h2>Fetch Dataset</h2>
+
   {% for k,v in sources.items() %}
-  <li>
-    <h4><a href="/fetch_data2/{{ k }}">{{ v['display_name'] }}</a></h4>
-    <p>{{ v['description'] }}</p>
-  </li>
+    <div class="w3-panel w3-card">
+      <h3><a href="/fetch_data2/{{ k }}">{{ v['display_name'] }}</a></h3>
+      <p>{{ v['description'] }}</p>
+    </div>
   {% endfor %}
-  </ul>
+
 {% endblock content %}

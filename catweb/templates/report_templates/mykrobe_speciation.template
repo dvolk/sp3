@@ -4,7 +4,7 @@
 <p>Mykrobe predictor version: <strong>{{ report['mykrobe_speciation']['data']['mykrobe-predictor_version'] }}</strong> &nbsp;&nbsp;&nbsp;&nbsp;
   Mykrobe atlas version: <strong>{{ report['mykrobe_speciation']['data']['mykrobe-atlas_version'] }}</strong></p>
   
-  <table class="table table-sm table-bordered">
+  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
     <thead>
       <th>Type</th>
       <th>Identified</th>
@@ -26,7 +26,7 @@
   {% if 'lineages' in phylo %}
     {% for lineage in phylo['lineages'] %}
       <p><strong>{{ lineage |capitalize }}</strong></p>
-      <table class="table table-sm table-bordered">
+      <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
 	<thead>
 	  <th>Calls</th>
 	  <th>Variant name</th>

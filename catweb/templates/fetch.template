@@ -1,13 +1,22 @@
 {% extends "base1.template" %}
+
+{% block header %}
+
+  <header class="w3-container" style="padding-top:22px">
+    <h5><b><i class="fa fa-eye fa-fw"></i> My Datasets</b></h5>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
   <h4>Datasets</h4>
   {% if not current_user.is_readonly_user() %}
-    <a href="/fetch_data"><button type="button" class="btn btn-primary">New Fetch</button></a>
-    <a href="/drop_upload"><button type="button" class="btn btn-info">Upload Datasets</button></a>
+    <a href="/fetch_data"><button type="button" class="w3-btn w3-blue">New Fetch</button></a>
+    <a href="/drop_upload"><button type="button" class="w3-btn w3-blue">Upload Datasets</button></a>
   {% endif %}
   <br/>
 <p><b>Note</b>: Only dataset fetched in the <b>last 7 days</b> are available for run.</p>
-<table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top: 10px">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default" style="margin-top: 10px">
   <thead>
     <tr>
       <th scope="col"><a href="#">Submit time</a></th>
@@ -26,7 +35,7 @@
       <td scope="row">{{ v['name'] }}</td>
       <td scope="row">{{ v['progress'] }} / {{ v['total'] }}</td>
       <td scope="row">
-	<span href="#" style="padding: 3px; background-color: {% if v['status'] == "failure" %}#FF6347{% else %}#F0F8FF{% endif %}">{{ v['status'] }}</span>
+	<span href="#" style="padding: 3px;" class="{% if v['status'] == 'failure' %}w3-red{% else %}w3-green{% endif %}">{{ v['status'] }}</span>
       </td>
       <td scope="row" class='text-right'>
 	{% if v['status'] == 'queued' %}

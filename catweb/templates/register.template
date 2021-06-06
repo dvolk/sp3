@@ -1,97 +1,56 @@
-{% extends "base1.template" %}
-{% block content %}
-
-
-<h2>Register a SP3 user account</h2>
-
-<p>* designates a mandatory field</p>
-
-<form action='/register_sp3_user' method='POST'>
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Full name*</span>
+<html>
+  <title>Oxford SP3</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+  </style>
+  <body class="w3-light-grey">
+    <!-- Top container -->
+    <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
+      <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
     </div>
-    <input name="name" id="name" type=text
-	   class="form-control" aria-label="Name"
-	   aria-describedby="basic-addon1" >
-  </div>
 
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Job title</span>
+    <div class="w3-container w3-auto" style="margin-top: 5%;">
+
+    <h2>Register a SP3 user account</h2>
+
+    <p>* designates a mandatory field</p>
+
+    <form action='/register_sp3_user' method='POST'>
+      <label>Full name*</label>
+      <input name="name" id="name" type=text class="w3-input" aria-label="Name"/>
+      <label>Job title</label>
+      <input name="job_title" id="job_title" type=text class="w3-input" aria-label="job_title"/>
+      <label>Work email*</label>
+      <input name="email" id="email" type="email" class="w3-input" aria-label="email"/>
+      <label>Organisation*</label>
+      <input name="organisation" id="organisation" type=text class="w3-input" aria-label="organisation"/>
+      <label>Work address</label>
+      <input name="job_address" id="job_address" type=text class="w3-input" aria-label="job_address">
+      <label>Country</label>
+      <input name="country" id="country" type=text class="w3-input" aria-label="country">
+      <label>Purpose of registration</label>
+      <input name="referal" id="referal" type=text class="w3-input" aria-label="referal">
+      <label>Username (only letters and numbers)*</label>
+      <input name="username" id="username" type=text class="w3-input" aria-label="username" minlength=3 maxlength=64>
+      <label>Password (minimum length: 12 characters)*</label>
+      <input name="password" id="password" type="password" class="w3-input" aria-label="password" minlength=12 maxlength=384>
+      <p>You will be emailed when your account is activated.</p>
+      <button class="w3-input w3-blue" id="submitButton" type="submit">Submit</button>
+    </form>
+
     </div>
-    <input name="job_title" id="job_title" type=text
-	   class="form-control" aria-label="job_title"
-	   aria-describedby="basic-addon1" >
-  </div>
 
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Work email*</span>
-    </div>
-    <input name="email" id="email" type="email"
-	   class="form-control" aria-label="email"
-	   aria-describedby="basic-addon1" >
-  </div>
+    <!-- Footer -->
+    <footer class="w3-container w3-light-grey">
+      <h4>About</h4>
+      <p>Version 0.7-309-gf24e7c1-dirty - Developed by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a> © 2021 - Modernising Medical Microbiology, Nuffield Department of Medicine, University of Oxford</p>
+    </footer>
 
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Organisation*</span>
-    </div>
-    <input name="organisation" id="organisation" type=text
-	   class="form-control" aria-label="organisation"
-	   aria-describedby="basic-addon1" >
-  </div>
-
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Work address</span>
-    </div>
-    <input name="job_address" id="job_address" type=text
-	   class="form-control" aria-label="job_address"
-	   aria-describedby="basic-addon1" >
-  </div>
-
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Country</span>
-    </div>
-    <input name="country" id="country" type=text
-	   class="form-control" aria-label="country"
-	   aria-describedby="basic-addon1" >
-  </div>
-
-
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Purpose of registration</span>
-    </div>
-    <input name="referal" id="referal" type=text
-	   class="form-control" aria-label="referal"
-	   aria-describedby="basic-addon1" >
-  </div>
-
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Username (only letters and numbers)*</span>
-    </div>
-    <input name="username" id="username" type=text
-	   class="form-control" aria-label="username"
-	   aria-describedby="basic-addon1" minlength=3>
-  </div>
-
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Password (minimum length: 12 characters)*</span>
-    </div>
-    <input name="password" id="password" type="password"
-	   class="form-control" aria-label="password"
-	   aria-describedby="basic-addon1" minlength=12>
-  </div>
-
-<p>You will be emailed when your account is activated.</p>
-
-  <button style="margin-top: 5px;" id="submitButton" type="submit" class="btn btn-primary">Submit</button>
-
-</form>
-{% endblock %}
+    <!-- End page content -->
+  </body>
+</html>

@@ -13,14 +13,10 @@
   <input type="hidden" id="fetch_uuid" name="fetch_uuid" value='{{ fetch_uuid }}'>
 
   {% for sample_name in sample_names %}
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">{{ sample_name }}</span>
-    </div>
-    <select class="custom-select" name="_ref_{{ sample_name }}" id="_ref_{{ sample_name }}">
+    <label>{{ sample_name }}</label>
+    <select class="w3-input" name="_ref_{{ sample_name }}" id="_ref_{{ sample_name }}">
       {% for reference in references %}<option value="{{ reference }}">{{ reference }}</option>{% endfor %}
     </select>
-  </div>
   {% endfor %}
 
   <button id="submitButton" type="submit" name="submit" class="btn btn-primary">Confirm</button>
