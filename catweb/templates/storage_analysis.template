@@ -8,7 +8,7 @@
 <div>Total run usage: <strong>{{ "{:,}".format((total_used_run / 1000) | round | int) }}</strong> MB </div>
 <div>Total output usage: <strong>{{ "{:,}".format((total_used_output / 1000) | round | int) }}</strong> MB </div>
 
-<table class="table table-hover table-sm tablesorter tablesorter-default" style="margin-top: 10px">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default" style="margin-top: 10px">
   <thead>
     <th><a href='#'>Pipeline name</a></th>
     <th><a href='#'>Pipeline run name</a></th>

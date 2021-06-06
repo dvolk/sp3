@@ -432,11 +432,8 @@ def admin():
     if not current_user.is_admin():
         return redirect('/')
 
-    with open('config.yaml') as f:
-        user_d = requests.get("http://localhost:13666/get_users").json()
-        return render_template('admin.template', sel="Admin",
-                               config_yaml=f.read(),
-                               user_d=user_d)
+    user_d = requests.get("http://localhost:13666/get_users").json()
+    return render_template('admin.template', sel="Admin", user_d=user_d)
 
 @app.route('/flows')
 @flask_login.login_required

@@ -6,7 +6,7 @@
      {% if key == 'species'%}
         {% else %}
 	{% if value | length > 1 %}
-        <table class='table-sm table table-bordered'>
+        <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
 	  {% for item in value %}
 	  {% if item | length > 1 %}
 	  <tr>

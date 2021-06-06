@@ -94,7 +94,7 @@
 
 {% if not trace_nice %}
   {% if entries %}
-    <table style="margin-top: 10px" class="table table-hover table-sm">
+    <table style="margin-top: 10px" class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
       <thead>
         <tr>
           <th scope="col">Task ID</th>

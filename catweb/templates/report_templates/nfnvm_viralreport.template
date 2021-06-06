@@ -1,6 +1,6 @@
 <p>Report generated on: <strong>{{ report['nfnvm_viralreport']['finished_epochtime'] }}</strong></p>
 
-<table class="table table-sm table-bordered" >
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default" >
   <thead>
     {% for head in report['nfnvm_viralreport']['head'] %}
     {% if head.strip() %}

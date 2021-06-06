@@ -41,22 +41,14 @@ Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
   </div>
   <div class="w3-bar-block">
     <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+
+    <!-- NAV -->
     {% for name, icon_class, link in nav_links %}
-      <a href="{{ link }}" class="w3-bar-item w3-button w3-padding {% if sel == name %}w3-blue{% endif %}"><i class="{{ icon_class }}"></i>  {{ name }}</a>
+      {% if name != "Admin" or (name == "Admin" and current_user.is_admin()) %}
+	<a href="{{ link }}" class="w3-bar-item w3-button w3-padding {% if sel == name %}w3-blue{% endif %}"><i class="{{ icon_class }}"></i>  {{ name }}</a>
+      {% endif %}
     {% endfor %}
 
-    {#<a href="/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>  Dashboard</a>
-    <a href="/fetch" class="w3-bar-item w3-button w3-padding"><i class="fa fa-eye fa-fw"></i>  Datasets</a>
-    <a href="/flows" class="w3-bar-item w3-button w3-padding"><i class="fa fa-file fa-fw"></i>  Runs/Outputs</a>
-    <a href="/list_trees" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bullseye fa-fw"></i>  Trees</a>
-    <a href="/cluster" class="w3-bar-item w3-button w3-padding"><i class="fa fa-server fa-fw"></i>  Compute</a>
-    <a href="https://sp3docs.mmmoxford.uk/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bell fa-fw"></i>  Documentation</a>
-    <a href="https://sp3forum.mmmoxford.uk/" class="w3-bar-item w3-button w3-padding"><i class="fa fa-bank fa-fw"></i>  Forum</a>
-    <a href="https://sp3forum.mmmoxford.uk/post/new?post_template=issue" class="w3-bar-item w3-button w3-padding"><i class="fa fa-history fa-fw"></i>  Report Issue</a>
-    {% if current_user.is_admin() %}
-      <a href="/admin" class="w3-bar-item w3-button w3-padding"><i class="fa fa-cog fa-fw"></i>  Admin</a><br><br>
-    {% endif %}
-    #}
   </div>
 </nav>
 
