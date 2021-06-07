@@ -88,7 +88,7 @@ sudo mkdir -p /work/logs/fetchapi
 sudo mkdir -p /work/logs/catweb
 
 # Add blank index.html to avoid indexing
-touch /work/output/index.html
+sudo touch /work/output/index.html
 
 sudo chown $USERNAME -R /work/runs
 sudo chown $USERNAME -R /work/output
