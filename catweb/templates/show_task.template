@@ -12,10 +12,10 @@
 <p>
     <hr/>
     <h4>Command run:</h4>
-    <div class="w3-white"><pre style="white-space: pre-wrap">
+    <div class="w3-white"><pre>
 {{ files['.command.sh'] }}</pre></div><h4>Command output:</h4><h5>Stdout:</h5>
-    <div class="w3-white"><pre style="white-space: pre-wrap">
+    <div class="w3-white"><pre>
 {{ files['.command.out'] }}</pre></div></pre><h5>Stderr:</h5>
-    <div class="w3-white"><pre style="white-space: pre-wrap">
+    <div class="w3-white"><pre>
 {{ files['.command.err'] }}</pre></div>
 {% endblock content %}
