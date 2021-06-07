@@ -27,9 +27,9 @@
     {% if percent_used > 60 and percent_used <= 85 %} {% set color_class = "w3-yellow" %} {% endif %}
     {% if percent_used > 85 %} {% set color_class = "w3-red" %} {% endif %}
 
+    <strong>{{ v['Mounted'].strip() }} ({{ v['Used'] }} used out of {{ v['Size'] }} - {{ percent_used }}%)</strong>
     <div class="w3-border">
       <div class="{{ color_class }}" style="height:24px;width:{{ percent_used }}%">
-	<strong>{{ v['Mounted'].strip() }} ({{ v['Used'] }} used out of {{ v['Size'] }} - {{ percent_used }}%)</strong>
       </div>
     </div>
     <br/>
