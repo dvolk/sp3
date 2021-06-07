@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html style="height: 100%;">
-  <title>Oxford SP3</title>
+  <title>Oxford Scalable Pathogen Pipeline Platform (SP3)</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -11,7 +11,7 @@
   </style>
   <body class="w3-light-grey" style="background-image: url('/static/_DSC1218-3.jpg'); height: 100%; background-repeat: no-repeat; background-size: cover;">
     <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
-      <span class="w3-bar-item w3-right">Oxford SP3</span>
+      <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
     </div>
 
     <div class="w3-content w3-display-middle" style="width:300px; background-color: #fff; padding: 20px;">
@@ -34,10 +34,10 @@
     </div>
 
     <!-- End page content -->
-</div>
 <!-- Footer -->
 <div class="w3-bar w3-bottom w3-white w3-large" style="z-index:4">
   <span class="w3-bar-item w3-left">Version {{ catweb_version }} - by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a></span>
+</div>
 </div>
 </body>
 </html>

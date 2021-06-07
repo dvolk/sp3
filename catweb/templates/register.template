@@ -1,5 +1,5 @@
 <html>
-  <title>Oxford SP3</title>
+  <title>Oxford Scalable Pathogen Pipeline Platform (SP3)</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -11,7 +11,7 @@
   <body class="w3-light-grey">
     <!-- Top container -->
     <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
-      <span class="w3-bar-item w3-right">Oxford SP3</span>
+      <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
     </div>
 
     <div class="w3-container w3-auto" style="margin-top: 5%;">
