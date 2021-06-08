@@ -4,6 +4,7 @@ organisations:
       pipelines:
       - oxforduni-Clockwork_combined
       - oxforduni-ncov2019-artic-nf-illumina
+      - oxforduni-ncov2019-artic-nf-nanopore
       upload_dirs:
       - /data/inputs/uploads/oxforduni
 users:
