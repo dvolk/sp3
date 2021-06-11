@@ -9,31 +9,56 @@
 {% endblock header %}
 
 {% block content %}
-<h2>Users</h2>
 
-<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-  <thead>
-    <tr>
-      <th scope="col"><a href="#">Username</a></th>
-      <th scope="col"><a href="#">Organisation</a></th>
-      <th scope="col"><a href="#">Email</a></th>
-      <th scope="col"><a href="#">Added date</a></th>
-      <th scope="col"><a href="#">Activated</a></th>
-      <th scope="col">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for username, user in user_d.items() %}
-    <tr>
-      <td scope="row">{{ username }}</td>
-      <td scope="row">{% if 'catweb_organisation' in user['attributes'] %}{{ user['attributes']['catweb_organisation'] }} {% else %}None{% endif %}</td>
-      <td scope="row">{% if 'email' in user['attributes'] %}{{ user['attributes']['email'] }} {% else %}None{% endif %}</td>
-      <td scope="row">{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>
-      <td scope="row">{% if 'requires_review' in user['attributes'] %}<span class="text-danger">No</span>{% else %}Yes{% endif %}</td>
-      <td scope="row"><a href="/admin_edit_user?username={{ username }}">Edit</a></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <h3>SP3 systemd service status</h3>
+
+  {% if services is string %}
+    <p>{{ services }}</p> {# error message #}
+  {% else %}
+
+    <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+      <thead>
+	<tr>
+	  <th>Systemd service unit</th>
+	  <th>Status</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for l in services %}
+	  <tr {% if l["status"] != "running" %}class="w3-amber"{% endif %}>
+	    <td>{{ l["name"] }}</td>
+	    <td>{{ l["status"] }}</td>
+	  </tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+    <h3>Users</h3>
+
+    <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+      <thead>
+	<tr>
+	  <th scope="col"><a href="#">Username</a></th>
+	  <th scope="col"><a href="#">Organisation</a></th>
+	  <th scope="col"><a href="#">Email</a></th>
+	  <th scope="col"><a href="#">Added date</a></th>
+	  <th scope="col"><a href="#">Activated</a></th>
+	  <th scope="col">Action</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for username, user in user_d.items() %}
+	  <tr>
+	    <td scope="row">{{ username }}</td>
+	    <td scope="row">{% if 'catweb_organisation' in user['attributes'] %}{{ user['attributes']['catweb_organisation'] }} {% else %}None{% endif %}</td>
+	    <td scope="row">{% if 'email' in user['attributes'] %}{{ user['attributes']['email'] }} {% else %}None{% endif %}</td>
+	    <td scope="row">{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>
+	    <td scope="row">{% if 'requires_review' in user['attributes'] %}<span class="w3-red">No</span>{% else %}Yes{% endif %}</td>
+	    <td scope="row"><a href="/admin_edit_user?username={{ username }}">Edit</a></td>
+	  </tr>
+	{% endfor %}
+      </tbody>
+    </table>
 
 {% endblock content %}

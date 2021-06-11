@@ -35,6 +35,7 @@ import nflib
 import config
 import utils
 import in_fileformat_helper
+import service_check
 
 def setup_logging():
     logger = logging.getLogger("ui")
@@ -431,9 +432,9 @@ def epochtodate(value):
 def admin():
     if not current_user.is_admin():
         return redirect('/')
-
+    services = service_check.go()
     user_d = requests.get("http://localhost:13666/get_users").json()
-    return render_template('admin.template', sel="Admin", user_d=user_d)
+    return render_template('admin.template', sel="Admin", user_d=user_d, services=services)
 
 @app.route('/flows')
 @flask_login.login_required
