@@ -1,5 +1,5 @@
-name: "ncov2019-artic-nf-medaka"
-display_name: "ncov2019 artic nextflow medaka"
+name: "ncov2019-artic-nf-nanopore"
+display_name: "ncov2019 artic nextflow nanopore"
 show: yes
 script: 'main.nf'
 # relative if context has these dirs
@@ -10,7 +10,7 @@ description: "A Nextflow pipeline for running the ARTIC network's fieldbioinform
 version: "1.3.0"
 contexts:
   - name: local
-    arguments: "--medaka --prefix medaka -profile sp3 -process.executor slurm -with-singularity /data/images/artic-ncov2019-nanopore.sif"
+    arguments: "--medaka --prefix medaka -profile singularity -process.executor slurm"
 param:
   description:
     - name: 'infiles'
