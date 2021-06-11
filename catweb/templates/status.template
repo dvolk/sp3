@@ -29,6 +29,7 @@
 {% endfor %}
 
 <h4>Recent OK</h4>
+<p>To see older runs, click Runs/Outputs on in the menu.</p>
 <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
   <thead class="w3-green">
     <tr>
@@ -80,6 +81,7 @@ CREATE TABLE nfruns (date_time, duration, code_name, status, hash, uuid, command
 </table>
 {% endif %}
 <h4>Recent Failed</h4>
+<p>To see older runs, click Runs/Outputs on in the menu.</p>
 <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white table-hover table-sm tablesorter tablesorter-default">
   <thead class="w3-red">
     <tr>
