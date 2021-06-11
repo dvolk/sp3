@@ -93,8 +93,11 @@ def report_thread_factory(report_type, make_report_function):
         time.sleep(15)
 
 def make_trivial_copy_report(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
-    with open(sample_filepath) as f:
-        return f.read()
+    with open(sample_filepath, "rb") as f:
+        try:
+            return f.read().decode()
+        except:
+            return f.read()
 
 def make_within_run_distreport(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
     os.system(f"python3 distmatrixsp3input.py /work/output/{pipeline_run_uuid} | python3 distmatrix.py > /tmp/distreport_{report_uuid}.txt")
