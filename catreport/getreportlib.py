@@ -31,10 +31,10 @@ def get_report(reports_db, fs, pipeline_run_uuid, sample_name):
         return r
 
     def get_report_for_type(pipeline_run_uuid, sample_name, report_type):
-        r = reports_db.find_one({ "status": "done",
-                                  "pipeline_run_uuid": pipeline_run_uuid,
-                                  "sample_name": sample_name,
-                                  "type": report_type }, sort=[("added_epochtime", 1)])
+        return reports_db.find_one({ "status": "done",
+                                     "pipeline_run_uuid": pipeline_run_uuid,
+                                     "sample_name": sample_name,
+                                     "type": report_type }, sort=[("added_epochtime", 1)])
 
     r_all = list(reports_db.find({ "status": "done",
                                    "pipeline_run_uuid": pipeline_run_uuid,
