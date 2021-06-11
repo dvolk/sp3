@@ -19,12 +19,26 @@ for q in con.execute("select * from q"):
     except:
         print(f"warning: couldn't read {f}")
         fid = None
+
+    try:
+        added_epochtime = int(q[3])
+    except:
+        added_epochtime = 0
+    try:
+        started_epochtime = int(q[4])
+    except:
+        started_epochtime = 0
+    try:
+        finished_epochtime = int(q[5])
+    except:
+        finished_epochtime = 0
+
     reports_db.insert( {"uuid": q[0],
                         "type": q[1],
                         "status": q[2],
-                        "added_epochtime": int(q[3]),
-                        "started_epochtime": int(q[4]),
-                        "finished_epochtime": int(q[5]),
+                        "added_epochtime": added_epochtime,
+                        "started_epochtime": started_epochtime,
+                        "finished_epochtime": finished_epochtime,
                         "pipeline_run_uuid": q[6],
                         "sample_name": q[7],
                         "gridfs_id": fid } )
