@@ -68,13 +68,14 @@ def save_report_file(report_uuid, report_content):
 # make report functions
 
 def report_thread_factory(report_type, make_report_function):
-    print(f"starting thread for {report_type}")
+    logging.warning(f"starting thread for {report_type}")
     while True:
         rows = list(db_get_queue(report_type))
         for row in rows:
+            logging.warning(row)
             a = datetime.datetime.now()
             report_started_epochtime = epochtime()
-            print(f"thread {report_type}: working on run {row['pipeline_run_uuid']} sample ({row['sample_name']})")
+            logging.warning(f"thread {report_type}: working on run {row['pipeline_run_uuid']} sample ({row['sample_name']})")
             report_content = make_report_function(row['uuid'],
                                                   row['sample_filepath'],
                                                   row['sample_name'],
@@ -88,7 +89,7 @@ def report_thread_factory(report_type, make_report_function):
                                     row['uuid'],
                                     gid)
             b = datetime.datetime.now()
-            print(f"thread {report_type}: finished run {row['pipeline_run_uuid']} sample ({row['sample_name']}) in {(b-a).total_seconds()} s")
+            logging.warning(f"thread {report_type}: finished run {row['pipeline_run_uuid']} sample ({row['sample_name']}) in {(b-a).total_seconds()} s")
         time.sleep(15)
 
 def make_trivial_copy_report(report_uuid, sample_filepath, sample_name, pipeline_run_uuid):
@@ -125,7 +126,7 @@ def req_report():
 
     Mandatory inputs: pipeline run uuid, sample name, sample path, report type
     '''
-    print(request.data)
+    logging.warning(request.data)
     data = json.loads(request.data.decode('utf-8'))
     pipeline_run_uuid = data['pipeline_run_uuid']
     sample_name = data['sample_name']
