@@ -63,6 +63,12 @@ start_epochtime = str(int(time.time()))
 # Data to from nfweb.py is passed in here as json
 data = json.loads(sys.argv[1])
 
+try:
+    with open("/home/ubuntu/sp3/catweb/nfrun_params/" + data["run_uuid"], 'w') as f:
+        f.write(json.dumps(data, indent=4))
+except:
+    pass
+
 # Rebind the data
 run_uuid = data['run_uuid']
 pipeline_name = data['flow_cfg']['name']
@@ -340,5 +346,9 @@ for report_script in pathlib.Path('/home/ubuntu/sp3/catweb/scripts/').glob('*.py
     cmd = f"{str(report_script)} {shlex.quote(json.dumps(data))}"
     logger.warning(f"running report script {cmd}")
     os.system(cmd)
+
+cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/run-notification.py {shlex.quote(user_name)} {shlex.quote(run_name)} {shlex.quote('')}"
+logging.warning(cmd)
+os.system(cmd)
 
 logger.info("go.py: done")

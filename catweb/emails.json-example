@@ -1,0 +1,8 @@
+{
+    "sender": "no-reply@oxfordfun.com",
+    "sender_name": "",
+    "smtp_username": "",
+    "smtp_password": "",
+    "smtp_host": "smtp.email.uk-london-1.oci.oraclecloud.com",
+    "smtp_port": 587
+}
