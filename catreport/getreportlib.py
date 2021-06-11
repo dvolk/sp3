@@ -1,86 +1,69 @@
 import resistance_help
+import datetime
 import logging
 import json
-import sqlite3
 
-def make_report_dir_postfix(report_uuid):
-    p1 = report_uuid[0:2]
-    p2 = report_uuid[2:4]
-    return f"{p1}/{p2}"
+def get_samples_cov_names(reports_db, pipeline_run_uuid, sample_name, report_type):
+    logging.warning(f"reports_db: {reports_db}")
+    logging.warning(f"pipeline_run_uuid: {pipeline_run_uuid}")
+    logging.warning(f"sample_name: {sample_name}")
+    logging.warning(f"report_type: {report_type}")
 
-cons = dict()
+    return reports_db.find({ "sample_name": f"sample_name.*",
+                             "status": "done",
+                             "pipeline_run_uuid": pipeline_run_uuid,
+                             "type": report_type }, { "sample_name": 1 }, sort=[("added_epochtime", 1)])
 
-def get_samples_cov_names(con, sql_lock, pipeline_run_uuid, sample_name, report_type):
-    sample_like = sample_name + '%'
-
-    sql = f'select sample_name from q where status = "done" and pipeline_run_uuid = "{pipeline_run_uuid}" and sample_name like "{sample_like}" and type = "{report_type}" order by added_epochtime desc'
-
-    logging.warning(sql)
-
-    with con, sql_lock:
-        r = con.execute(sql).fetchall()
-    if r:
-        logging.warning(r)
-        return r
-    else:
-        return None
-
-def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_name):
+def get_report(reports_db, fs, pipeline_run_uuid, sample_name):
+    a = datetime.datetime.now()
     '''
     Get a report (all reports combined) for 1 sample
     '''
-
-    def get_report_for_type(con, pipeline_run_uuid, sample_name, report_type):
-        with con, sql_lock:
-            r = con.execute('select * from q where status = "done" and pipeline_run_uuid = ? and sample_name = ? and type = ? order by added_epochtime desc',
-                            (pipeline_run_uuid, sample_name, report_type)).fetchall()
-            logging.warning(r)
-        if r:
-            return r[0]
-        else:
+    def get_report_file(report_uuid):
+        r = fs.find_one({ "filename": report_uuid }).read()
+        if not r:
+            logging.warning(f"gridfs file {report_uuid} for run {pipeline_run_uuid} sample {sample_name} not found or empty")
             return None
+        try:
+            return r.decode()
+        except:
+            return r
+        return r
 
-    if cluster_instance_uuid:
-        global cons
-        if cluster_instance_uuid in cons:
-            con = cons[cluster_instance_uuid]
-        else:
-            con = sqlite3.connect(f'/work/persistence/{ cluster_instance_uuid }/db/catreport.sqlite', check_same_thread=False)
-            cons[cluster_instance_uuid] = con
-        reports_directory = f'/work/persistence/{ cluster_instance_uuid }/work/reports/catreport/reports/'
-    else:
-        reports_directory = f'/work/reports/catreport/reports/'
+    def get_report_for_type(pipeline_run_uuid, sample_name, report_type):
+        r = reports_db.find_one({ "status": "done",
+                                  "pipeline_run_uuid": pipeline_run_uuid,
+                                  "sample_name": sample_name,
+                                  "type": report_type }, sort=[("added_epochtime", 1)])
 
-    logging.warning(str(cons))
+    r_all = list(reports_db.find({ "status": "done",
+                                   "pipeline_run_uuid": pipeline_run_uuid,
+                                   "sample_name": sample_name }, sort=[("added_epochtime", 1)]))
+    r_all = { r['type']:r for r in r_all }
+
     report_data = dict()
 
     '''
     begin resistance report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'resistance')
+    r = r_all.get('resistance')
     report_data['resistance'] = dict()
     if r:
-        report_resistance_guid = r[0]
-        report_resistance_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_resistance_guid)}/{report_resistance_guid}.json"
-        logging.warning(report_resistance_filepath)
-
+        report_resistance_guid = r['uuid']
         try:
-            with open(report_resistance_filepath) as f:
-                file_content = f.read()
-                file_json_content = json.loads(file_content)
-            report_data['resistance']['finished_epochtime'] = int(r[5])
+            file_content = get_report_file(r['uuid'])
+            file_json_content = json.loads(file_content)
+            report_data['resistance']['finished_epochtime'] = int(r["finished_epochtime"])
             report_data['resistance']['status'] = 'success'
             report_data['resistance']['message'] = file_json_content['message']
             report_data['resistance']['raw_data'] = file_content
             report_data['resistance']['data'] = file_json_content['data']
             report_data['resistance']['data'] = resistance_help.resistance_postprocess(report_data)
-
         except Exception as e:
             logging.error("*** resistance report processing failed")
             logging.error(repr(e))
             report_data['resistance']['status'] = 'failure'
             report_data['resistance']['message'] = repr(e)
-
     '''
     end resistance report
     '''
@@ -88,16 +71,13 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin speciation report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'mykrobe_speciation')
+    r = r_all.get('mykrobe_speciation')
     report_data['mykrobe_speciation'] = dict()
     if r:
-        report_mykrobe_speciation_guid = r[0]
-        report_mykrobe_speciation_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_mykrobe_speciation_guid)}/{report_mykrobe_speciation_guid}.json"
-        logging.warning(report_mykrobe_speciation_filepath)
-
-        with open(report_mykrobe_speciation_filepath) as f:
-            report_data['mykrobe_speciation']['data'] = json.loads(f.read())
-        report_data['mykrobe_speciation']['finished_epochtime'] = int(r[5])
+        f = get_report_file(r['uuid'])
+        if f:
+            report_data['mykrobe_speciation']['data'] = json.loads(f)
+            report_data['mykrobe_speciation']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end speciation report
     '''
@@ -105,20 +85,15 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin run distmatrix report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, '-', 'run_distmatrix')
+    r = get_report_for_type(pipeline_run_uuid, '-', 'run_distmatrix')
     report_data['run_distmatrix'] = dict()
     if r:
-        report_run_distmatrix_guid = r[0]
-        report_run_distmatrix_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_run_distmatrix_guid)}/{report_run_distmatrix_guid}.json"
-        logging.warning(report_run_distmatrix_filepath)
-
-        with open(report_run_distmatrix_filepath) as f:
-            report_data['run_distmatrix']['data'] = dict()
-            report_data['run_distmatrix']['data']['samples'] = dict()
-            j = json.loads(f.read())
-            if 'samples' in j and sample_name in j['samples']:
-                report_data['run_distmatrix']['data']['samples'][sample_name] = j['samples'][sample_name]
-        report_data['run_distmatrix']['finished_epochtime'] = int(r[5])
+        report_data['run_distmatrix']['data'] = dict()
+        report_data['run_distmatrix']['data']['samples'] = dict()
+        j = json.loads(get_report_file(r['uuid']))
+        if 'samples' in j and sample_name in j['samples']:
+            report_data['run_distmatrix']['data']['samples'][sample_name] = j['samples'][sample_name]
+        report_data['run_distmatrix']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end run distmatrix report
     '''
@@ -126,16 +101,13 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin speciation report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'kraken2_speciation')
+    r = r_all.get('kraken2_speciation')
     report_data['kraken2_speciation'] = dict()
     if r:
-        report_kraken2_speciation_guid = r[0]
-        report_kraken2_speciation_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_kraken2_speciation_guid)}/{report_kraken2_speciation_guid}.json"
-        logging.warning(report_kraken2_speciation_filepath)
-
-        with open(report_kraken2_speciation_filepath) as f:
-            report_data['kraken2_speciation']['data'] = f.read()
-        report_data['kraken2_speciation']['finished_epochtime'] = int(r[5])
+        f = get_report_file(r['uuid'])
+        if f:
+            report_data['kraken2_speciation']['data'] = f
+            report_data['kraken2_speciation']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end speciation report
     '''
@@ -143,16 +115,13 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin pick reference report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'pick_reference')
+    r = r_all.get('pick_reference')
     report_data['pick_reference'] = dict()
     if r:
-        report_pick_reference_guid = r[0]
-        report_pick_reference_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_pick_reference_guid)}/{report_pick_reference_guid}.json"
-        logging.warning(report_pick_reference_filepath)
-
-        with open(report_pick_reference_filepath) as f:
-            report_data['pick_reference']['data'] = json.loads(f.read())
-        report_data['pick_reference']['finished_epochtime'] = int(r[5])
+        f = get_report_file(r['uuid'])
+        if f:
+            report_data['pick_reference']['data'] = json.loads(f)
+            report_data['pick_reference']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end speciation report
     '''
@@ -160,16 +129,13 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin samtools qc report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'samtools_qc')
+    r = r_all.get('samtools_qc')
     report_data['samtools_qc'] = dict()
     if r:
-        report_samtools_qc_guid = r[0]
-        report_samtools_qc_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_samtools_qc_guid)}/{report_samtools_qc_guid}.json"
-        logging.warning(report_samtools_qc_filepath)
-
-        with open(report_samtools_qc_filepath) as f:
-            report_data['samtools_qc']['data'] = f.read()
-        report_data['samtools_qc']['finished_epochtime'] = int(r[5])
+        f = get_report_file(r['uuid'])
+        if f:
+            report_data['samtools_qc']['data'] = f
+            report_data['samtools_qc']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end samtools qc report
     '''
@@ -177,16 +143,11 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin nfnvm nanostats qc report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'nfnvm_nanostats_qc')
+    r = r_all.get('nfnvm_nanostats_qc')
     if r:
         report_data['nfnvm_nanostats_qc'] = dict()
-        report_nfnvm_nanostats_qc_guid = r[0]
-        report_nfnvm_nanostats_qc_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_nfnvm_nanostats_qc_guid)}/{report_nfnvm_nanostats_qc_guid}.json"
-        logging.warning(report_nfnvm_nanostats_qc_filepath)
-
-        with open(report_nfnvm_nanostats_qc_filepath) as f:
-            report_data['nfnvm_nanostats_qc']['data'] = f.read()
-        report_data['nfnvm_nanostats_qc']['finished_epochtime'] = int(r[5])
+        report_data['nfnvm_nanostats_qc']['data'] = get_report_file(r['uuid'])
+        report_data['nfnvm_nanostats_qc']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end nfnvm nanostats qc report
     '''
@@ -194,16 +155,16 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin nfnvm krona report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'nfnvm_kronareport')
+    r = r_all.get('nfnvm_kronareport')
 
     if r:
         report_data['nfnvm_kronareport'] = dict()
-        report_nfnvm_krona_html = r[0]
+        report_nfnvm_krona_html = r["uuid"]
         report_nfnvm_krona_downloadpath = f"{pipeline_run_uuid}/selReference_Out/{sample_name}_classkrona.html"
         logging.warning(report_nfnvm_krona_downloadpath)
 
         report_data['nfnvm_kronareport']['path'] = report_nfnvm_krona_downloadpath
-        report_data['nfnvm_kronareport']['finished_epochtime'] = int(r[5])
+        report_data['nfnvm_kronareport']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end nfnvm krona report
     '''
@@ -211,16 +172,18 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin nfnvm map2coverage report
     '''
-    samples_cov_names = get_samples_cov_names(con, sql_lock, pipeline_run_uuid, sample_name, 'nfnvm_map2coverage_report')
+    logging.warning(f"Calling get_samples_cov_names with report type: nfnvm_map2coverage_report")
+    samples_cov_names = list(get_samples_cov_names(reports_db, pipeline_run_uuid, sample_name, 'nfnvm_map2coverage_report'))
+    logging.warning(samples_cov_names)
 
-    if samples_cov_names != None:
+    if samples_cov_names:
         logging.warning(len(samples_cov_names))
         report_data['nfnvm_map2coverage_report'] = dict()
         report_data['nfnvm_map2coverage_report']['data'] = []
         for sample_cov_name_string in samples_cov_names:
             sample_cov_name = sample_cov_name_string[0]
             logging.warning(sample_cov_name)
-            r = get_report_for_type(con, pipeline_run_uuid, sample_cov_name, 'nfnvm_map2coverage_report')
+            r = get_report_for_type(reports_db, pipeline_run_uuid, sample_cov_name, 'nfnvm_map2coverage_report')
 
             sample_ref_files = dict()
 
@@ -230,7 +193,7 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
                 logging.warning(report_nfnvm_cov_downloadpath)
                 sample_ref_files['name'] = sample_cov_name
                 sample_ref_files['path'] = report_nfnvm_cov_downloadpath
-                report_data['nfnvm_map2coverage_report']['finished_epochtime'] =  int(r[5])
+                report_data['nfnvm_map2coverage_report']['finished_epochtime'] =  int(r["finished_epochtime"])
                 report_data['nfnvm_map2coverage_report']['data'].append(sample_ref_files)
                 logging.warning(report_nfnvm_cov_downloadpath)
 
@@ -241,17 +204,12 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin nfnvm flureport report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'nfnvm_flureport')
+    r = r_all.get('nfnvm_flureport')
 
     if r:
         report_data['nfnvm_flureport'] = dict()
-        report_nfnvm_flureport_guid = r[0]
-        report_nfnvm_flureport_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_nfnvm_flureport_guid)}/{report_nfnvm_flureport_guid}.json"
-        logging.warning(report_nfnvm_flureport_filepath)
-
-        with open(report_nfnvm_flureport_filepath) as f:
-            report_data['nfnvm_flureport']['data'] = f.read()
-        report_data['nfnvm_flureport']['finished_epochtime'] = int(r[5])
+        report_data['nfnvm_flureport']['data'] = get_report_file(r['uuid'])
+        report_data['nfnvm_flureport']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end nfnvm flureport report
     '''
@@ -259,17 +217,12 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin nfnvm viralreport report
     '''
-    r = get_report_for_type(con, pipeline_run_uuid, sample_name, 'nfnvm_viralreport')
+    r = r_all.get('nfnvm_viralreport')
 
     if r:
         report_data['nfnvm_viralreport'] = dict()
-        report_nfnvm_viralreport_guid = r[0]
-        report_nfnvm_viralreport_filepath = f"{ reports_directory }/{make_report_dir_postfix(report_nfnvm_viralreport_guid)}/{report_nfnvm_viralreport_guid}.json"
-        logging.warning(report_nfnvm_viralreport_filepath)
-
-        with open(report_nfnvm_viralreport_filepath) as f:
-            report_data['nfnvm_viralreport']['data'] = f.read()
-        report_data['nfnvm_viralreport']['finished_epochtime'] = int(r[5])
+        report_data['nfnvm_viralreport']['data'] = get_report_file(r['uuid'])
+        report_data['nfnvm_viralreport']['finished_epochtime'] = int(r["finished_epochtime"])
     '''
     end nfnvm viralreport report
     '''
@@ -277,39 +230,37 @@ def get_report(cluster_instance_uuid, con, sql_lock, pipeline_run_uuid, sample_n
     '''
     begin nfnvm resistance report
     '''
-    samples_resistance_names = get_samples_cov_names(con, sql_lock, pipeline_run_uuid, sample_name, 'nfnvm_resistance')
+    samples_resistance_names = list(get_samples_cov_names(reports_db, pipeline_run_uuid, sample_name, 'nfnvm_resistance'))
 
-    if samples_resistance_names != None:
+    if samples_resistance_names:
         logging.warning(len(samples_cov_names))
         report_data['nfnvm_resistance_report'] = dict()
         report_data['nfnvm_resistance_report']['data'] = []
         for sample_resistance_name_string in samples_resistance_names:
             sample_resistance_name = sample_resistance_name_string[0]
             logging.warning(sample_resistance_name)
-            r = get_report_for_type(con, pipeline_run_uuid, sample_resistance_name, 'nfnvm_resistance')
+            r = get_report_for_type(pipeline_run_uuid, sample_resistance_name, 'nfnvm_resistance')
 
             sample_ref_files = dict()
 
             if r:
-                report_nfnvm_resistance_guid = r[0]
-                report_nfnvm_resistance_downloadpath = f"{ reports_directory }/{make_report_dir_postfix(report_nfnvm_resistance_guid)}/{ report_nfnvm_resistance_guid }"
-                logging.warning(report_nfnvm_resistance_downloadpath)
+
                 sample_ref_files['name'] = sample_resistance_name
                 sample_ref_files['path'] = report_nfnvm_resistance_downloadpath
-                logging.warning(report_nfnvm_resistance_downloadpath)
-                report_data['nfnvm_resistance_report']['finished_epochtime'] =  int(r[5])
-                with open(report_nfnvm_resistance_downloadpath) as f:
-                    resistance = dict()
-                    resistance['species'] = sample_resistance_name
-                    resistance['drug'] = []
-                    logging.warning(f"resistance species: {resistance['species']}")
-                    content_in_file = f.read()
-                    for row in content_in_file.split('\n'):
-                        resistance['drug'].append(row.split('\t'))
-                        logging.warning(f"resistance drug: {resistance['drug']}")
-                    report_data['nfnvm_resistance_report']['data'].append(resistance)
+                report_data['nfnvm_resistance_report']['finished_epochtime'] =  r["finished_epochtime"]
+                resistance = dict()
+                resistance['species'] = sample_resistance_name
+                resistance['drug'] = []
+                logging.warning(f"resistance species: {resistance['species']}")
+                content_in_file = get_report_file(r['uuid'])
+                for row in content_in_file.split('\n'):
+                    resistance['drug'].append(row.split('\t'))
+                    logging.warning(f"resistance drug: {resistance['drug']}")
+                report_data['nfnvm_resistance_report']['data'].append(resistance)
     '''
     end nfnvm resistance report
     '''
 
+    b = datetime.datetime.now()
+    logging.warning(f"get_report({pipeline_run_uuid}, {sample_name}) finished in {(b-a).total_seconds()} s")
     return { 'status': 'success', 'details': None, 'data': { 'report_data': report_data }}
