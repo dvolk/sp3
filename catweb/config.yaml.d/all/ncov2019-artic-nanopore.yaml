@@ -10,7 +10,7 @@ description: "A Nextflow pipeline for running the ARTIC network's fieldbioinform
 version: "1.3.0"
 contexts:
   - name: local
-    arguments: "--medaka --prefix medaka -profile singularity -process.executor slurm"
+    arguments: "--prefix nanopore -profile singularity -process.executor slurm"
 param:
   description:
     - name: 'infiles'
@@ -21,7 +21,10 @@ param:
         desc: 'Read Directory'
       - name: 'objstore'
         arg: "--objstore"
+        type: switch
         desc: 'Object Storage CSV'
+        globs:
+                - /data/inputs/*.csv
     - name: 'varcaller'
       type: switch
       desc: 'Select the variant caller to use'
