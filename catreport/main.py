@@ -58,10 +58,17 @@ def save_report_file(report_uuid, report_content):
     prefix = pathlib.Path(f"/work/reports/catreport/reports/{report_uuid[0:2]}/{report_uuid[2:4]}/")
     if not prefix.exists():
         prefix.mkdir()
-    with open(prefix / report_uuid, "w") as f:
-        f.write(report_content)
+    try:
+        with open(prefix / report_uuid, "w") as f:
+            f.write(report_content)
+    except:
+        with open(prefix / report_uuid, "wb") as f:
+            f.write(report_content)
     # main storage on mongodb gridfs
-    gid = fs.put(report_content.encode(), filename=report_uuid)
+    try:
+        gid = fs.put(report_content.encode(), filename=report_uuid)
+    except:
+        gid = fs.put(report_content, filename=report_uuid)
     return gid
 
 # ---------------------------------------------------------------------------
