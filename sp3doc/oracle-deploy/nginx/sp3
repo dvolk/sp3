@@ -7,10 +7,10 @@ server {
 
 server {
         listen 443 ssl;
-        server_name *.oci.sp3dev.ml;
+        server_name *.dev.gpas.world;
 
-        ssl_certificate /etc/letsencrypt/live/oci.sp3dev.ml/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/oci.sp3dev.ml/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/dev.gpas.world/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/dev.gpas.world/privkey.pem;
         include /etc/letsencrypt/options-ssl-nginx.conf;
         ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
