@@ -15,7 +15,7 @@ def wait_until_server_booted(server_ip):
         try:
             out = run(f'ssh -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no {server_ip} uptime')
             print(out)
-            time.sleep(60)
+            time.sleep(30)
             return
         except:
             pass
