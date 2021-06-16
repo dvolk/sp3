@@ -34,4 +34,4 @@ def get_class_from_string(s):
         return cl
     except Exception as e:
         logging.error(f"couldn't load class: {s}")
-        logging.error(e)
+        logging.error(str(e))
