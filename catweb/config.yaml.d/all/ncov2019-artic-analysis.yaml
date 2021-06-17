@@ -1,0 +1,26 @@
+name: "ncov2019-artic-nf-analysis"
+display_name: "ncov2019 repeat downstream"
+show: yes
+script: 'main.nf'
+# relative if context has these dirs
+root_dir: 'ncov2019-artic-nf'
+prog_dir: 'ncov2019-artic-nf'
+output_dir: 'output/'
+description: "A Nextflow pipeline for running the ARTIC network's fieldbioinformatics tools (medaka)"
+version: "1.3.0"
+contexts:
+  - name: local
+    arguments: "--analysis --prefix analysis -profile singularity -process.executor slurm"
+param:
+  description:
+    - name: 'consensus sequences'
+      arg: "--consensus_seqs"
+      desc: 'genome seqs directory'
+      type: switch
+      globs:
+           - /work/output/*
+output:
+    parameter: "--outdir"
+    
+no_sample_count: true
+no_sample_report: true

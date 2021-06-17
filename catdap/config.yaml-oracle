@@ -5,6 +5,7 @@ organisations:
       - oxforduni-Clockwork_combined
       - oxforduni-ncov2019-artic-nf-illumina
       - oxforduni-ncov2019-artic-nf-nanopore
+      - oxforduni-ncov2019-artic-nf-analysis
       upload_dirs:
       - /data/inputs/uploads/oxforduni
 users:
