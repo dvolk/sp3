@@ -497,12 +497,7 @@ def get_user_params_dict(flow_name, run_uuid):
 
 def start_run(data):
     db.insert_dummy_run(data)
-
-    log_dir = cfg.get('log_dir')
-    utils.mkdir_exist_ok(log_dir)
-    log_filename = f"{data['run_uuid']}.log"
-    log_file =  pathlib.Path(log_dir) / log_filename
-    cmd = f"systemd-run -p WorkingDirectory=/home/ubuntu/sp3/catweb --user python3 /home/ubuntu/sp3/catweb/go.py {shlex.quote(json.dumps(data))}"
+    cmd = f"systemd-run -p WorkingDirectory=/home/ubuntu/sp3/catweb --user /home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/go.py {shlex.quote(json.dumps(data))}"
     logger.debug(cmd)
     os.system(cmd)
 
