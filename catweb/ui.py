@@ -465,9 +465,16 @@ def admin():
     user_d = requests.get("http://localhost:13666/get_users").json()
     organisation_d = requests.get("http://localhost:13666/get_organisations").json()
     all_org_names = [org.get("name") for org in organisation_d]
+
+    org_to_user = collections.defaultdict(list)
+    for username, u in user_d.items():
+        org_to_user[u.get("attributes", dict()).get("catweb_organisation", "")].append(username)
+    logging.warning(org_to_user)
+
     return render_template('admin.template', sel="Admin",
                            user_d=user_d, organisation_d=organisation_d,
                            all_org_names=all_org_names,
+                           org_to_user=org_to_user,
                            services=services)
 
 @app.route('/flows')

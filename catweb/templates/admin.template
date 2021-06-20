@@ -50,20 +50,20 @@
     <tbody>
       {% for username, user in user_d.items() %}
 	{% set u_attr = user.get("attributes", {}) %}
-	<tr>
-	  <td scope="row">{{ username }}</td>
+	<tr id="{{ username }}">
+	  <td>{{ username }}</td>
 	  {% set u_org = u_attr.get('catweb_organisation', "") %}
-	  <td scope="row">
+	  <td>
 	    {% if u_org not in all_org_names %}
 	       <span class="w3-red">{{ u_org }} <i class="fa fa-close fa-fw"></i></span>
 	     {% else %}
-	       {{ u_org }}
+	       <a href="#{{ u_org }}">{{ u_org }}</a>
 	    {% endif %}
 	  </td>
-	  <td scope="row">{{ u_attr.get("email") }}</td>
-	  <td scope="row">{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>
-	  <td scope="row">{% if 'requires_review' in user['attributes'] %}<span class="w3-red">No <i class="fa fa-close fa-fw"></span>{% else %}Yes{% endif %}</td>
-	  <td scope="row"><a href="/admin_edit_user?username={{ username|urlencode }}">Edit</a></td>
+	  <td>{{ u_attr.get("email") }}</td>
+	  <td>{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>
+	  <td>{% if 'requires_review' in user['attributes'] %}<span class="w3-red">No <i class="fa fa-close fa-fw"></i></span>{% else %}Yes{% endif %}</td>
+	  <td><a href="/admin_edit_user?username={{ username|urlencode }}">Edit</a></td>
 	</tr>
       {% endfor %}
     </tbody>
@@ -73,27 +73,33 @@
   <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
     <thead>
       <tr>
-	<th scope="col"><a href="#">Name</a></th>
-	<th scope="col"><a href="#">Pipelines</a></th>
-	<th scope="col"><a href="#">Upload dirs</a></th>
-	<th scope="col">Action</th>
+	<th><a href="#">Name</a></th>
+	<th>Users</th>
+	<th><a href="#">Pipelines</a></th>
+	<th><a href="#">Upload dirs</a></th>
+	<th>Action</th>
       </tr>
     </thead>
     <tbody>
       {% for org in organisation_d %}
 	<tr>
-	  <td scope="row">{{ org.get("name") }}</td>
-	  <td scope="row">
+	  <td><a id="{{ org.get('name') }}">{{ org.get("name") }}</a></td>
+	  <td>
+	    {% for username in org_to_user.get(org.get("name"), []) %}
+	      <a href="#{{ username }}">{{ username }}</a><br/>
+	    {% endfor %}
+	  </td>
+	  <td>
 	    {% for pipeline in org.get("attributes", {}).get("pipelines", []) %}
-	      {{ pipeline }}</br>
+	      {{ pipeline }}<br/>
 	    {% endfor %}
 	  </td>
-	  <td scope="row">
+	  <td>
 	    {% for upload_dir in org.get("attributes", {}).get("upload_dirs", []) %}
-	      {{ upload_dir }}</br>
+	      {{ upload_dir }}<br/>
 	    {% endfor %}
 	  </td>
-	  <td scope="row">
+	  <td>
 	    <a href="/admin_edit_org?org_name={{ org.get("name")|urlencode }}">Edit</a>
 	  </td>
 	</tr>
