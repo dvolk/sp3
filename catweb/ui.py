@@ -1,7 +1,3 @@
-#
-# nfweb is a simple interface to nextflow using the flask web framework
-#
-
 import logging
 import json
 import pathlib
@@ -20,10 +16,13 @@ import glob
 import csv
 import io
 import hashlib
+import re
+import threading
+import signal
 
 import pandas
 import requests
-from flask import Flask, request, render_template, redirect, abort, url_for, g, make_response, send_file, session
+from flask import Flask, request, render_template, redirect, abort, url_for, g, make_response, send_file, session, jsonify
 import flask_login
 from flask_login import current_user
 from passlib.hash import bcrypt
@@ -35,6 +34,7 @@ import nflib
 import config
 import utils
 import in_fileformat_helper
+import db
 import service_check
 
 def setup_logging():
@@ -105,39 +105,44 @@ template_nav_links = [
 
 # really could just be one function
 def api_get_request(api, api_request):
-    api_request = "http://{0}:{1}{2}".format(cfg.get(api)['host'],
-                                             cfg.get(api)['port'],
-                                             api_request)
-    logger.debug("api_get_request() => {0}".format(api_request))
+    if not cfg.get(api):
+        logging.error("api call for {api} is not in the configuration")
+
+    host, port = cfg.get(api)['host'], cfg.get(api)['port']
+    url = f"http://{host}:{port}{api_request}"
+    logger.debug(f"api_get_request() => {url}")
+
     try:
-        r = requests.get(api_request)
+        r = requests.get(url)
     except requests.exceptions.ConnectionError as e:
         logger.error("Failed to contact API. Is it running?")
         logger.error(e)
-        abort(500, description="Failed to contact API: {0}".format(e))
+        abort(500, description=f"Failed to contact API: {e}")
 
-    logger.debug("api_get_request() <= {0}".format(r.text[:80]))
+    logger.debug(f"api_get_request() <= {r.text[:80]}")
     try:
         resp = r.json()
     except json.decoder.JSONDecodeError as e:
         logger.error("API returned data that could not be parsed as JSON")
         logger.error(e)
         abort(500, description="Could not parse API response as JSON")
-    return resp['data']
+    return resp.get('data')
 
 def api_post_request(api, api_request, data_json):
-    api_request = "http://{0}:{1}{2}".format(cfg.get(api)['host'],
-                                             cfg.get(api)['port'],
-                                             api_request)
-    logger.debug("api_post_request() => {0}".format(api_request))
+    if not cfg.get(api):
+        logging.error("api call for {api} not in configuration")
+    host, port = cfg.get(api)["host"], cfg.get(api)["port"]
+    url = f"http://{host}:{port}{api_request}"
+
+    logger.debug(f"api_post_request() => {url}")
     try:
-        r = requests.post(api_request, json=data_json)
+        r = requests.post(url, json=data_json)
     except requests.exceptions.ConnectionError as e:
         logger.error("Failed to contact API. Is it running?")
         logger.error(e)
-        abort(500, description="Failed to contact API: {0}".format(e))
+        abort(500, description=f"Failed to contact API: {e}")
 
-    logger.debug("api_post_request() <= {0}".format(r.text[:80]))
+    logger.debug(f"api_post_request() <= {r.text[:80]}")
     try:
         resp = r.json()
     except json.decoder.JSONDecodeError as e:
@@ -145,12 +150,6 @@ def api_post_request(api, api_request, data_json):
         logger.error(e)
         abort(500, description="Could not parse API response as JSON")
     return resp['data']
-
-def path_begins_with(p1, p2):
-    if str(p1) >= str(p2):
-        if p1[0:len(str(p2))] == p2:
-            return True
-    return False
 
 class User(flask_login.UserMixin):
     def __init__(self, username):
@@ -189,9 +188,14 @@ class User(flask_login.UserMixin):
         return "requires_review" in self.user_data()
     def get_org_name(self):
         return self.org_data().get("name")
-    def get_pipelines(self):
-        return self.org_data.get("pipelines")
+#    def get_pipelines(self):
+#        return self.org_data.get("pipelines")
     def can_see_upload_dir(self, p2):
+        def path_begins_with(p1, p2):
+            if str(p1) >= str(p2):
+                if p1[0:len(str(p2))] == p2:
+                    return True
+            return False
         if path_begins_with(p2, f"/data/inputs/users/{self.id}"):
             return True
         if self.is_admin():
@@ -255,12 +259,12 @@ def login():
                                msgs=msgs,
                                msg=msg, allow_registration=allow_registration)
     if request.method == 'POST':
-        if not 'username' in request.form or not 'password' in request.form:
+        form_username = request.form.get('username')
+        form_password = request.form.get('password')
+
+        if not (form_username and form_password):
             logging.warning(f"form submitted without username or password")
             return redirect('/')
-
-        form_username = request.form['username']
-        form_password = request.form['password']
 
         token = check_authentication(form_username, form_password)
 
@@ -333,6 +337,7 @@ def change_pw():
             else:
                 return redirect('/password')
         else:
+
             return redirect('/')
 
 @app.route('/logout')
@@ -352,15 +357,11 @@ def get_user_pipelines(username):
     else:
         return current_user.org_data().get('pipelines')
 
-# todo move this and similar to nflib.py
 @app.route('/')
 @flask_login.login_required
 def status():
     org = current_user.get_org_name()
-
-    response = api_get_request('nfweb_api', f'/status/{org}/{str(current_user.is_admin())}')
-    logging.error(f"recent: {response['recent']}")
-    running, recent, failed = response['running'], response['recent'], response['failed']
+    running, recent, failed = db.get_status(org, current_user.is_admin())
 
     if request.args.get('api'):
         return json.dumps([running, recent, failed])
@@ -381,26 +382,31 @@ def userinfo(username: str):
 @app.route('/flow/<flow_name>/nf_script')
 @flask_login.login_required
 def view_nf_script(flow_name):
-    response = api_get_request('nfweb_api', '/flow/{0}/nf_script'.format(flow_name))
+    nf_script_filename = pathlib.Path("/data/pipelines") / flows[flow_name]['prog_dir'] / flows[flow_name]['script']
+    with open(str(nf_script_filename)) as f:
+        nf_script_txt = f.read()
 
-    if not response or 'nf_script_txt' not in response:
-        abort(404, description="Script file not found")
+    return render_template('view_nf_script.template', sel="Runs/Outputs", config_yaml=nf_script_txt)
 
-    config_content = response['nf_script_txt']
+def get_flow_config_string(flow_name):
+    if not flow_name in flows:
+        return make_api_response('failure', details={'missing_flow': flow_name})
 
-    return render_template('view_nf_script.template', sel="Runs/Outputs", config_yaml=config_content)
+    if not 'filepath' in flows[flow_name]:
+        return make_api_response('failure', details={'missing_flow_filepath': flow_name})
+
+    with open(flows[flow_name]['filepath'], 'r') as f:
+        content = f.read()
+    return content
 
 @app.route('/edit_flow_config/<flow_name>')
 @flask_login.login_required
 def edit_flow_config(flow_name):
-    response = api_get_request('nfweb_api', '/get_workflow_config_str/{0}'.format(flow_name))
-
-    config_content = response['config_content']
-
+    config_content = get_flow_config_string(flow_name)
     return render_template('view_flow_config.template', sel="Runs/Outputs", config_yaml=config_content)
 
 @app.route('/admin_edit_user', methods=['GET', 'POST'])
-@flask_login.login_required
+@flask_login.fresh_login_required
 def admin_edit_user():
     if not current_user.is_admin():
         return redirect('/')
@@ -422,19 +428,47 @@ def admin_edit_user():
 
         return redirect(f'/admin_edit_user?username={username}')
 
+@app.route('/admin_edit_org', methods=['GET', 'POST'])
+@flask_login.fresh_login_required
+def admin_edit_org():
+    if not current_user.is_admin():
+        return redirect('/')
+
+    org_name = request.args['org_name']
+
+    if request.method == 'GET':
+        org_data = json.dumps(requests.get('http://localhost:13666/get_organisation',
+                                            params={ 'organisation': org_name }).json(),
+                               indent=4)
+        return render_template('admin_edit_org.template', sel="Admin",
+                               org_name=org_name,
+                               org_data=org_data)
+
+    if request.method == 'POST':
+        requests.get("http://localhost:13666/edit_organisation",
+                     params={ 'organisation': org_name,
+                              'org_data': request.form['org_data'] })
+
+        return redirect(f'/admin_edit_org?org_name={org_name}')
+
 @app.template_filter('epochtodate')
 def epochtodate(value):
     t = time.localtime(int(value))
     return f"{t.tm_year}-{t.tm_mon}-{t.tm_mday}"
 
 @app.route('/admin')
-@flask_login.login_required
+@flask_login.fresh_login_required
 def admin():
     if not current_user.is_admin():
         return redirect('/')
     services = service_check.go()
     user_d = requests.get("http://localhost:13666/get_users").json()
-    return render_template('admin.template', sel="Admin", user_d=user_d, services=services)
+    organisation_d = requests.get("http://localhost:13666/get_organisations").json()
+    all_org_names = [org.get("name") for org in organisation_d]
+    return render_template('admin.template', sel="Admin",
+                           user_d=user_d, organisation_d=organisation_d,
+                           all_org_names=all_org_names,
+                           services=services)
 
 @app.route('/flows')
 @flask_login.login_required
@@ -448,20 +482,25 @@ def list_flows():
                            user_pipeline_list=get_user_pipelines(current_user.id))
 
 def get_user_params_dict(flow_name, run_uuid):
-    ret = dict()
-    response = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid))
-    run = response["data"]
-    if run:
-        try:
-            data = json.loads(run[0][20])
-            if 'user_param_dict' in data:
-                ret = data['user_param_dict']
-        except json.decoder.JSONDecodeError as e:
-            logger.warning("couldn't decode user_param_dict: {0}".format(run[0][20]))
-    return ret
+    run = db.get_pipeline_run(run_uuid)
+    if not run:
+        return None
+    data = json.loads(run.get("data_json", "{}"))
+    return data.get("user_param_dict")
+
+def start_run(data):
+    db.insert_dummy_run(data)
+
+    log_dir = cfg.get('log_dir')
+    utils.mkdir_exist_ok(log_dir)
+    log_filename = f"{data['run_uuid']}.log"
+    log_file =  pathlib.Path(log_dir) / log_filename
+    cmd = f"systemd-run -p WorkingDirectory=/home/ubuntu/sp3/catweb --user python3 /home/ubuntu/sp3/catweb/go.py {shlex.quote(json.dumps(data))}"
+    logger.debug(cmd)
+    os.system(cmd)
 
 def new_run1(flow_name, flow_cfg, form):
-    logger.debug('flow_cfg: {0}'.format(flow_cfg))
+    logger.debug(f'flow_cfg: {flow_cfg}')
 
     run_uuid = str(uuid.uuid4())
 
@@ -479,8 +518,8 @@ def new_run1(flow_name, flow_cfg, form):
     reference_map = '{}'
     if 'ref_uuid' in form and form['ref_uuid'] and 'refmap' in flow_cfg:
         logger.debug(f'ref_uuid: \'{form["ref_uuid"]}\'')
-        r = api_get_request('nfweb_api', f'/get_reference_cache/{ request.form["ref_uuid"] }')
-        reference_map = json.loads(r['reference_json'])
+        r = db.get_reference_cache(ref_uuid)
+        reference_map = r.get('reference_json')
         logger.debug(f'reference_map: {reference_map}')
 
     # user parameters, grabbed from run from
@@ -524,11 +563,7 @@ def new_run1(flow_name, flow_cfg, form):
         'readpat': readpat
     }
 
-    # convert to json
-    logger.warning(f"data: {data}")
-    data_json = json.dumps(data)
-
-    response = api_post_request('nfweb_api', '/run/start', data_json)
+    start_run(data)
     return run_uuid
 
 @app.route('/flow/<flow_name>/new', methods=['GET', 'POST'])
@@ -594,12 +629,12 @@ def begin_run(flow_name: str):
                                fetch_uuid=fetch_uuid)
 
     elif request.method == 'POST':
-        logger.debug('form: {0}'.format(request.form))
+        logger.debug(f'form: {request.form}')
         run_uuid = new_run1(flow_name, flow_cfg, request.form)
         if request.form.get('api'):
             return json.dumps({ 'run_uuid': run_uuid })
         else:
-            return redirect("/flow/{0}".format(flow_name))
+            return redirect(f"/flow/{flow_name}")
 
 @app.route('/map_samples', methods=['POST'])
 @flask_login.login_required
@@ -638,40 +673,39 @@ def map_samples():
         if 'cancel' in request.form:
             return redirect(f'/flow/{ request.form["flow_name"] }/new?given_input={ request.form["fetch_given_input_b"] }&fetch_uuid={ fetch_uuid }')
         else:
-            api_post_request('nfweb_api', '/add_to_reference_cache', json.dumps(data))
+            db.add_to_reference_cache(data['ref_uuid'], data['reference_json'])
             return redirect(f'/flow/{ request.form["flow_name"] }/new?given_input={ request.form["fetch_given_input_b"] }&ref_uuid={ ref_uuid }&fetch_uuid={ fetch_uuid }')
 
-@app.route('/flow/<flow_name>')
+@app.route('/flow/<pipeline_name>')
 @flask_login.login_required
-def list_runs(flow_name : str):
-    if flow_name in flows:
-        flow_cfg = flows[flow_name]
-    else:
-        abort(404, description="Flow not found")
-
-    response = api_get_request('nfweb_api', '/flow/{0}'.format(flow_name))
-    data = response["data"]
+def list_runs(pipeline_name):
+    pipeline_runs = db.get_pipeline_runs(pipeline_name)
+    flow_cfg = flows.get(pipeline_name) # api !!
 
     has_dagpng = False
-    if pathlib.Path(f"/data/pipelines/dags/{flow_name}.png").is_file():
+    if pathlib.Path(f"/data/pipelines/dags/{pipeline_name}.png").is_file():
         has_dagpng = True
 
     if request.args.get('api'):
         return json.dumps(data)
 
     if 'no_sample_count' in flow_cfg.keys():
-        cfg = { 'display_name': flow_cfg['display_name'],'flow_name': flow_cfg['name'], 'no_sample_count': flow_cfg['no_sample_count'] }
+        pipeline_cfg = { 'display_name': flow_cfg.get('display_name'),
+                         'flow_name': flow_cfg.get('name'),
+                         'no_sample_count': flow_cfg.get('no_sample_count') }
     else:
-        cfg = { 'display_name': flow_cfg['display_name'],'flow_name': flow_cfg['name'] }
+        pipeline_cfg = { 'display_name': flow_cfg.get('display_name'),
+                         'flow_name': flow_cfg.get('name') }
 
-    return render_template('list_runs.template', sel="Runs/Outputs",
-                           stuff=cfg,
-                           has_dagpng=has_dagpng,
-                           data=data)
+    return render_template('list_runs.template',
+                           sel="Runs/Outputs",
+                           pipeline_runs=pipeline_runs,
+                           pipeline_cfg=pipeline_cfg,
+                           has_dagpng=has_dagpng)
 
 @app.route('/flow/<flow_name>/dagpng')
 @flask_login.login_required
-def show_dagpng(flow_name : str):
+def show_dagpng(flow_name):
     if not flow_name in flows:
         abort(404, description="Flow not found")
 
@@ -691,11 +725,51 @@ def show_dagpng(flow_name : str):
 
 @app.route('/flow/<flow_name>/go_details/<run_uuid>')
 @flask_login.login_required
-def go_details(flow_name : str, run_uuid: str):
+def go_details(flow_name, run_uuid):
     # remove flow_name
-    response = api_get_request('nfweb_api', '/flow/{0}/go_details/{1}'.format(flow_name, run_uuid))
-    content = response['go_details']
+    log_dir = cfg.get('log_dir')
+    log_filename =  pathlib.Path(log_dir) / "{run_uuid}.log"
+
+    with open(str(log_filename)) as lf:
+        content = lf.read()
+
     return render_template('show_log.template', content=content, uuid=uuid, sel="Runs/Outputs")
+
+def task_details(run_uuid, task_id):
+    '''
+    return the .command.* files in the nextflow task directory
+    '''
+
+    data = db.get_run(run_uuid)
+    nf_directory = pathlib.Path(data[0][11])
+
+    work_dir = nf_directory / 'runs' / run_uuid / 'work'
+    if not work_dir.is_dir():
+        return None
+
+    logger.debug(work_dir)
+
+    truncated_task_subdir = task_id.replace('-','/')
+    full_task_subdir = list(work_dir.glob(truncated_task_subdir + '*'))
+    if not full_task_subdir:
+        return None
+
+    full_task_subdir = full_task_subdir[0]
+
+    if not full_task_subdir.is_dir():
+        return None
+
+    '''
+    dictionary of { filename: file contents }
+    '''
+    file_contents = {}
+    for filename in full_task_subdir.glob('*'):
+        if filename.is_file() and '.command.' in str(filename):
+            with open(str(filename), 'r') as f:
+                file_contents[str(filename.name)] = f.read()
+
+    return file_contents
+
 
 
 @app.route('/flow/<flow_name>/details/<run_uuid>/task/<sample_name>/<task_name>')
@@ -704,10 +778,7 @@ def run_details_task_nice(flow_name, run_uuid, sample_name, task_name):
     '''
     Get and load the json string containing the ordered trace dict
     '''
-    trace_nice = collections.OrderedDict()
-    response = api_get_request('nfweb_api', '/trace_nice/{0}'.format(run_uuid))
-    if response and 'trace_nice' in response:
-        trace_nice = json.loads(response['trace_nice'], object_pairs_hook=collections.OrderedDict)
+    trace_nice = make_nice_trace(run_uuid)
 
     task_id_encoded = None
     if sample_name in trace_nice:
@@ -716,14 +787,9 @@ def run_details_task_nice(flow_name, run_uuid, sample_name, task_name):
                 task_id = task['hash']
         task_id_encoded = task_id.replace('/', '-')
 
-    response = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid))
-    run_name = response['data'][0][19]
-
-    response = api_get_request('nfweb_api', '/task_details/{0}/{1}'.format(run_uuid, task_id_encoded))
-    if response and 'task_files' in response and response['task_files']:
-        files = response['task_files']
-    else:
-        abort(404, description="Task not found")
+    data = db.get_run(run_uuid)
+    run_name = data[0][19]
+    files = task_details(run_uuid, task_id_encoded)
 
     return render_template('show_task.template', sel="Runs/Outputs",
                            flow_name=flow_name,
@@ -742,14 +808,11 @@ def run_details_task_nice(flow_name, run_uuid, sample_name, task_name):
 def run_details_task(flow_name, run_uuid, task_id):
     if len(task_id) != 9:
         abort(404, description="Task not found")
-    response = api_get_request('nfweb_api', '/task_details/{0}/{1}'.format(run_uuid, task_id))
-    if response and 'task_files' in response and response['task_files']:
-        files = response['task_files']
-    else:
-        abort(404, description="Task not found")
 
-    response = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid))
-    run_name = response['data'][0][19]
+    files = task_details(run_uuid, task_id)
+
+    data = db.get_run(run_uuid)
+    run_name = data[0][19]
 
     return render_template('show_task.template', sel="Runs/Outputs",
                            flow_name=flow_name,
@@ -769,19 +832,83 @@ def get_sample_tags_for_run(run_uuid):
     print(ret)
     return ret
 
+def make_nice_trace(run_uuid):
+    data = db.get_run(run_uuid)
+    trace = nflib.parse_nextflow_trace(db.load_nextflow_trace(run_uuid))
+
+    '''
+    dict from sample/nextflow tag to list of trace entries with that sample
+
+    trace entries that couldn't be parsed go into the "unknown" key
+    '''
+    trace_nice = collections.OrderedDict()
+    trace_nice['unknown'] = []
+
+    '''
+    Construct trace_nice
+    '''
+    for entry in trace:
+        m = re.search('(.*) \((.*)\)', entry['name'])
+        if not m:
+            trace_nice['unknown'].append(entry)
+            continue
+        task_name = m.group(1)
+        dataset_id = m.group(2)
+        entry['nice_name'] = task_name
+        entry['dataset_id'] = dataset_id
+        if dataset_id in trace_nice:
+            trace_nice[dataset_id].append(entry)
+        else:
+            trace_nice[dataset_id] = [entry]
+
+    return trace_nice
+
+def get_details(flow_name, run_uuid):
+    data = db.get_run(run_uuid)
+
+    # root_dir is entry 11
+    nf_directory = pathlib.Path(data[0][11])
+    output_dir = pathlib.Path(data[0][13])
+    input_dir = pathlib.Path(json.loads(data[0][20])['indir'])
+    run_name = data[0][19]
+
+    buttons = {}
+
+    if output_dir.is_dir():
+        buttons['output_files'] = True
+        buttons['fetch'] = True
+
+    if input_dir.is_dir():
+        buttons['rerun'] = True
+
+    pid_filename = nf_directory / 'runs' / run_uuid / '.run.pid'
+    if pid_filename.is_file():
+        buttons['stop'] = True
+
+    log_filename = nf_directory / 'runs' / run_uuid / '.nextflow.log'
+    if log_filename.is_file():
+        buttons['log'] = True
+
+    if db.nextflow_file_exists(run_uuid, 'report.html'):
+        buttons['report'] = True
+
+    if db.nextflow_file_exists(run_uuid, 'timeline.html'):
+        buttons['timeline'] = True
+
+    trace = nflib.parse_nextflow_trace(db.load_nextflow_trace(run_uuid))
+    return trace, output_dir, buttons, run_name
+
 @app.route('/flow/<flow_name>/details/<run_uuid>')
 @flask_login.login_required
-def run_details(flow_name : str, run_uuid: int):
-    rows = api_get_request('nfweb_api', '/flow/getrun/{0}'.format(run_uuid))
-
-    if not rows or 'data' not in rows or not rows['data'] or not rows['data'][0]:
+def run_details(flow_name, run_uuid):
+    rows = db.get_run(run_uuid)
+    if not rows:
         abort(404, description="Run not found")
 
-    data = json.loads(rows['data'][0][20])
+    data = json.loads(rows[0][20])
     user_param_dict = data['user_param_dict']
 
-    response = api_get_request('nfweb_api', '/flow/{0}/details/{1}'.format(flow_name, run_uuid))
-    trace, output_dir, buttons, fetch_subdir, run_name = response['trace'], response['output_dir'], response['buttons'], response['fetch_subdir'], response['run_name']
+    trace, output_dir, buttons, run_name = get_details(flow_name, run_uuid)
 
     '''
     Get and load the json string containing the ordered trace dict
@@ -789,41 +916,33 @@ def run_details(flow_name : str, run_uuid: int):
     sample_count = 0
     task_count = 0
     expected_tasks = 0
-    trace_nice = collections.OrderedDict()
+    trace_nice = make_nice_trace(run_uuid)
 
-    response = api_get_request('nfweb_api', '/trace_nice/{0}'.format(run_uuid))
-
-    if response and 'trace_nice' in response:
-        trace_nice = json.loads(response['trace_nice'], object_pairs_hook=collections.OrderedDict)
-
-        '''
-        Count samples and tasks, subject to certain filters
-        '''
-        for dataset_id,tasks in trace_nice.items():
-            if dataset_id != 'unknown':
-                for task in tasks:
-                    if task['status'] == 'COMPLETED':
-                        if 'count_tasks_ignore' in flows[flow_name]:
-                            if task['nice_name'] not in flows[flow_name]['count_tasks_ignore']:
-                                task_count += 1
-                        else:
+    '''
+    Count samples and tasks, subject to certain filters
+    '''
+    for dataset_id,tasks in trace_nice.items():
+        if dataset_id != 'unknown':
+            for task in tasks:
+                if task['status'] == 'COMPLETED':
+                    if 'count_tasks_ignore' in flows[flow_name]:
+                        if task['nice_name'] not in flows[flow_name]['count_tasks_ignore']:
                             task_count += 1
+                    else:
+                        task_count += 1
 
-        '''
-        Get number of input samples and calculate the number of expected tasks (samples * tasks_per_sample)
-        '''
-        response2 = api_get_request('nfweb_api', '/flow/getrun_counts/{0}'.format(run_uuid))
-        if response2 and 'input_files_count' in response2:
-            if response2['input_files_count'] > 0:
-                if 'count_tasks_per_sample' in flows[flow_name]:
-                    expected_tasks = response2['input_files_count'] * flows[flow_name]['count_tasks_per_sample']
-                    logger.debug("expected tasks: {0}".format(expected_tasks))
+    '''
+    Get number of input samples and calculate the number of expected tasks (samples * tasks_per_sample)
+    '''
+    input_files_count, output_files_count = db.get_input_files_count(run_uuid)
+    if input_files_count > 0:
+        if 'count_tasks_per_sample' in flows[flow_name]:
+            expected_tasks = input_files_count * flows[flow_name]['count_tasks_per_sample']
+            logger.debug(f"expected tasks: {expected_tasks}")
 
-        logger.debug("samples: {0} task count: {1}".format(len(trace_nice), task_count))
+    logger.debug(f"samples: {len(trace_nice)} task count: {task_count}")
 
-    fetch_dir = pathlib.Path(output_dir)
-    if fetch_subdir:
-        fetch_dir = fetch_dir / fetch_subdir
+    fetch_dir = output_dir
 
     fetch_id = base64.b16encode(bytes(str(fetch_dir), encoding='utf-8')).decode('utf-8')
 
@@ -841,14 +960,13 @@ def run_details(flow_name : str, run_uuid: int):
     else:
         abort(404, description="Flow not found")
 
-
     return render_template('run_details.template', sel="Runs/Outputs",
                            uuid=run_uuid,
                            flow_name=flow_name,
                            tags=tags,
                            flow_display_name=flows[flow_name]['display_name'],
                            entries=trace,
-                           output_dir=output_dir,
+                           output_dir=str(output_dir),
                            buttons=buttons,
                            fetch_id=fetch_id,
                            trace_nice=trace_nice,
@@ -858,91 +976,193 @@ def run_details(flow_name : str, run_uuid: int):
                            expected_tasks=expected_tasks,
                            pipeline_no_report = pipeline_no_report)
 
+def get_log(flow_name, run_uuid):
+    data = db.get_run(run_uuid)
+
+    nf_directory = pathlib.Path(data[0][11])
+
+    # Using root_dir
+    log_filename =  nf_directory / 'runs' / run_uuid / '.nextflow.log'
+    with open(str(log_filename)) as f:
+        return f.read()
+
 @app.route('/flow/<flow_name>/log/<run_uuid>')
 @flask_login.login_required
-def show_log(flow_name : str, run_uuid: int):
-    response = api_get_request('nfweb_api', '/flow/{0}/log/{1}'.format(flow_name, run_uuid))
-    content = response['log']
-
+def show_log(flow_name, run_uuid):
+    content = get_log(flow_name, run_uuid)
     return render_template('show_log.template', sel="Runs/Outputs", content=content, flow_name=flow_name, uuid=run_uuid)
+
+def get_output_files(flow_name, run_uuid):
+    data = db.get_run(run_uuid)
+    # Using root_dir
+    output_dir = data[0][13]
+
+    du_cmd = ["du", "-sh", output_dir]
+    tree_cmd = ["tree", output_dir]
+
+    logger.debug(f"du command: {du_cmd}")
+    try:
+        du_p = subprocess.check_output(du_cmd, stderr=subprocess.PIPE, universal_newlines=True)
+    except subprocess.CalledProcessError:
+        return make_api_response('failure', details={'command_failed': 'du'})
+
+    logger.debug(f"tree command: {tree_cmd}")
+    try:
+        result = dict()
+        def try_tree(result):
+            result['result'] = subprocess.check_output(tree_cmd, stderr=subprocess.PIPE, universal_newlines=True)
+        t = threading.Thread(target=try_tree, args=(result,))
+        t.start()
+        t.join(timeout=3)
+        tree_p = result['result']
+    except KeyError:
+        tree_p = "\n\ntree command failed with timeout\n\n"
+
+    # Format directory on top, then total size, then the file tree
+    size_str = du_p.strip()
+    size_str = size_str.split("\t")
+    size_str = f"Total size: {size_str[0]}"
+    out_str = tree_p.strip().split('\n')
+    out_str = "\n".join([out_str[0].strip()] + [out_str[-1]] + [size_str] + [""] + out_str[1:-1])
+
+    return out_str
 
 @app.route('/flow/<flow_name>/output_files/<run_uuid>')
 @flask_login.login_required
-def show_output_files(flow_name : str, run_uuid: int):
-    response = api_get_request('nfweb_api', '/flow/{0}/output_files/{1}'.format(flow_name, run_uuid))
-    try:
-        content = response['output_files']
-    except:
-        content = "Directory inspection commands failed. The directory probably doesn't exist"
-
+def show_output_files(flow_name, run_uuid):
+    content = get_output_files(flow_name, run_uuid)
     download_url = cfg.get('download_url')
 
-    return render_template('show_files.template', sel="Runs/Outputs", content=content, flow_name=flow_name, uuid=run_uuid,
-                           download_url=download_url)
+    return render_template('show_files.template', sel="Runs/Outputs", content=content,
+                           flow_name=flow_name, uuid=run_uuid, download_url=download_url)
+
+cmds = list()
+def once_cmd_async(cmd):
+    '''
+    run a system command in a thread, but only once
+    '''
+    if cmd not in cmds:
+        logger.warning(f'once_cmd_async: {cmd}')
+        def f(cmd):
+            os.system(cmd)
+
+        cmds.append(cmd)
+        threading.Thread(target=f, args=(cmd,)).start()
+
+    return True
+
+def do_delete_output_files(run_uuid):
+    try:
+        uuid.UUID(run_uuid)
+        once_cmd_async(f'rm -rf /work/output/{run_uuid}')
+    except Exception as e:
+        logger.error(e)
+
+def do_delete_run(run_uuid):
+    try:
+        uuid.UUID(run_uuid)
+        db.delete_run(run_uuid)
+        once_cmd_async(f'rm -rf /work/runs/{run_uuid}')
+        once_cmd_async(f'rm -rf /work/output/{run_uuid}')
+    except Exception as e:
+        logger.error(e)
 
 @app.route('/flow/<flow_name>/delete_output_files/<run_uuid>')
 def delete_output_files(flow_name, run_uuid):
-    api_get_request('nfweb_api', f'/delete_output_files/{run_uuid}')
+    do_delete_output_files(run_uuid)
     return redirect(f"/flow/{flow_name}/details/{run_uuid}")
 
 @app.route('/flow/<flow_name>/delete_run/<run_uuid>')
 def delete_run(flow_name, run_uuid):
-    api_get_request('nfweb_api', f'/delete_run/{run_uuid}')
+    do_delete_run(run_uuid)
     return redirect(f"/flow/{flow_name}")
+
+def get_report(flow_name, run_uuid):
+    data = db.get_run(run_uuid)
+
+    nf_directory = pathlib.Path(data[0][11])
+
+    report_filename = nf_directory / 'runs' / run_uuid / 'report.html'
+    with open(str(report_filename)) as f:
+        content = f.read()
+
+    import process_report_html
+    js = process_report_html.get_report_json(report_filename)
+
+    return content, js
 
 @app.route('/flow/<flow_name>/report/<run_uuid>')
 @flask_login.login_required
-def show_report(flow_name : str, run_uuid: int):
-    response = api_get_request('nfweb_api', '/flow/{0}/report/{1}'.format(flow_name, run_uuid))
-    content = response['report']
+def show_report(flow_name, run_uuid):
+    content, js = get_report(flow_name, run_uuid)
 
     if request.args.get('api'):
-        return response['js']
+        return js
     if request.args.get('csv'):
-        trace = json.dumps(json.loads(response['js'])['trace'])
+        trace = js['trace']
         table = pandas.read_json(io.StringIO(trace))
         table = table.drop(["script", "env"], axis=1)
         return "<pre>" + table.sort_values("tag").to_csv(index=False)
 
     return content
 
+def get_timeline(flow_name, run_uuid):
+    data = db.get_run(run_uuid)
+
+    nf_directory = pathlib.Path(data[0][11])
+
+    timeline_filename = nf_directory / 'runs' / run_uuid / 'timeline.html'
+    with open(str(timeline_filename)) as f:
+        content = f.read()
+
+    return make_api_response('success', data={'timeline': content})
+
 @app.route('/flow/<flow_name>/timeline/<run_uuid>')
 @flask_login.login_required
 def show_timeline(flow_name: str, run_uuid: int):
-    response = api_get_request('nfweb_api', '/flow/{0}/timeline/{1}'.format(flow_name, run_uuid))
-    content = response['timeline']
+    content = get_timeline(flow_name, run_uuid)
+    return content
+
+def get_dagdot(run_uuid):
+    data = db.get_run(run_uuid)
+    nf_directory = pathlib.Path(data[0][11])
+    dagdot_filename = nf_directory / 'runs' / runs_uuid / 'dag.dot'
+
+    with open(str(dagdot_filename)) as f:
+        content = f.read()
 
     return content
 
 @app.route('/flow/<flow_name>/dagdot/<run_uuid>')
 @flask_login.login_required
-def show_dagdot(flow_name: str, run_uuid: int):
-    response = api_get_request('nfweb_api', '/flow/{0}/dagdot/{1}'.format(flow_name, run_uuid))
-    content = response['dagdot']
-
+def show_dagdot(flow_name, run_uuid):
+    content = get_dagdot(run_uuid)
     return content
+
+def stop_run(run_uuid):
+    pid_filename = pathlib.Path(f'/work/runs/{run_uuid}/.run.pid')
+    if pid_filename.exists():
+        with open(str(pid_filename)) as f:
+            pid = int(f.readline())
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            logging.error(f"stop_run(): process doesn't exist")
+    else:
+        logger.error(f'pid filename {pid_filename} doesnt exist')
 
 @app.route('/flow/<flow_name>/stop/<run_uuid>')
 @flask_login.login_required
-def kill_nextflow(flow_name : str, run_uuid: int):
-    data = {
-        'flow_name': flow_name,
-        'run_uuid': run_uuid
-    }
-
-    data_json = json.dumps(data)
-
-    response = api_post_request('nfweb_api', '/run/stop', data_json)
-
-    return redirect("/flow/{0}".format(flow_name))
+def kill_nextflow(flow_name, run_uuid):
+    stop_run(run_uuid)
+    return redirect(f"/flow/{flow_name}")
 
 @app.route('/terminate_job/<job_id>')
 @flask_login.login_required
 def terminate_job(job_id):
     if not current_user.is_admin():
         abort(403)
-    data_json = { 'job_id': job_id }
-    response = api_post_request('nfweb_api', '/terminate_job', data_json)
+    requests.get(f'http://127.0.0.1:6000/terminate/{ job_id }')
     return redirect('/cluster')
 
 def hm_timediff(epochtime_start, epochtime_end):
@@ -1049,7 +1269,6 @@ def fetch_data():
 @app.route('/get_files', methods=['POST'])
 @flask_login.login_required
 def get_files():
-    from flask import jsonify
     req = request.get_json()
     if 'path' not in req:
         abort(403)
@@ -1172,19 +1391,19 @@ def fetch_new():
 @app.route('/fetch_delete/<fetch_kind>/<guid>')
 @flask_login.login_required
 def fetch_delete(fetch_kind, guid):
-    api_get_request('fetch_api', "/api/fetch/{0}/delete/{1}".format(fetch_kind, guid))
+    api_get_request('fetch_api', f"/api/fetch/{fetch_kind}/delete/{guid}")
     return redirect('/fetch')
 
 @app.route('/fetch_stop/<guid>')
 @flask_login.login_required
 def fetch_stop(guid):
-    url = api_get_request('fetch_api', "/api/fetch/stop/{0}".format(guid))
+    url = api_get_request('fetch_api', f"/api/fetch/stop/{guid}")
     return redirect('/fetch')
 
 @app.route('/select_flow/<guid>')
 @flask_login.login_required
 def select_flow(guid):
-    ret1 = api_get_request('fetch_api', '/api/fetch/status_sample/{0}'.format(guid))
+    ret1 = api_get_request('fetch_api', f'/api/fetch/status_sample/{guid}')
 
     flow_name = None
     if request.args.get('flow_name'):
@@ -1248,7 +1467,7 @@ def fetch_metadata(flow_name, pipeline_run_uuid):
 @app.route('/fetch_details/<guid>')
 @flask_login.login_required
 def fetch_details(guid):
-    ret1 = api_get_request('fetch_api', '/api/fetch/status_sample/{0}'.format(guid))
+    ret1 = api_get_request('fetch_api', f'/api/fetch/status_sample/{guid}')
 
     if guid in ret1:
         ret1 = ret1[guid]
@@ -1258,7 +1477,7 @@ def fetch_details(guid):
     if request.args.get('api'):
         return json.dumps(ret1)
 
-    ret2 = api_get_request('fetch_api', '/api/fetch/log/{0}'.format(guid))
+    ret2 = api_get_request('fetch_api', f'/api/fetch/log/{guid}')
 
     fetch_samples = []
     if ret1:
@@ -1336,7 +1555,7 @@ def get_report_pdf(run_uuid, dataset_id):
 
 @app.route('/flow/<run_uuid>/<dataset_id>/report')
 @flask_login.login_required
-def get_report(run_uuid : str, dataset_id: str):
+def get_report(run_uuid, dataset_id):
     resp = api_get_request('reportreader_api', f'/report/{run_uuid}/{dataset_id}')
     catpile_resp = api_get_request('catpile_api', f'/get_sp3_data_for_run_sample/{run_uuid}/{dataset_id}')
     report_data = resp['report_data'] # data in from catreport
@@ -1513,6 +1732,7 @@ def proxy_get_cluster_stats():
     return json.dumps(response)
 
 def main():
+    #app.run(debug=True, port=7000)
     waitress.serve(app, listen='127.0.0.1:7000')
 
 if __name__ == "__main__":

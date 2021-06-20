@@ -40,7 +40,6 @@ epochtime_started = time.time()
 
 cfg = config.Config()
 cfg.load('config.yaml')
-db.setup_db(cfg.get('db_target'))
 
 def setup_logging():
     logger = logging.getLogger("go")
@@ -208,7 +207,7 @@ def run_nextflow(queue):
     logger.debug(f"user_param_str: {user_param_str}")
 
     nextflow_file = str(prog_dir / nf_filename.name)
-    cmd = f'nextflow run {shlex.quote(nextflow_file)} -with-trace -with-report -with-timeline -with-dag dag.png {arguments} {user_param_str} {output_arg} {shlex.quote(str(output_dir))}'
+    cmd = f'nextflow -q run {shlex.quote(nextflow_file)} -with-trace -with-report -with-timeline -with-dag dag.png {arguments} {user_param_str} {output_arg} {shlex.quote(str(output_dir))}'
 
     # hyperflow_pipeline = str(prog_dir / nf_filename)
     # cmd = f'{python_exe} {hyperflow_exe} {shlex.quote(hyperflow_pipeline)} -image_dir {image_dir} {user_param_str} {output_arg} {shlex.quote(str(output_dir))}'
@@ -247,6 +246,22 @@ ppid = str(q.get())
 
 # change into the working directory
 os.chdir(root_dir)
+
+stop_nftrace = threading.Event()
+def save_nextflow_trace_thread(e):
+    while True:
+        time.sleep(60)
+        if e.is_set():
+            break
+        try:
+            c = open(run_dir / "trace.txt").read()
+            db.save_nextflow_trace(run_uuid, c)
+            logging.warning(f"go.py: saved trace file for {run_uuid}")
+        except Exception as e:
+            logging.warning(f"Couldn't save nextflow trace to mongodb: {str(e)}")
+
+T2 = threading.Thread(target=save_nextflow_trace_thread, args=(stop_nftrace,))
+T2.start()
 
 # write the nextflow run pid into pids/uuid.pid
 with open(run_dir / ".run.pid", 'w') as f:
@@ -342,6 +357,10 @@ os.system("nextflow clean -k -f")
 
 data['output_dir'] = str(output_dir)
 
+for nf_file in ["report.html", "timeline.html"]:
+    with open(nf_file, "rb") as f:
+        db.save_nextflow_file(run_uuid, f, nf_file)
+
 for report_script in pathlib.Path('/home/ubuntu/sp3/catweb/scripts/').glob('*.py'):
     cmd = f"{str(report_script)} {shlex.quote(json.dumps(data))}"
     logger.warning(f"running report script {cmd}")
@@ -350,5 +369,12 @@ for report_script in pathlib.Path('/home/ubuntu/sp3/catweb/scripts/').glob('*.py
 cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/run-notification.py {shlex.quote(user_name)} {shlex.quote(run_name)} {shlex.quote('')}"
 logging.warning(cmd)
 os.system(cmd)
+
+stop_nftrace.set()
+T2.join()
+
+# save final trace file one last time
+with open(run_dir / "trace.txt") as c:
+    db.save_nextflow_trace(run_uuid, c.read())
 
 logger.info("go.py: done")

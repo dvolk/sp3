@@ -1,0 +1,15 @@
+{% extends "base1.template" %}
+{% block content %}
+
+
+<h2>Edit Organisation "{{ org_name }}"</h2>
+
+<form action='/admin_edit_org?org_name={{ org_name|urlencode }}' method='POST'>
+<textarea style="width: 100%; font-family: monospace;" rows=20 class="form-control" name="org_data" id="org_data">
+{{ org_data }}
+</textarea>
+
+  <button style="margin-top: 5px;" id="submitButton" type="submit"
+	  class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

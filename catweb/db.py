@@ -4,133 +4,200 @@ import json
 import logging
 import copy
 
+import pymongo
+import gridfs
+
+# TODO
+# migrate
+# fix get_status
+
+myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+mydb = myclient["catweb"]
+fs = gridfs.GridFS(mydb)
+nfruns_db = mydb["nfruns"]
+nftraces_db = mydb["traces"]
+reference_cache_db = mydb["reference_cache"]
+
 logger = logging.getLogger('api')
 
-def setup_db(db_target):
-    global con
-    con = sqlite3.connect(db_target, check_same_thread=False)
-    con.set_trace_callback(logger.debug)
-    with con:
-        #
-        # nextflow runs
-        #
-        con.execute("CREATE TABLE if not exists nfruns (date_time, duration, code_name, status, hash, uuid, command_line, user, sample_group, workflow, context, root_dir, output_arg, output_dir, run_uuid primary key not null, start_epochtime, pid, ppid, end_epochtime, output_name, data_json);")
-        #
-        # tracks input and output files for uuid
-        #
-        con.execute("CREATE TABLE if not exists nffiles (uuid primary key not null, input_files_count int, output_files_count int, input_files, output_files)")
-        #
-        #
-        #
-        con.execute("CREATE TABLE if not exists reference_cache (uuid primary key not null, reference_json)")
-    return con
-
 def add_to_reference_cache(ref_uuid, reference_json):
-    with con:
-        con.execute('insert into reference_cache values (?, ?)', (ref_uuid, json.dumps(reference_json)))
+    reference_cache_db.insert({ "uuid": ref_uuid,
+                                "reference_json": reference_json })
 
 def get_reference_cache(ref_uuid):
-    ret = con.execute('select reference_json from reference_cache where uuid = ?', (ref_uuid,)).fetchall()
-    assert len(ret) == 1
-    return ret[0][0]
+    r = reference_cache_db.find_one({ "uuid": ref_uuid })
+    if r:
+        return r.get("reference_json")
 
 def get_status(org, is_admin):
-    if is_admin == "True":
-        running = con.execute(f'select * from nfruns where status = "-" order by "start_epochtime" desc').fetchall()
-        recent = con.execute(f'select * from nfruns where status = "OK" order by "start_epochtime" desc limit 5').fetchall()
-        failed = con.execute(f'select * from nfruns where status = "ERR" or status = "FAIL" order by "start_epochtime" desc limit 5').fetchall()
+    logging.warning(f"get_status({org}, {is_admin})")
+    if is_admin:
+        running = nfruns_db.find({ "status": "-" }, {"_id": 0}).sort("start_epochtime", -1).limit(5)
+        recent = nfruns_db.find({ "status": "OK" }, {"_id": 0}).sort("start_epochtime", -1).limit(5)
+        failed = nfruns_db.find({ "status": "ERR" }, {"_id": 0}).sort("start_epochtime", -1).limit(5)
     else:
-        running = con.execute(f'select * from nfruns where workflow like "{org}-%" and status = "-" order by "start_epochtime" desc').fetchall()
-        recent = con.execute(f'select * from nfruns where  workflow like "{org}-%" and status = "OK" order by "start_epochtime" desc limit 5').fetchall()
-        failed = con.execute(f'select * from nfruns where  workflow like "{org}-%" and status = "ERR" or status = "FAIL" order by "start_epochtime" desc limit 5').fetchall()
-    return (running, recent, failed)
+        org_search = { "$regex": f"^{org}-.*" }
+        running = nfruns_db.find({ "status": "-", "workflow": org_search }, {"_id": 0}).sort("start_epochtime", -1).limit(5)
+        recent = nfruns_db.find({ "status": "OK", "workflow": org_search }, {"_id": 0}).sort("start_epochtime", -1).limit(5)
+        failed = nfruns_db.find({ "status": "ERR", "workflow": org_search }, {"_id": 0}).sort("start_epochtime", -1).limit(5)
+
+    return ([run_to_old_format(run) for run in running],
+            [run_to_old_format(run) for run in recent],
+            [run_to_old_format(run) for run in failed])
+
+def run_to_old_format(run):
+    return [run["date_time"],
+            run["duration"],
+            run["code_name"],
+            run["status"],
+            run["hash"],
+            run["uuid"],
+            run["command_line"],
+            run["user"],
+            run["sample_group"],
+            run["workflow"],
+            run["context"],
+            run["root_dir"],
+            run["output_arg"],
+            run["output_dir"],
+            run["run_uuid"],
+            run["start_epochtime"],
+            run["pid"],
+            run["ppid"],
+            run["end_epochtime"],
+            run["output_name"],
+            run["data_json"]]
 
 def get_workflow(flow_name):
-    return con.execute('select * from nfruns where workflow = ? order by "start_epochtime" desc', (flow_name,)).fetchall()
+    # deprecated
+    runs = nfruns_db.find({ "workflow": flow_name }).sort("start_epochtime", -1)
+    ret = list()
+    for run in runs:
+        ret.append(run_to_old_format(run))
+    return ret
+
+def get_pipeline_runs(flow_name):
+    # aka get_workflow with new format
+    return list(nfruns_db.find({ "workflow": flow_name }, { "_id": 0 }).sort("start_epochtime", -1))
 
 def delete_run(run_uuid):
-    con.execute('delete from nfruns where run_uuid = ?', (run_uuid,))
-    con.commit()
+    nfruns_db.delete({ "run_uuid": run_uuid })
 
 def get_run(run_uuid):
-    return con.execute('select * from nfruns where run_uuid = ?', (run_uuid,)).fetchall()
+    # deprecated
+    run = nfruns_db.find_one({ "run_uuid": run_uuid })
+    return [run_to_old_format(run)]
+
+def get_pipeline_run(run_uuid):
+    # aka get_run with new format
+    return nfruns_db.find_one({ "run_uuid": run_uuid }, { "_id": 0 })
 
 def insert_files_table(run_uuid, input_files_count, input_files):
-    con.execute('insert into nffiles values (?,?,?,?,?)', (run_uuid, input_files_count, -1, input_files, ""))
-    con.commit()
-
-def update_files_table(uuid, output_files_count, output_files):
-    con.execute('update nffiles set output_files_count = ? and output_files = ? where uuid = ?', (output_files_count, output_files, uuid))
+    nfruns_db.update({ "run_uuid": run_uuid },
+                     { "$set": {
+                         "input_files_count": input_files_count,
+                         "input_files": input_files } })
 
 def get_input_files_count(run_uuid):
-    data = con.execute('select input_files_count, output_files_count from nffiles where uuid = ?', (run_uuid,)).fetchall()
-    if not data:
-        return [-1,-1]
-    else:
-        return data[0]
+    r = nfruns_db.find_one({ "run_uuid": run_uuid },
+                           { "input_files_count": 1 })
+
+    return r.get("input_files_count", -1), -1
 
 def insert_dummy_run(data):
     data2 = copy.deepcopy(data)
     data2.pop('flow_cfg', None)
     # insert a dummy entry into the table so that the user sees that a run is starting
     # this is replaced when the nextflow process starts
-    con.execute('insert into nfruns values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-                (time.strftime("%Y-%m-%d %H:%M:%S"),
-                 '-',
-                 '-',
-                 'STARTING',
-                 '-',
-                 '-',
-                 '-',
-                 data['user_name'],
-                 '',
-                 data['flow_cfg']['name'],
-                 data['context'],
-                 '',
-                 '',
-                 '',
-                 data['run_uuid'],
-                 str(int(time.time())),
-                 '-',
-                 '-',
-                 str(int(time.time())),
-                 data['run_name'],
-                 json.dumps(data2)))
-    con.commit()
-
-def insert_meta_run(status_str, data):
-    data2 = copy.deepcopy(data)
-    data2.pop('flow_cfg', None)
-    con.execute('delete from nfruns where run_uuid = ?', (data['run_uuid'],))
-    con.execute('insert into nfruns values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-                (time.strftime("%Y-%m-%d %H:%M:%S"),
-                 '-',
-                 '-',
-                 status_str,
-                 '-',
-                 '-',
-                 '-',
-                 data['user_name'],
-                 '',
-                 data['flow_cfg']['name'],
-                 data['context'],
-                 '',
-                 '',
-                 '',
-                 data['run_uuid'],
-                 str(int(time.time())),
-                 '-',
-                 '-',
-                 str(int(time.time())),
-                 data['run_name'],
-                 json.dumps(data2)))
-    con.commit()
+    nfruns_db.insert({ "date_time": time.strftime("%Y-%m-%d %H:%M:%S"),
+                       "duration": "-",
+                       "code_name": "-",
+                       "status": "STARTING",
+                       "hash": "-",
+                       "uuid": "-",
+                       "command_line": "-",
+                       "user": data['user_name'],
+                       "sample_group": "",
+                       "workflow": data['flow_cfg']['name'],
+                       "context": data["context"],
+                       "root_dir": "-",
+                       "output_arg": "-",
+                       "output_dir": "-",
+                       "run_uuid": data['run_uuid'],
+                       "start_epochtime": str(int(time.time())),
+                       "pid": "-",
+                       "ppid": "-",
+                       "end_epochtime": str(int(time.time())),
+                       "output_name": data['run_name'],
+                       "data_json": json.dumps(data2) })
 
 def insert_run(s, run_uuid):
-    # add the run to the sqlite database
-    # delete dummy entry now that nextflow has started
-    print ("deleting dummy run")
-    con.execute("delete from nfruns where run_uuid = ?", (run_uuid,))
-    print ("entering actual run")
-    con.execute("insert into nfruns values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", s)
-    con.commit()
+    nfruns_db.update({ "run_uuid": run_uuid },
+                     { "$set": { "date_time": s[0],
+                                 "duration": s[1],
+                                 "code_name": s[2],
+                                 "status": s[3],
+                                 "hash": s[4],
+                                 "uuid": s[5],
+                                 "command_line": s[6],
+                                 "user": s[7],
+                                 "sample_group": s[8],
+                                 "workflow": s[9],
+                                 "context": s[10],
+                                 "root_dir": s[11],
+                                 "output_arg": s[12],
+                                 "output_dir": s[13],
+                                 "run_uuid": s[14],
+                                 "start_epochtime": s[15],
+                                 "pid": s[16],
+                                 "ppid": s[17],
+                                 "end_epochtime": s[18],
+                                 "output_name": s[19],
+                                 "data_json": s[20] } })
+
+def load_nextflow_trace(pipeline_run_uuid):
+    r = nftraces_db.find_one({ "pipeline_run_uuid": pipeline_run_uuid },
+                             { "nextflow_trace_content": 1 })
+    if not r:
+        return ""
+    return r.get("nextflow_trace_content", "")
+
+def save_nextflow_trace(pipeline_run_uuid, trace_content):
+    nftraces_db.replace_one({ "pipeline_run_uuid": pipeline_run_uuid },
+                            { "pipeline_run_uuid": pipeline_run_uuid,
+                              "nextflow_trace_content": trace_content }, upsert=True)
+
+def save_nextflow_file(pipeline_run_uuid, trace_file, filename):
+    if filename == "report.html":
+        db_filename = f"nextflow.report_html.{pipeline_run_uuid}"
+    elif filename == "timeline.html":
+        db_filename = f"nextflow.timeline_html.{pipeline_run_uuid}"
+    elif filename == ".nextflow.log":
+        db_filename = f"nextflow.timeline_html.{pipeline_run_uuid}"
+    else:
+        return None
+    return fs.put(trace_file, filename=db_filename)
+
+def load_nextflow_file(pipeline_run_uuid, filename):
+    if filename == "report.html":
+        db_filename = f"nextflow.report_html.{pipeline_run_uuid}"
+    elif filename == "timeline.html":
+        db_filename = f"nextflow.timeline_html.{pipeline_run_uuid}"
+    else:
+        return None
+    r = fs.find_one({ "filename": db_filename })
+    if not r:
+        logging.warning(f"gridfs file {db_filename} not found")
+        return None
+    try:
+        return r.read().decode()
+    except:
+        return r.read()
+
+def nextflow_file_exists(pipeline_run_uuid, filename):
+    if filename == "report.html":
+        db_filename = f"nextflow.report_html.{pipeline_run_uuid}"
+    elif filename == "timeline.html":
+        db_filename = f"nextflow.timeline_html.{pipeline_run_uuid}"
+    else:
+        return None

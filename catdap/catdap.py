@@ -98,6 +98,14 @@ def edit_user():
                            { "$set": user_data })
     return "OK"
 
+@app.route('/edit_organisation')
+def edit_organisation():
+    name = request.args['organisation']
+    org_data = json.loads(request.args['org_data'])
+    organisations_db.update_one({ "name": name },
+                                { "$set": org_data })
+    return "OK"
+
 @app.route('/add_user')
 def add_user():
     name = request.args.get('name')
@@ -208,10 +216,9 @@ def change_password(token_id):
 
 @app.route('/get_organisation')
 def get_organisation():
-    group = request.args['group']
     org_name = request.args['organisation']
 
-    logging.debug(f"get_organisation()! group={group} organisation={org_name}")
+    logging.debug(f"get_organisation()! organisation={org_name}")
 
     organisation = organisations_db.find_one({ "name": org_name }, { '_id': False })
     logging.warning(organisation)
@@ -219,6 +226,10 @@ def get_organisation():
         return json.dumps({})
 
     return json.dumps(organisation)
+
+@app.route('/get_organisations')
+def get_organisations():
+    return json.dumps(list(organisations_db.find({}, { '_id': False })))
 
 # --- main ---
 
