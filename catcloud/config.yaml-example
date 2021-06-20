@@ -75,8 +75,6 @@ profiles:
 
   - name: oracle-test
     node_controller: node_controllers.oracle.OracleNodeController
-    scheduler: schedulers.catgrid.CatgridScheduler
-    scaler: scalers.onebyone.OneByOneScaler
     node_controller_params:
       compartment_id: ocid1.compartment.oc1..aaaaaaaao4kpjckz2pjmlict2ssrnx45ims7ttvxghlluo2tcwv6pgfdlepq
       availability_domain: LfHB:UK-LONDON-1-AD-1
@@ -85,8 +83,13 @@ profiles:
       subnet_id: ocid1.subnet.oc1.uk-london-1.aaaaaaaab3zsfqtkoyxtaogsp4bgzv4ofcfv7wzulehwiutxraanpcgasloa
       boot_volume_size_in_gbs: 120
       setup_script: scripts/oracle_sandbox_node_setup.sh
-    scheduler_params: {}
+    scheduler: schedulers.catgrid.CatgridScheduler
+    scheduler_params:
+      node_timeout: 300
+    scaler: scalers.multi.MultiScaler
     scaler_params:
+      max_creating_nodes: 4
+      cpus_per_node: 8
       min_nodes: 0
       max_nodes: 32
 
