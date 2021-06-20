@@ -167,7 +167,7 @@ def save_nextflow_trace(pipeline_run_uuid, trace_content):
                             { "pipeline_run_uuid": pipeline_run_uuid,
                               "nextflow_trace_content": trace_content }, upsert=True)
 
-def save_nextflow_file(pipeline_run_uuid, trace_file, filename):
+def save_nextflow_file(pipeline_run_uuid, f, filename):
     if filename == "report.html":
         db_filename = f"nextflow.report_html.{pipeline_run_uuid}"
     elif filename == "timeline.html":
@@ -176,7 +176,7 @@ def save_nextflow_file(pipeline_run_uuid, trace_file, filename):
         db_filename = f"nextflow.timeline_html.{pipeline_run_uuid}"
     else:
         return None
-    return fs.put(trace_file, filename=db_filename)
+    return fs.put(f, filename=db_filename)
 
 def load_nextflow_file(pipeline_run_uuid, filename):
     if filename == "report.html":
@@ -185,14 +185,14 @@ def load_nextflow_file(pipeline_run_uuid, filename):
         db_filename = f"nextflow.timeline_html.{pipeline_run_uuid}"
     else:
         return None
-    r = fs.find_one({ "filename": db_filename })
+    r = fs.find_one({ "filename": db_filename }).read()
     if not r:
         logging.warning(f"gridfs file {db_filename} not found")
         return None
     try:
-        return r.read().decode()
+        return r.decode()
     except:
-        return r.read()
+        return r
 
 def nextflow_file_exists(pipeline_run_uuid, filename):
     if filename == "report.html":
@@ -201,3 +201,7 @@ def nextflow_file_exists(pipeline_run_uuid, filename):
         db_filename = f"nextflow.timeline_html.{pipeline_run_uuid}"
     else:
         return None
+    if fs.find_one({ "filename": db_filename }):
+        return True
+    else:
+        return False

@@ -1079,24 +1079,22 @@ def delete_run(flow_name, run_uuid):
     do_delete_run(run_uuid)
     return redirect(f"/flow/{flow_name}")
 
-def get_report(flow_name, run_uuid):
-    data = db.get_run(run_uuid)
+def get_report_html(flow_name, run_uuid):
+    content = db.load_nextflow_file(run_uuid, 'report.html')
 
-    nf_directory = pathlib.Path(data[0][11])
-
-    report_filename = nf_directory / 'runs' / run_uuid / 'report.html'
-    with open(str(report_filename)) as f:
-        content = f.read()
-
-    import process_report_html
-    js = process_report_html.get_report_json(report_filename)
+    try:
+        import process_report_html
+        js = process_report_html.get_report_json(report_filename)
+    except Exception as e:
+        logging.error(f"process report failed: {run_uuid}: {str(e)}")
+        js = ""
 
     return content, js
 
 @app.route('/flow/<flow_name>/report/<run_uuid>')
 @flask_login.login_required
 def show_report(flow_name, run_uuid):
-    content, js = get_report(flow_name, run_uuid)
+    content, js = get_report_html(flow_name, run_uuid)
 
     if request.args.get('api'):
         return js
@@ -1109,15 +1107,7 @@ def show_report(flow_name, run_uuid):
     return content
 
 def get_timeline(flow_name, run_uuid):
-    data = db.get_run(run_uuid)
-
-    nf_directory = pathlib.Path(data[0][11])
-
-    timeline_filename = nf_directory / 'runs' / run_uuid / 'timeline.html'
-    with open(str(timeline_filename)) as f:
-        content = f.read()
-
-    return make_api_response('success', data={'timeline': content})
+    return db.load_nextflow_file(run_uuid, "timeline.html")
 
 @app.route('/flow/<flow_name>/timeline/<run_uuid>')
 @flask_login.login_required
