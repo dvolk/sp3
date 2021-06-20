@@ -70,6 +70,7 @@
   </table>
 
   <h3>Organisations</h3>
+  <p>{{ organisation_d|length }} organisations.</p>
   <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
     <thead>
       <tr>
@@ -83,7 +84,7 @@
     <tbody>
       {% for org in organisation_d %}
 	<tr>
-	  <td><a id="{{ org.get('name') }}">{{ org.get("name") }}</a></td>
+	  <td><a id="{{ org.get('name') }}">{{ org.get("name") }} ({{ org_to_user.get(org.get("name"), [])|length }})</a></td>
 	  <td>
 	    {% for username in org_to_user.get(org.get("name"), []) %}
 	      <a href="#{{ username }}">{{ username }}</a><br/>
