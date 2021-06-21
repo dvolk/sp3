@@ -14,7 +14,7 @@
   <p>Find runs whose inputs have a file including the string:</p>
 
   <form action="/search" method="get">
-    <input class="w3-input" type="text" id="q" name="q" placeholder="query" minlength=3><br>
+    <input class="w3-input" type="text" id="q" name="q" value="{{ sample_part }}" placeholder="query" minlength=3><br>
     <input type="submit" value="Continue" class="w3-input w3-blue"/>
   </form>
 

@@ -1727,7 +1727,7 @@ def proxy_get_cluster_stats():
 @app.route('/search')
 @flask_login.login_required
 def search_for_input_sample():
-    sample_part = request.args.get("q")
+    sample_part = request.args.get("q", "")
     runs = list()
     if sample_part:
         runs = db.search_for_input_sample(sample_part,
