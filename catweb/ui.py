@@ -1729,13 +1729,19 @@ def proxy_get_cluster_stats():
 def search_for_input_sample():
     sample_part = request.args.get("q", "")
     runs = list()
+    message = None
     if sample_part:
-        runs = db.search_for_input_sample(sample_part,
+        ret = db.search_for_input_sample(sample_part,
                                           current_user.get_org_name(),
                                           is_admin=current_user.is_admin())
+        if type(ret) == str:
+            message = ret
+        else:
+            runs = ret
 
     return render_template("search.template",
                            sample_part=sample_part,
+                           message=message,
                            runs=runs,
                            sel="Search")
 

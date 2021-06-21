@@ -209,10 +209,17 @@ def nextflow_file_exists(pipeline_run_uuid, filename):
 def search_for_input_sample(sample_part, org, is_admin=False):
     return_fields = { "_id": 0 }
     sample_regex = { "$regex": f".*{sample_part}.*" }
-    if is_admin:
-        return list(nfruns_db.find({ "input_files": sample_regex },
-                                   return_fields).sort("start_epochtime", -1).limit(100))
-    else:
-        org_search = { "$regex": f"^{org}-.*" }
-        return list(nfruns_db.find({ "input_files": sample_regex, "workflow": org_search },
-                                   return_fields ).sort("start_epochtime", -1).limit(100))
+    try:
+        if is_admin:
+            # admins can list all runs
+            rows = list(nfruns_db.find({ "input_files": sample_regex }, return_fields).sort("start_epochtime", -1).limit(100))
+        else:
+            # other users can only see runs in their organisation
+            org_search = { "$regex": f"^{org}-.*" }
+            rows = (nfruns_db.find({ "input_files": sample_regex,
+                                    "workflow": org_search }, return_fields).sort("start_epochtime", -1).limit(100))
+    except Exception as e:
+        logging.error(str(e))
+        return str(e)
+
+    return rows

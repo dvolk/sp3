@@ -21,6 +21,9 @@
   {% if sample_part %}
     <h3>Results for &quot;{{ sample_part }}&quot;</h3>
 
+    {% if message %}
+    <div class='w3-card w3-panel w3-red'><p><strong>Query error: {{ message }}</strong><p></div>
+    {% endif %}
     {% if runs %}
 
     <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
