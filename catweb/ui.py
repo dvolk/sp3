@@ -95,6 +95,7 @@ reload_cfg()
 template_nav_links = [
     ["Dashboard", "fa fa-users fa-fw", "/"],
     ["Datasets", "fa fa-eye fa-fw", "/fetch"],
+    ["Search", "fa fa-search fa-fw", "/search"],
     ["Runs/Outputs", "fa fa-file fa-fw", "/flows"],
     ["Trees", "fa fa-bullseye fa-fw", "/list_trees"],
     ["Compute", "fa fa-server fa-fw", "/cluster"],
@@ -1722,6 +1723,21 @@ def list_reports():
 def proxy_get_cluster_stats():
     response = api_get_request('catstat_api', '/data')
     return json.dumps(response)
+
+@app.route('/search')
+@flask_login.login_required
+def search_for_input_sample():
+    sample_part = request.args.get("q")
+    runs = list()
+    if sample_part:
+        runs = db.search_for_input_sample(sample_part,
+                                          current_user.get_org_name(),
+                                          is_admin=current_user.is_admin())
+
+    return render_template("search.template",
+                           sample_part=sample_part,
+                           runs=runs,
+                           sel="Search")
 
 def main():
     #app.run(debug=True, port=7000)
