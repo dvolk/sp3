@@ -13,18 +13,12 @@ contexts:
     arguments: "--prefix nanopore -profile singularity -process.executor slurm"
 param:
   description:
-    - name: 'infiles'
-      type: input-reqr-alt
-      fields:
-      - name: 'fastq_pass'
-        arg: "--basecalled_fastq"
-        desc: 'Read Directory'
-      - name: 'objstore'
-        arg: "--objstore"
-        type: switch
-        desc: 'Object Storage CSV'
-        globs:
-                - /data/inputs/*.csv
+    - name: 'objstore'
+      arg: "--objstore"
+      type: switch
+      desc: 'Object Storage CSV' 
+      globs:
+            - /data/inputs/*.csv
     - name: 'varcaller'
       type: switch
       desc: 'Select the variant caller to use'

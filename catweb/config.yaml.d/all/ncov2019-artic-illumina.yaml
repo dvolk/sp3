@@ -10,27 +10,15 @@ description: "A Nextflow pipeline for running the ARTIC network's fieldbioinform
 version: "1.3.0"
 contexts:
   - name: local
-    arguments: "--illumina --prefix illumina -profile singularity -process.executor slurm"
+    arguments: "--readpat *{1,2}.fastq.gz --illumina --prefix illumina -profile singularity -process.executor slurm"
 param:
   description:
-    - name: 'infiles'
-      type: input-reqr-alt
-      fields:
-      - name: 'indir'
-        arg: "--directory"
-        desc: 'Read Directory'
-      - name: 'objstore'
-        arg: "--objstore"
-        desc: 'Object Storage CSV'
-    - name: 'readpat'
-      type: input-list
-      desc: 'Input file pattern (nextflow syntax, e.g.: *{1,2}.fastq.gz or *.bam)'
-      arg: '--pattern'
-    - name: 'krakdb'
-      type: input-list
-      desc: 'Location of the Kraken DB'
-      arg: '--krakdb'
-      optional: True
+    - name: 'objstore'
+      arg: "--objstore"
+      type: switch
+      desc: 'Object Storage CSV'
+      globs:
+            - /data/inputs/*.csv
     - name: 'varcaller'
       type: switch
       desc: 'Select the variant caller to use'
