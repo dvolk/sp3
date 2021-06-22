@@ -62,8 +62,7 @@ systemctl --user restart catgrid
 systemctl --user restart catstat
 systemctl --user restart cattag
 systemctl --user restart catpile
-systemctl --user restart catwebapi
-systemctl --user restart catwebui
+systemctl --user restart catweb
 
 sleep 60
 
