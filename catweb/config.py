@@ -102,6 +102,7 @@ class Config:
                                     p['options'][sf] = sf
                     if 'options' not in p:
                         print(f"error: no options for switch {p['name']}")
+                        p['options'] = dict()
 
     def load_str(self, config_str: str):
         self.config = yaml.load(config_str)
