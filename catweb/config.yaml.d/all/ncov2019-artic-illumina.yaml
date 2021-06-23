@@ -17,7 +17,7 @@ param:
       arg: "--objstore"
       type: switch
       desc: 'Object Storage CSV'
-      globs:
+      dynamic-globs:
             - /data/inputs/*.csv
     - name: 'varcaller'
       type: switch
