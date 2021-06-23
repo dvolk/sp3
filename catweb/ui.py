@@ -19,6 +19,7 @@ import hashlib
 import re
 import threading
 import signal
+import copy
 
 import pandas
 import requests
@@ -575,7 +576,9 @@ def begin_run(flow_name: str):
     if flow_name not in flows:
         abort(404, description="Flow not found")
 
-    flow_cfg = flows[flow_name]
+    # we copy here because we are adding dynamic globs below
+    # which are added every time the form is loaded
+    flow_cfg = copy.deepcopy(flows[flow_name])
 
     '''
     GET
@@ -592,6 +595,15 @@ def begin_run(flow_name: str):
         sample_names=list()
         references=list()
         sample_names_references=list()
+
+        # rebuild dynamic globs
+        for p in flow_cfg['param']['description']:
+            if 'type' in p and p['type'] == 'switch':
+                for fglob in p.get('dynamic-globs', list()):
+                    files = glob.glob(fglob)
+                    logging.warning("adding {files}")
+                    for f in files:
+                        p['options'][f] = f
 
         guessed_filename_format = ""
         # allow prefilling of the form from the fetch page
