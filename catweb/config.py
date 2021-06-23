@@ -91,18 +91,12 @@ class Config:
             # glob the directories and add them to the options
             for p in nextflow['param']['description']:
                 if 'type' in p and p['type'] == 'switch':
-                    if 'globs' in p:
-                        for fglob in p['globs']:
-                            files = glob.glob(fglob)
-                            for f in files:
-                                sf = f
-                                if 'options' not in p:
-                                    p['options'] = { sf: sf }
-                                else:
-                                    p['options'][sf] = sf
                     if 'options' not in p:
-                        print(f"error: no options for switch {p['name']}")
                         p['options'] = dict()
+                    for fglob in p.get('globs', list()):
+                        files = glob.glob(fglob)
+                        for f in files:
+                            p['options'][f] = f
 
     def load_str(self, config_str: str):
         self.config = yaml.load(config_str)
