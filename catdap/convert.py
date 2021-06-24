@@ -1,5 +1,5 @@
-import yaml
 import pymongo
+import yaml
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["catdap"]
@@ -12,8 +12,8 @@ with open("config.yaml") as f:
 
 for org_name, vals in state["organisations"].items():
     vals["name"] = org_name
-    organisations_db.insert_one( vals )
+    organisations_db.insert_one(vals)
 
 for username, vals in state["users"].items():
     vals["username"] = username
-    accounts_db.insert_one( vals )
+    accounts_db.insert_one(vals)

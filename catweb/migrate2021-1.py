@@ -1,4 +1,9 @@
-import sqlite3, json, pymongo, copy, sys
+import copy
+import json
+import sqlite3
+import sys
+
+import pymongo
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["catweb"]
@@ -11,7 +16,7 @@ con.row_factory = sqlite3.Row
 nfruns = con.execute("select * from nfruns").fetchall()
 nffiles = con.execute("select * from nffiles").fetchall()
 
-nffiles_d = { row["uuid"] : dict(row) for row in nffiles }
+nffiles_d = {row["uuid"]: dict(row) for row in nffiles}
 out = list()
 
 for run in nfruns[2:]:
@@ -28,8 +33,9 @@ for run in nfruns[2:]:
         trace = ""
 
     nfruns_db.insert(row)
-    nftraces_db.insert({ "pipeline_run_uuid": row["run_uuid"],
-                         "nextflow_trace_content": trace })
+    nftraces_db.insert(
+        {"pipeline_run_uuid": row["run_uuid"], "nextflow_trace_content": trace}
+    )
 
     sys.stdout.write(".")
 print("")

@@ -1,10 +1,16 @@
-import os, sys, shlex
-import requests
-import argh
 import logging
+import os
+import shlex
+import sys
+
+import argh
+import requests
+
 
 def go(username, run_name, status):
-    user_data = requests.get(f"http://localhost:13666/get_user?username={username}").json()
+    user_data = requests.get(
+        f"http://localhost:13666/get_user?username={username}"
+    ).json()
     print(user_data)
 
     if not user_data:
@@ -28,6 +34,7 @@ If you'd rather not receive run notifications, please email denis.volk@ndm.ox.ac
 
     cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/emails.py send-email-notification {shlex.quote(email_to)} {shlex.quote(subject)} {shlex.quote(body)}"
     os.system(cmd)
+
 
 if __name__ == "__main__":
     argh.dispatch_command(go)

@@ -2,6 +2,7 @@ import logging
 import threading
 import time
 
+
 class MultiScaler:
     # creates nodes in groups of size max_creating_nodes
     # waits until group is created before checking queue again
@@ -22,8 +23,10 @@ class MultiScaler:
 
     def create_a_bunch_of_nodes(self, n_nodes_to_add):
         Ts = [threading.Thread(target=self.new_node) for _ in range(n_nodes_to_add)]
-        for T in Ts: T.start()
-        for T in Ts: T.join()
+        for T in Ts:
+            T.start()
+        for T in Ts:
+            T.join()
 
     def run(self):
         last_nodes_len = 0
@@ -34,7 +37,7 @@ class MultiScaler:
             nodes_len, queue_len, idle_nodes = self.scheduler.get_info()
 
             if nodes_len != last_nodes_len or queue_len != last_queue_len:
-                logging.warning(f'nodes: {nodes_len}, queue: {queue_len}')
+                logging.warning(f"nodes: {nodes_len}, queue: {queue_len}")
                 last_nodes_len = nodes_len
                 last_queue_len = queue_len
 
@@ -42,9 +45,9 @@ class MultiScaler:
             a = self.min_nodes - nodes_len
             # how many the queue demands
             b = queue_len // self.cpus_per_node
-             # max nodes that can be created
+            # max nodes that can be created
             c = self.max_nodes - nodes_len
-            d = min(b, c) # max nodes to add
+            d = min(b, c)  # max nodes to add
 
             n_nodes_to_add = max(a, d)
 
@@ -66,6 +69,7 @@ class MultiScaler:
                     logging.warning(f"destroyed node: {idle_node_ip}")
                     continue
 
+
 class FastMultiScaler:
     # creates nodes in groups of size max_creating_nodes
     # doesn't wait for group to be created to check queue again
@@ -86,7 +90,10 @@ class FastMultiScaler:
         self.creating_nodes_count -= 1
 
     def create_a_bunch_of_nodes(self, n_nodes_to_add):
-        Ts = [threading.Thread(target=self.new_node).start() for _ in range(n_nodes_to_add)]
+        Ts = [
+            threading.Thread(target=self.new_node).start()
+            for _ in range(n_nodes_to_add)
+        ]
 
     def run(self):
         last_nodes_len = 0
@@ -97,7 +104,7 @@ class FastMultiScaler:
             nodes_len, queue_len, idle_nodes = self.scheduler.get_info()
 
             if nodes_len != last_nodes_len or queue_len != last_queue_len:
-                logging.warning(f'nodes: {nodes_len}, queue: {queue_len}')
+                logging.warning(f"nodes: {nodes_len}, queue: {queue_len}")
                 last_nodes_len = nodes_len
                 last_queue_len = queue_len
 
@@ -105,14 +112,16 @@ class FastMultiScaler:
             a = self.min_nodes - nodes_len
             # how many the queue demands
             b = queue_len // self.cpus_per_node
-             # max nodes that can be created
+            # max nodes that can be created
             c = self.max_nodes - nodes_len - self.creating_nodes_count
             d = min(b, c)
 
             n_nodes_to_add = max(a, d)
 
             # debug
-            logging.warning(f"self.min_nodes={self.min_nodes}, nodes_len={nodes_len}, queue_len={queue_len}, self.cpus_per_node={self.cpus_per_node}, self.max_nodes={self.max_nodes}, nodes_len={nodes_len}, n_nodes_to_add={n_nodes_to_add}, a={a}, b={b}, c={c}, d={d}, self.creating_nodes_count={self.creating_nodes_count}")
+            logging.warning(
+                f"self.min_nodes={self.min_nodes}, nodes_len={nodes_len}, queue_len={queue_len}, self.cpus_per_node={self.cpus_per_node}, self.max_nodes={self.max_nodes}, nodes_len={nodes_len}, n_nodes_to_add={n_nodes_to_add}, a={a}, b={b}, c={c}, d={d}, self.creating_nodes_count={self.creating_nodes_count}"
+            )
 
             if n_nodes_to_add > 0:
                 self.creating_nodes_count += n_nodes_to_add

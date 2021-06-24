@@ -1,14 +1,18 @@
 import requests
 
+
 def get_neighbours(pipeline_run_uuid, sample_name, distance):
-    combine_name = pipeline_run_uuid + '_' + sample_name
-    ret = requests.get(f'https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}')
+    combine_name = pipeline_run_uuid + "_" + sample_name
+    ret = requests.get(
+        f"https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}"
+    )
     try:
         ret = ret.json()
     except:
         print("fail whale: {res.text}")
         ret = ret.text
     return ret
+
 
 def trim_neighbours(neighbours, target_neighbours):
     while True:
@@ -24,7 +28,15 @@ def trim_neighbours(neighbours, target_neighbours):
                 if len(neighbours) == target_neighbours:
                     return neighbours
 
-def nifty_neighbours(pipeline_run_uuid, sample_name, target_neighbours = 50, initial_distance = 50, max_distance = 400, trim=False):
+
+def nifty_neighbours(
+    pipeline_run_uuid,
+    sample_name,
+    target_neighbours=50,
+    initial_distance=50,
+    max_distance=400,
+    trim=False,
+):
     neighbours = list()
     distance = initial_distance
     while True:

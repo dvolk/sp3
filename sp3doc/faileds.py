@@ -1,4 +1,8 @@
-import sys, csv, collections, pathlib
+import collections
+import csv
+import pathlib
+import sys
+
 
 def main():
     run_dir = sys.argv[1]
@@ -6,23 +10,24 @@ def main():
 
     process_table = collections.defaultdict(list)
 
-    trace_file = pathlib.Path('/work/runs/') / run_dir / 'trace.txt'
+    trace_file = pathlib.Path("/work/runs/") / run_dir / "trace.txt"
 
     with open(trace_file) as f:
-        reader = csv.DictReader(f, delimiter='\t')
+        reader = csv.DictReader(f, delimiter="\t")
 
         for row in reader:
-            task, tag = row['name'].split()
-            tag = tag[1:-1] # remove parenthesis
+            task, tag = row["name"].split()
+            tag = tag[1:-1]  # remove parenthesis
 
-            process_table[tag].append('asdf')
+            process_table[tag].append("asdf")
 
-            if row['status'] == 'COMPLETED':
+            if row["status"] == "COMPLETED":
                 process_table[tag].append(task)
 
     for task, processes in process_table.items():
         if find_process not in processes:
             print(task)
+
 
 if __name__ == "__main__":
     main()

@@ -12,45 +12,50 @@
 # track of runs
 #
 
+import glob
+import json
+import logging
 import os
-import uuid
 import pathlib
+import queue
+import re
+import shlex
 import shutil
+import sqlite3
+import subprocess
 import sys
 import threading
 import time
-import subprocess
-import queue
-import shlex
-import json
-import sqlite3
-import glob
-import logging
-import re
+import uuid
 
-import psutil
-
-import nflib
 import config
 import db
+import nflib
+import psutil
 
 nf_returncode = 1
 time_started = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 epochtime_started = time.time()
 
 cfg = config.Config()
-cfg.load('config.yaml')
+cfg.load("config.yaml")
+
 
 def setup_logging():
     logger = logging.getLogger("go")
     logger.setLevel(logging.DEBUG)
     c_handler = logging.StreamHandler()
     f_handler = logging.FileHandler("api.log")
-    c_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    f_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    c_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    )
+    f_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    )
     logger.addHandler(f_handler)
     logger.addHandler(c_handler)
     return logger
+
 
 logger = setup_logging()
 logger.debug("Logging initialized")
@@ -63,54 +68,56 @@ start_epochtime = str(int(time.time()))
 data = json.loads(sys.argv[1])
 
 try:
-    with open("/home/ubuntu/sp3/catweb/nfrun_params/" + data["run_uuid"], 'w') as f:
+    with open("/home/ubuntu/sp3/catweb/nfrun_params/" + data["run_uuid"], "w") as f:
         f.write(json.dumps(data, indent=4))
 except:
     pass
 
 # Rebind the data
-run_uuid = data['run_uuid']
-pipeline_name = data['flow_cfg']['name']
-run_name = data['run_name']
-flow_cfg = data['flow_cfg']
-user_param_dict = data['user_param_dict']
-user_name = data['user_name']
-context = data['context']
-indir = data['indir']
-readpat = data['readpat']
-contexts = data['contexts']
-print(data['reference_map'])
-reference_map = data['reference_map']
+run_uuid = data["run_uuid"]
+pipeline_name = data["flow_cfg"]["name"]
+run_name = data["run_name"]
+flow_cfg = data["flow_cfg"]
+user_param_dict = data["user_param_dict"]
+user_name = data["user_name"]
+context = data["context"]
+indir = data["indir"]
+readpat = data["readpat"]
+contexts = data["contexts"]
+print(data["reference_map"])
+reference_map = data["reference_map"]
 
-'''
+"""
 we don't want these configuration in the database
-'''
-del data['contexts']
-del data['flow_cfg']
+"""
+del data["contexts"]
+del data["flow_cfg"]
 
-'''
+"""
 add flow git version to database
-'''
-data['catweb_git_version'] = cfg.get('catweb_version')
-data['flow_git_version'] = flow_cfg['git_version']
-'''
+"""
+data["catweb_git_version"] = cfg.get("catweb_version")
+data["flow_git_version"] = flow_cfg["git_version"]
+"""
 TODO: add container image version
-'''
+"""
 
-flow_name = flow_cfg['name']
-nf_filename = pathlib.Path(flow_cfg['script'])
-output_arg = flow_cfg['output']['parameter']
-head_node_ip = cfg.get('head_node_ip')
+flow_name = flow_cfg["name"]
+nf_filename = pathlib.Path(flow_cfg["script"])
+output_arg = flow_cfg["output"]["parameter"]
+head_node_ip = cfg.get("head_node_ip")
 
 run_context_dict = dict()
-for c in flow_cfg['contexts']: run_context_dict[c['name']] = c
+for c in flow_cfg["contexts"]:
+    run_context_dict[c["name"]] = c
 logger.debug(f"run_context_dict: {run_context_dict}")
-arguments = run_context_dict[context]['arguments']
+arguments = run_context_dict[context]["arguments"]
 
-sample_group = 'asdf'
-prog_dir   = pathlib.Path(contexts[context]['prog_dirs'])   / flow_cfg['prog_dir']
-root_dir   = pathlib.Path(contexts[context]['root_dirs'])
-output_dir = pathlib.Path(contexts[context]['output_dirs']) / run_uuid
+sample_group = "asdf"
+prog_dir = pathlib.Path(contexts[context]["prog_dirs"]) / flow_cfg["prog_dir"]
+root_dir = pathlib.Path(contexts[context]["root_dirs"])
+output_dir = pathlib.Path(contexts[context]["output_dirs"]) / run_uuid
+
 
 def count_files(indir, readpat):
     # try to find the number of input files based on the existence of
@@ -119,10 +126,10 @@ def count_files(indir, readpat):
     if indir:
         if readpat:
             # directory + regex
-            if indir[-1] == '/':
+            if indir[-1] == "/":
                 pat = indir + readpat
             else:
-                pat = indir + '/' + readpat
+                pat = indir + "/" + readpat
         else:
             # directory only
             pat = indir
@@ -130,14 +137,14 @@ def count_files(indir, readpat):
         # With a pattern like *_alignment.{out,pileup}.vcf,
         # One sample would have two files, one is out.vcf, the other is pileup
         # here we extact just the first one ('out')
-        m = re.search('(\{.*),.*\}', pat)
+        m = re.search("(\{.*),.*\}", pat)
         logger.debug("regex group {0}".format(m))
         if m:
             # replace e.g. *_alignment.{out,pileup}.vcf with *_alignment.out.vcf
             # so we count only one file per nextflow file set (i.e. one sample)
             logger.debug("regex group first elem {0}".format(m.group(1)))
-            pat = re.sub(r'(\{.*),*\}', m.group(1), pat)
-            pat = re.sub(r'\{', '', pat)
+            pat = re.sub(r"(\{.*),*\}", m.group(1), pat)
+            pat = re.sub(r"\{", "", pat)
         logger.debug("pat: {0}".format(pat))
 
         files = glob.glob(pat)
@@ -150,6 +157,7 @@ def count_files(indir, readpat):
         files_count = 1
 
     return pat, files, files_count
+
 
 pat, files, files_count = count_files(indir, readpat)
 
@@ -169,15 +177,31 @@ os.makedirs(output_dir.parent, exist_ok=True)
 oldpwd = pathlib.Path.cwd()
 os.chdir(run_dir)
 
+
 def exit_nicely():
     end_epochtime = str(int(time.time()))
-    hist = (time_started, '', '', 'ERR', '', '', cmd)
-    other = (user_name, sample_group, flow_name, context, str(root_dir), output_arg, str(output_dir),
-             run_uuid, start_epochtime, pid, ppid, end_epochtime, run_name, json.dumps(data))
+    hist = (time_started, "", "", "ERR", "", "", cmd)
+    other = (
+        user_name,
+        sample_group,
+        flow_name,
+        context,
+        str(root_dir),
+        output_arg,
+        str(output_dir),
+        run_uuid,
+        start_epochtime,
+        pid,
+        ppid,
+        end_epochtime,
+        run_name,
+        json.dumps(data),
+    )
     s = hist + other
     db.insert_run(s, run_uuid)
     logger.warning("exit_nicely(): exiting prematurely but nicely")
     exit(-126)
+
 
 T = None
 pid = None
@@ -187,11 +211,11 @@ q = queue.Queue()
 def run_nextflow(queue):
     # user parameters, other than output dir
     user_param_str = str()
-    for k,v in user_param_dict.items():
+    for k, v in user_param_dict.items():
         # ENSURE INPUT DIRECTORY HAS A SLASH AT THE END
         if v == indir:
-            if not v[-1] == '/':
-                v += '/'
+            if not v[-1] == "/":
+                v += "/"
         user_param_str += f"{k} {shlex.quote(v)} "
 
     if reference_map:
@@ -207,7 +231,7 @@ def run_nextflow(queue):
     logger.debug(f"user_param_str: {user_param_str}")
 
     nextflow_file = str(prog_dir / nf_filename.name)
-    cmd = f'nextflow -q run {shlex.quote(nextflow_file)} -with-trace -with-report -with-timeline -with-dag dag.png {arguments} {user_param_str} {output_arg} {shlex.quote(str(output_dir))}'
+    cmd = f"nextflow -q run {shlex.quote(nextflow_file)} -with-trace -with-report -with-timeline -with-dag dag.png {arguments} {user_param_str} {output_arg} {shlex.quote(str(output_dir))}"
 
     # hyperflow_pipeline = str(prog_dir / nf_filename)
     # cmd = f'{python_exe} {hyperflow_exe} {shlex.quote(hyperflow_pipeline)} -image_dir {image_dir} {user_param_str} {output_arg} {shlex.quote(str(output_dir))}'
@@ -236,6 +260,7 @@ def run_nextflow(queue):
     logger.info(f"nextflow process terminated with code {ret}")
     queue.put(ret)
 
+
 T = threading.Thread(target=run_nextflow, args=(q,))
 T.start()
 
@@ -248,6 +273,8 @@ ppid = str(q.get())
 os.chdir(root_dir)
 
 stop_nftrace = threading.Event()
+
+
 def save_nextflow_trace_thread(e):
     while True:
         time.sleep(60)
@@ -260,11 +287,12 @@ def save_nextflow_trace_thread(e):
         except Exception as e:
             logging.warning(f"Couldn't save nextflow trace to mongodb: {str(e)}")
 
+
 T2 = threading.Thread(target=save_nextflow_trace_thread, args=(stop_nftrace,))
 T2.start()
 
 # write the nextflow run pid into pids/uuid.pid
-with open(run_dir / ".run.pid", 'w') as f:
+with open(run_dir / ".run.pid", "w") as f:
     f.write(pid)
 
 # sqlite nfruns table columns reference
@@ -292,21 +320,23 @@ with open(run_dir / ".run.pid", 'w') as f:
 
 end_epochtime = str(int(time.time()))
 
-hist = (time_started, '', '', '-', '', '', cmd)
-other = (user_name,
-         sample_group,
-         flow_name,
-         context,
-         str(root_dir),
-         output_arg,
-         str(output_dir),
-         run_uuid,
-         start_epochtime,
-         pid,
-         ppid,
-         end_epochtime,
-         run_name,
-         json.dumps(data))
+hist = (time_started, "", "", "-", "", "", cmd)
+other = (
+    user_name,
+    sample_group,
+    flow_name,
+    context,
+    str(root_dir),
+    output_arg,
+    str(output_dir),
+    run_uuid,
+    start_epochtime,
+    pid,
+    ppid,
+    end_epochtime,
+    run_name,
+    json.dumps(data),
+)
 
 # add the run to the sqlite database
 s = hist + other
@@ -320,33 +350,45 @@ end_epochtime = str(int(time.time()))
 nf_returncode = str(q.get())
 
 # remove pid file
-os.remove(run_dir / '.run.pid')
+os.remove(run_dir / ".run.pid")
 
 # update sqlite database with the end results
 
 epochtime_ended = time.time()
 
+
 def hm_timediff(epochtime_start, epochtime_end):
     t = epochtime_end - epochtime_start
     return f"{int(t//3600)}h {int((t%3600)//60)}m"
 
-hist = (time_started, hm_timediff(epochtime_started, epochtime_ended), '', 'OK', '', '', cmd)
+
+hist = (
+    time_started,
+    hm_timediff(epochtime_started, epochtime_ended),
+    "",
+    "OK",
+    "",
+    "",
+    cmd,
+)
 if nf_returncode != "0":
-    hist = (time_started, '', '', 'ERR', '', '', cmd)
-other = (user_name,
-         sample_group,
-         flow_name,
-         context,
-         str(root_dir),
-         output_arg,
-         str(output_dir),
-         run_uuid,
-         start_epochtime,
-         pid,
-         ppid,
-         end_epochtime,
-         run_name,
-         json.dumps(data))
+    hist = (time_started, "", "", "ERR", "", "", cmd)
+other = (
+    user_name,
+    sample_group,
+    flow_name,
+    context,
+    str(root_dir),
+    output_arg,
+    str(output_dir),
+    run_uuid,
+    start_epochtime,
+    pid,
+    ppid,
+    end_epochtime,
+    run_name,
+    json.dumps(data),
+)
 s = hist + other
 db.insert_run(s, run_uuid)
 
@@ -355,13 +397,13 @@ logger.info("running nextflow clean -k -f")
 os.chdir(run_dir)
 os.system("nextflow clean -k -f")
 
-data['output_dir'] = str(output_dir)
+data["output_dir"] = str(output_dir)
 
 for nf_file in ["report.html", "timeline.html"]:
     with open(nf_file, "rb") as f:
         db.save_nextflow_file(run_uuid, f, nf_file)
 
-for report_script in pathlib.Path('/home/ubuntu/sp3/catweb/scripts/').glob('*.py'):
+for report_script in pathlib.Path("/home/ubuntu/sp3/catweb/scripts/").glob("*.py"):
     cmd = f"{str(report_script)} {shlex.quote(json.dumps(data))}"
     logger.warning(f"running report script {cmd}")
     os.system(cmd)

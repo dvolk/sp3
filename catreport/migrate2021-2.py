@@ -1,7 +1,8 @@
-import uuid
 import sqlite3
-import pymongo
+import uuid
+
 import gridfs
+import pymongo
 
 con = sqlite3.connect("/db/catreport.sqlite")
 
@@ -33,12 +34,16 @@ for q in con.execute("select * from q"):
     except:
         finished_epochtime = 0
 
-    reports_db.insert( {"uuid": q[0],
-                        "type": q[1],
-                        "status": q[2],
-                        "added_epochtime": added_epochtime,
-                        "started_epochtime": started_epochtime,
-                        "finished_epochtime": finished_epochtime,
-                        "pipeline_run_uuid": q[6],
-                        "sample_name": q[7],
-                        "gridfs_id": fid } )
+    reports_db.insert(
+        {
+            "uuid": q[0],
+            "type": q[1],
+            "status": q[2],
+            "added_epochtime": added_epochtime,
+            "started_epochtime": started_epochtime,
+            "finished_epochtime": finished_epochtime,
+            "pipeline_run_uuid": q[6],
+            "sample_name": q[7],
+            "gridfs_id": fid,
+        }
+    )

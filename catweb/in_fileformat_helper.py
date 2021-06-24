@@ -1,16 +1,18 @@
-import sys
-import re
 import glob
 import pathlib
+import re
+import sys
+
 
 class ENA_FilenameFormat:
-    '''
+    """
     e.g.:
     ERR841824_1.fastq.gz
     ERR841824_2.fastq.gz
-    '''
+    """
+
     def is_match(self, files):
-        p = re.compile('([A-Z,0-9]+)_(?:1|2)\.fastq\.gz')
+        p = re.compile("([A-Z,0-9]+)_(?:1|2)\.fastq\.gz")
         sample_names = []
         if not files:
             return False, None
@@ -26,13 +28,16 @@ class ENA_FilenameFormat:
 
 
 class PHE_FilenameFormat:
-    '''
+    """
     e.g.:
     ae1a3c6a-1f63-40b0-8a66-c9eba9214e8a_L001_R1_001.fastq.gz
     ae1a3c6a-1f63-40b0-8a66-c9eba9214e8a_L001_R2_001.fastq.gz
-    '''
+    """
+
     def is_match(self, files):
-        p = re.compile('(.{8}-.{4}-.{4}-.{4}-.{12})_L([0-9]{3})_R(?:1|2)_([0-9]{3})\.fastq\.gz')
+        p = re.compile(
+            "(.{8}-.{4}-.{4}-.{4}-.{12})_L([0-9]{3})_R(?:1|2)_([0-9]{3})\.fastq\.gz"
+        )
         sample_names = []
         for f in files:
             m = p.match(f)
@@ -46,14 +51,16 @@ class PHE_FilenameFormat:
     def get_pattern(self):
         return f"*_L{self.m1}_R{{1,2}}_{self.m2}.fastq.gz"
 
+
 class APHA_FilenameFormat:
-    '''
+    """
     e.g.:
     AF-12-00335-19_S78_R1_001.fastq.gz
     AF-12-00335-19_S78_R2_001.fastq.gz
-    '''
+    """
+
     def is_match(self, files):
-        p = re.compile('(AF-[0-9][0-9]-[0-9]*-[0-9][0-9])_(.*)_R(?:1|2)_(.*)\.fastq.gz')
+        p = re.compile("(AF-[0-9][0-9]-[0-9]*-[0-9][0-9])_(.*)_R(?:1|2)_(.*)\.fastq.gz")
         sample_names = []
         for f in files:
             m = p.match(f)
@@ -67,14 +74,18 @@ class APHA_FilenameFormat:
     def get_pattern(self):
         return f"*_R{{1,2}}_{self.m2}.fastq.gz"
 
+
 class PHE_FLU_FilenameFormat:
-    '''
+    """
     e.g.:
     AF-12-00335-19_S78_R1_001.fastq.gz
     AF-12-00335-19_S78_R2_001.fastq.gz
-    '''
+    """
+
     def is_match(self, files):
-        p = re.compile('([a-z,0-9]+_[A-z,0-9]+)_OM_H(\d+)-(\d+).FLU-generic.ngsservice.R[1,2].fastq.gz')
+        p = re.compile(
+            "([a-z,0-9]+_[A-z,0-9]+)_OM_H(\d+)-(\d+).FLU-generic.ngsservice.R[1,2].fastq.gz"
+        )
         sample_names = []
         for f in files:
             m = p.match(f)
@@ -88,14 +99,16 @@ class PHE_FLU_FilenameFormat:
     def get_pattern(self):
         return f"*_OM_H{self.m1}-{self.m2}.FLU-generic.ngsservice.R{{1,2}}.fastq.gz"
 
+
 class S3_Upload_FilenameFormat:
-    '''
+    """
     e.g.:
     c6f24a54-3a6d-4676-9024-2dec6a51830b_C1.fastq.gz
     c6f24a54-3a6d-4676-9024-2dec6a51830b_C2.fastq.gz
-    '''
+    """
+
     def is_match(self, files):
-        p = re.compile('(.{8}-.{4}-.{4}-.{4}-.{12})_C((?:1|2))\.fastq\.gz')
+        p = re.compile("(.{8}-.{4}-.{4}-.{4}-.{12})_C((?:1|2))\.fastq\.gz")
         sample_names = list()
         self.subindexes = set()
         for f in files:
@@ -108,16 +121,20 @@ class S3_Upload_FilenameFormat:
         return True, sample_names
 
     def get_pattern(self):
-        if self.subindexes == { '1' }:
+        if self.subindexes == {"1"}:
             return "*_C1.fastq.gz"
-        if self.subindexes == { '1', '2' }:
+        if self.subindexes == {"1", "2"}:
             return "*_C{1,2}.fastq.gz"
 
-formats = [ENA_FilenameFormat(),
-           PHE_FilenameFormat(),
-           APHA_FilenameFormat(),
-           PHE_FLU_FilenameFormat(),
-           S3_Upload_FilenameFormat()]
+
+formats = [
+    ENA_FilenameFormat(),
+    PHE_FilenameFormat(),
+    APHA_FilenameFormat(),
+    PHE_FLU_FilenameFormat(),
+    S3_Upload_FilenameFormat(),
+]
+
 
 def guess_format(files):
     if not files:
@@ -127,20 +144,23 @@ def guess_format(files):
 
         is_match, sample_names = f.is_match(files)
         if is_match:
-            sample_names = sorted(set(sample_names)) # unique and sorted
+            sample_names = sorted(set(sample_names))  # unique and sorted
             return f.get_pattern(), sample_names
 
     return None, None
 
+
 def guess_from_dir(pat):
-    files = pathlib.Path(pat).glob('*')
-    files_excludcsvs = [x for x in files if x.suffix not in ['.csv', '.txt']]
+    files = pathlib.Path(pat).glob("*")
+    files_excludcsvs = [x for x in files if x.suffix not in [".csv", ".txt"]]
     files = [str(x.name) for x in files_excludcsvs]
     return guess_format(files)
+
 
 def main():
     d = sys.argv[1]
     print(guess_from_dir(d))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

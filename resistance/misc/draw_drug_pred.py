@@ -8,15 +8,16 @@ or combined resistance metadata stacked bar graph
 uses matplotlib/seaborn
 """
 
-import json
 import collections
+import json
 import sys
 
-import seaborn
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import seaborn
 
 seaborn.set()
+
 
 def main():
     with open(sys.argv[1]) as f:
@@ -27,18 +28,18 @@ def main():
     Us = collections.defaultdict(int)
     drug_names = list()
 
-    for drug, preds in d['drug_predictions'].items():
+    for drug, preds in d["drug_predictions"].items():
         drug_name = drug[-3:]
         drug_names.append(drug_name)
         Rs[drug_name] = 0
         Ss[drug_name] = 0
         Us[drug_name] = 0
         for pred in preds:
-            if pred == 'R':
+            if pred == "R":
                 Rs[drug_name] += 1
-            if pred == 'S':
+            if pred == "S":
                 Ss[drug_name] += 1
-            if pred == 'U':
+            if pred == "U":
                 Us[drug_name] += 1
 
     print(drug_names)
@@ -53,15 +54,16 @@ def main():
 
     plt.figure(figsize=(16, 10))
 
-    p1 = plt.bar(drug_names, Rs, color='r')
-    p2 = plt.bar(drug_names, Ss, bottom=Rs, color='g')
-    p3 = plt.bar(drug_names, Us, bottom=Rs+Ss, color='b')
+    p1 = plt.bar(drug_names, Rs, color="r")
+    p2 = plt.bar(drug_names, Ss, bottom=Rs, color="g")
+    p3 = plt.bar(drug_names, Us, bottom=Rs + Ss, color="b")
 
-    plt.title('Drug profile')
-    plt.legend((p1[0], p2[0], p3[0]), ('Resistant', 'Sensitive', 'Unknown'))
+    plt.title("Drug profile")
+    plt.legend((p1[0], p2[0], p3[0]), ("Resistant", "Sensitive", "Unknown"))
     plt.xlabel("Drug")
     plt.ylabel("Count")
     plt.savefig("combined.png", dpi=100)
+
 
 if __name__ == "__main__":
     main()

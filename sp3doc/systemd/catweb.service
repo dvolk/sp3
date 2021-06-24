@@ -1,7 +1,7 @@
 [Unit]
-Description=SP3 Catweb UI
+Description=SP3 Catweb UI port 7000
 
 [Service]
 KillMode=process
 WorkingDirectory=/home/ubuntu/sp3/catweb
-ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/ui.py
+ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/ui.py --port 7000

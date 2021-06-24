@@ -2,16 +2,17 @@
 
 import glob
 import json
-import sys
 import pathlib
+import sys
+
 import requests
 
 data = json.loads(sys.argv[1])
 
-pipeline_run_uuid = data['run_uuid']
-pipeline_output_dir = data['output_dir']
+pipeline_run_uuid = data["run_uuid"]
+pipeline_output_dir = data["output_dir"]
 
-files = pathlib.Path(pipeline_output_dir).glob('*/*/mykrobe_output.json')
+files = pathlib.Path(pipeline_output_dir).glob("*/*/mykrobe_output.json")
 
 for sample_filepath in files:
     # >>> p = list(pathlib.Path.cwd().glob('*/*/final.vcf'))[0]
@@ -20,13 +21,15 @@ for sample_filepath in files:
     try:
         sample_name = sample_filepath.parts[-3]
         pipeline_run_uuid = sample_filepath.parts[-4]
-        
-        p = { 'pipeline_run_uuid': pipeline_run_uuid,
-              'sample_name': sample_name,
-              'sample_filepath': str(sample_filepath),
-              'report_type': 'mykrobe_speciation' }
+
+        p = {
+            "pipeline_run_uuid": pipeline_run_uuid,
+            "sample_name": sample_name,
+            "sample_filepath": str(sample_filepath),
+            "report_type": "mykrobe_speciation",
+        }
         print(p)
-    
-        r = requests.post('http://localhost:10000/req_report/', json = p)
+
+        r = requests.post("http://localhost:10000/req_report/", json=p)
     except:
         pass
