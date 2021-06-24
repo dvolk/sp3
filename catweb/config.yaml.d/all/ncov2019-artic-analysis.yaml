@@ -17,7 +17,7 @@ param:
       arg: "--consensus_seqs"
       desc: 'genome seqs directory'
       type: switch
-      globs:
+      dynamic-globs:
            - /work/output/*
 output:
     parameter: "--outdir"

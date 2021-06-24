@@ -22,6 +22,7 @@ mkdir -p orgs/oxforduni
 cd orgs/oxforduni
 ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-illumina.yaml
 ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-nanopore.yaml
+ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-analysis.yaml
 cd /data/pipelines/
 sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
 
