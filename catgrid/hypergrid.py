@@ -79,6 +79,7 @@ scheduling_lock = threading.Lock()
 class JobQueue:
     def __init__(self):
         self.queue = list()
+        self.node_affinity_map = dict()
 
     def add(self, job):
         self.queue.insert(0, job)
@@ -94,6 +95,8 @@ class JobQueue:
             self.schedule_standard(nodes, strictorder)
         elif scheduler_type == "least_used_node":
             self.schedule_least_used_node(nodes, strictorder)
+        elif scheduler_type == "node_tag_affinity":
+            self.schedule_node_tag_affinity(nodes, strictorder)
 
     def schedule_standard(self, nodes, strictorder):
         """
@@ -138,6 +141,37 @@ class JobQueue:
                     if strictorder:
                         # we want jobs to be allocated strictly in order,
                         # but we couldn't place a job, so stop trying
+                        break
+
+    def schedule_node_tag_affinity(self, nodes, strictorder):
+        with scheduling_lock:
+            for job in self.queue[:]:
+                try:
+                    process_name, tag_name = job.name.split("(")
+                    tag_name = tag_name[:-1]
+                except:
+                    process_name, tag_name = None, None
+
+                tag_node = self.node_affinity_map.get(tag_name)
+                nodes = dict(
+                    sorted(nodes.items(), key=lambda x: x[1].cores_free(), reverse=True)
+                )
+
+                for node in nodes.values():
+                    if (
+                        node.status == "ready"
+                        and job.mem <= node.mem_free()
+                        and job.cores <= node.cores_free()
+                        and (not tag_node or tag_node == node.name)
+                    ):
+                        node.add_job(job)
+                        if tag_name:
+                            self.node_affinity_map[tag_name] = node.name
+                            print(self.node_affinity_map)
+                        self.queue.remove(job)
+                        break
+                else:
+                    if strictorder:
                         break
 
 
@@ -281,7 +315,6 @@ def output(job_name):
 @app.route("/submit", methods=["POST"])
 def submit():
     data = flask.request.get_json(force=True)
-    logging.warning(data)
     job = Job(
         data["name"],
         data["script"],
