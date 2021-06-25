@@ -145,33 +145,30 @@ class JobQueue:
 
     def schedule_node_tag_affinity(self, nodes, strictorder):
         with scheduling_lock:
-            for job in self.queue[:]:
-                try:
-                    process_name, tag_name = job.name.split("(")
-                    tag_name = tag_name[:-1]
-                except:
-                    process_name, tag_name = None, None
+            self.queue = sorted(self.queue, key=lambda x: x.tag_name == None)
 
-                tag_node = self.node_affinity_map.get(tag_name)
+            for job in self.queue[:]:
+                tag_node = self.node_affinity_map.get(job.tag_name)
                 nodes = dict(
                     sorted(nodes.items(), key=lambda x: x[1].cores_free(), reverse=True)
                 )
 
                 for node in nodes.values():
-                    if (
+                    ok_to_place_job = (
                         node.status == "ready"
                         and job.mem <= node.mem_free()
                         and job.cores <= node.cores_free()
                         and (not tag_node or tag_node == node.name)
-                    ):
+                    )
+                    if ok_to_place_job:
                         node.add_job(job)
-                        if tag_name:
-                            self.node_affinity_map[tag_name] = node.name
+                        if job.tag_name:
+                            self.node_affinity_map[job.tag_name] = node.name
                             print(self.node_affinity_map)
                         self.queue.remove(job)
                         break
                 else:
-                    if strictorder:
+                    if not self.node_affinity_map.get(tag_node):
                         break
 
 
@@ -270,11 +267,19 @@ class Job:
         last_job_id = self.uuid
         self.filename_uuid = str(uuid.uuid4())
         self.started_epochtime = None
+        try:
+            self.process_name, self.tag_name = self.name.split("(")
+            self.process_name = self.process_name[:-1]
+            self.tag_name = self.tag_name[:-1]
+        except:
+            self.process_name, self.tag_name = None, None
 
     def display(self):
         return {
             self.uuid: {
                 "name": self.name,
+                "process": self.process_name,
+                "tag": self.tag_name,
                 "mem": self.mem,
                 "cores": self.cores,
                 "started": self.started_epochtime,
