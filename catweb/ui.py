@@ -58,6 +58,8 @@ from flask_login import current_user
 from passlib.hash import bcrypt
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 
 def setup_logging():
@@ -268,6 +270,7 @@ def user_loader(username):
 def inject_globals():
     return {
         "catweb_version": cfg.get("catweb_version"),
+        "port": port,
         "nav_links": template_nav_links,
     }
 
@@ -2467,9 +2470,19 @@ def new_post():
             return redirect(f"/forum/post/{ parent_id }")
 
 
-def main(port=7000):
-    # app.run(debug=True, port=int({port}))
+def main(port_=7000):
+    global port
+    port = port_
+
     reload_cfg()
+
+    if cfg.get("sentry_io_url"):
+        sentry_sdk.init(
+            cfg.get("sentry_io_url"),
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=1.0,
+        )
+
     waitress.serve(app, listen=f"127.0.0.1:{port}")
 
 
