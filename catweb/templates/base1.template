@@ -1,109 +1,109 @@
 <!DOCTYPE html>
 <html>
-<title>Oxford Scalable Pathogen Pipeline Platform (SP3)</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-  Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
-  pre { white-space: pre-wrap }
-</style>
-{% block head %}
-{% endblock head %}
-<body class="w3-light-grey">
+  <title>Oxford Scalable Pathogen Pipeline Platform (SP3)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+    pre { white-space: pre-wrap }
+  </style>
+  {% block head %}
+  {% endblock head %}
+  <body class="w3-light-grey">
 
-<!-- Top container -->
-<div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
-  <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
-  <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
-</div>
-
-<!-- Sidebar/menu -->
-<nav class="w3-sidebar w3-collapse w3-white" style="z-index:3;width:270px;" id="mySidebar"><br>
-  <div class="w3-container w3-row">
-    <div class="w3-col s4">
-      {% if current_user.is_authenticated %}
-      <img src="https://www.gravatar.com/avatar/{{ current_user.email_hash() }}?d=identicon" class="w3-circle w3-margin-right" style="width:46px; {#filter: grayscale(100%)#}">
-      {% endif %}
+    <!-- Top container -->
+    <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
+      <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
+      <span class="w3-bar-item w3-right">Oxford Scalable Pathogen Pipeline Platform (SP3)</span>
     </div>
-    <div class="w3-col s8 w3-bar">
-      {% if current_user.is_authenticated %}
-      <span>Welcome, <strong>{{ current_user.id }}</strong></span><br>
-      {% endif %}
-      <a href="/userinfo/{{ current_user.id }}" class="w3-bar-item w3-button"><i class="fa fa-id-card fa-fw"></i></a>
-      <a href="/logout" class="w3-bar-item w3-button"><i class="fa fa-power-off fa-fw"></i></a>
+
+    <!-- Sidebar/menu -->
+    <nav class="w3-sidebar w3-collapse w3-white" style="z-index:3;width:270px;" id="mySidebar"><br>
+      <div class="w3-container w3-row">
+	<div class="w3-col s4">
+	  {% if current_user.is_authenticated %}
+	    <img src="https://www.gravatar.com/avatar/{{ current_user.email_hash() }}?d=identicon" class="w3-circle w3-margin-right" style="width:46px; {#filter: grayscale(100%)#}">
+	  {% endif %}
+	</div>
+	<div class="w3-col s8 w3-bar">
+	  {% if current_user.is_authenticated %}
+	    <span>Welcome, <strong>{{ current_user.id }}</strong></span><br>
+	  {% endif %}
+	  <a href="/userinfo/{{ current_user.id }}" class="w3-bar-item w3-button"><i class="fa fa-id-card fa-fw"></i></a>
+	  <a href="/logout" class="w3-bar-item w3-button"><i class="fa fa-power-off fa-fw"></i></a>
+	</div>
+      </div>
+      <hr>
+      <div class="w3-container">
+	<h5>Menu</h5>
+      </div>
+      <div class="w3-bar-block">
+	<a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+
+	<!-- NAV -->
+	{% for name, icon_class, link in nav_links %}
+	  {% if name != "Admin" or (name == "Admin" and current_user.is_admin()) %}
+	    <a href="{{ link }}" class="w3-bar-item w3-button w3-padding {% if sel == name %}w3-blue{% endif %}"><i class="{{ icon_class }}"></i>  {{ name }}</a>
+	  {% endif %}
+	{% endfor %}
+
+      </div>
+    </nav>
+
+
+    <!-- Overlay effect when opening sidebar on small screens -->
+    <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+    <!-- !PAGE CONTENT! -->
+    <div class="w3-main" style="margin-left:270px;margin-top:43px;">
+
+      <div class="w3-row-padding w3-margin-bottom" style="padding-bottom: 30px;">
+	{% block header %}
+	{% endblock header %}
+
+	{% block content %}
+	{% endblock content %}
+      </div>
+
+
+      <!-- End page content -->
+      <!-- Footer -->
+      <div class="w3-container">
+	<p>Version {{ catweb_version }} [:{{ port }}] - by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a></p>
+      </div>
     </div>
-  </div>
-  <hr>
-  <div class="w3-container">
-    <h5>Menu</h5>
-  </div>
-  <div class="w3-bar-block">
-    <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
 
-    <!-- NAV -->
-    {% for name, icon_class, link in nav_links %}
-      {% if name != "Admin" or (name == "Admin" and current_user.is_admin()) %}
-	<a href="{{ link }}" class="w3-bar-item w3-button w3-padding {% if sel == name %}w3-blue{% endif %}"><i class="{{ icon_class }}"></i>  {{ name }}</a>
-      {% endif %}
-    {% endfor %}
+    <script>
+      // Get the Sidebar
+      var mySidebar = document.getElementById("mySidebar");
 
-  </div>
-</nav>
+      // Get the DIV with overlay effect
+      var overlayBg = document.getElementById("myOverlay");
 
+      // Toggle between showing and hiding the sidebar, and add overlay effect
+      function w3_open() {
+      if (mySidebar.style.display === 'block') {
+      mySidebar.style.display = 'none';
+      overlayBg.style.display = "none";
+      } else {
+      mySidebar.style.display = 'block';
+      overlayBg.style.display = "block";
+      }
+      }
 
-<!-- Overlay effect when opening sidebar on small screens -->
-<div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
-
-<!-- !PAGE CONTENT! -->
-<div class="w3-main" style="margin-left:270px;margin-top:43px;">
-
-  <div class="w3-row-padding w3-margin-bottom" style="padding-bottom: 30px;">
-  {% block header %}
-  {% endblock header %}
-
-  {% block content %}
-  {% endblock content %}
-  </div>
-
-
-  <!-- End page content -->
-<!-- Footer -->
-<div class="w3-container" style="z-index:4">
-  <span class="w3-bar-item w3-left">Version {{ catweb_version }} [:{{ port }}] - by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a></span>
-</div>
-</div>
-
-<script>
-// Get the Sidebar
-var mySidebar = document.getElementById("mySidebar");
-
-// Get the DIV with overlay effect
-var overlayBg = document.getElementById("myOverlay");
-
-// Toggle between showing and hiding the sidebar, and add overlay effect
-function w3_open() {
-  if (mySidebar.style.display === 'block') {
-    mySidebar.style.display = 'none';
-    overlayBg.style.display = "none";
-  } else {
-    mySidebar.style.display = 'block';
-    overlayBg.style.display = "block";
-  }
-}
-
-// Close the sidebar with the close button
-function w3_close() {
-  mySidebar.style.display = "none";
-  overlayBg.style.display = "none";
-}
-</script>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="/static/scripts/jquery.tablesorter.js"></script>
-<script src="/static/scripts/site.js"></script>
-{% block scripts  %}
-{% endblock scripts %}
-</body>
+      // Close the sidebar with the close button
+      function w3_close() {
+      mySidebar.style.display = "none";
+      overlayBg.style.display = "none";
+      }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="/static/scripts/jquery.tablesorter.js"></script>
+    <script src="/static/scripts/site.js"></script>
+    {% block scripts  %}
+    {% endblock scripts %}
+  </body>
 </html>
