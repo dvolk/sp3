@@ -38,7 +38,7 @@
 
 <h3>Catgrid nodes</h3>
 
-<table style="margin-top: 10px" class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white table-sm" style="border: none">
+<table style="margin-top: 10px" class="w3-table w3-bordered w3-border w3-hoverable w3-white table-sm" style="border: none">
   <thead>
     <tr>
       <th style="padding-right: 50px" scope="col">Node</th>

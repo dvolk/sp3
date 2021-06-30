@@ -16,7 +16,7 @@
     <p>{{ services }}</p> {# error message #}
   {% else %}
 
-    <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+    <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
       <thead>
 	<tr>
 	  <th>Systemd service unit</th>
@@ -36,7 +36,7 @@
 
   <h3>Users</h3>
 
-  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
     <thead>
       <tr>
 	<th scope="col"><a href="#">Username</a></th>
@@ -71,7 +71,7 @@
 
   <h3>Organisations</h3>
   <p>{{ organisation_d|length }} organisations.</p>
-  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
     <thead>
       <tr>
 	<th><a href="#">Name</a></th>

@@ -50,7 +50,7 @@
       <input type="submit" class="form-input btn btn-primary" value="Generate Phylo Tree" id="build_tree">
 
       <br/>
-      <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+      <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
 	<thead>
 	  <tr>
 	    <th><input type="checkbox" id="check_all_neighbour"></th>

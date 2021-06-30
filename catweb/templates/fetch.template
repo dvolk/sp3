@@ -16,7 +16,7 @@
   {% endif %}
   <br/>
 <p><b>Note</b>: Only dataset fetched in the <b>last 7 days</b> are available for run.</p>
-<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default" style="margin-top: 10px">
+<table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default" style="margin-top: 10px">
   <thead>
     <tr>
       <th scope="col"><a href="#">Submit time</a></th>

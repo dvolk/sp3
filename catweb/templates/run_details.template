@@ -42,7 +42,7 @@
     {% set status_map = { 'COMPLETED': 'w3-green',
     'ABORTED': 'w3-orange',
     'FAILED': 'w3-red' } %}
-    <table style="margin-top: 10px" class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" style="border: none" id="list_table">
+    <table style="margin-top: 10px" class="w3-table w3-bordered w3-border w3-hoverable w3-white" style="border: none" id="list_table">
       <thead>
         <tr>
           <th scope="col">Sample </th>
@@ -94,7 +94,7 @@
 
 {% if not trace_nice %}
   {% if entries %}
-    <table style="margin-top: 10px" class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+    <table style="margin-top: 10px" class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
       <thead>
         <tr>
           <th scope="col">Task ID</th>

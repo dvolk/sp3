@@ -16,7 +16,7 @@
   {% if pipeline_run_uuid and sample_name %}
     <p>List contains trees containing sample <strong>{{ sample_name }}</strong> in pipeline run id <strong>{{ pipeline_run_uuid }}</strong></p>
   {% endif %}
-   <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+   <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
      <thead>
        <tr>
 	 <th><a href="#">Name</a></th>

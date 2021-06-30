@@ -2,7 +2,7 @@
 
 <div class="w3-row">
   <div class="w3-half">
-    <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+    <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
       <thead>
 	<th>Type</th>
 	<th>Value</th>

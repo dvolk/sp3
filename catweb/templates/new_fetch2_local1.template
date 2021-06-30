@@ -76,7 +76,7 @@ load_filenames();
 </script>
 <script type="text/x-handlebars-template" id="tableTemplate">
   <h3>Files in directory:</h3>
-  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
     {% raw %}
     {{#each filenames}}
     <tr>

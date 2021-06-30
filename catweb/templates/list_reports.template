@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
   <h4>List of Reports</h4>
-   <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+   <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
      <thead>
        <tr>
 	 <th>Type</th>
