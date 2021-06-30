@@ -17,8 +17,21 @@ param:
       arg: "--objstore"
       type: switch
       desc: 'Object Storage CSV'
+      options: {'None - use catsup input': 'false'}
       dynamic-globs:
             - /data/inputs/*.csv
+    - name: 'catsup'
+      arg: "--catsup"
+      type: switch
+      desc: 'catsup upload folder'
+      options: {'None - use Object Storage CSV input': 'false'}
+      dynamic-globs:
+            - /data/inputs/s3/oracle-test/*    
+    - name: 'bucket-name'
+      arg: "--bucket"
+      type: switch
+      desc: 'name of bucket to get data from'
+      options: {'None - use Object Storage CSV input': 'false', 'catsup-test':'catsup-test', 'ena':'ena',}
     - name: 'varcaller'
       type: switch
       desc: 'Select the variant caller to use'
