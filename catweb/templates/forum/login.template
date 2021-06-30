@@ -1,0 +1,36 @@
+{% include 'header.template' %}
+    <h2>Log in</h2>
+    <hr/>
+
+    <p>Please log in with your SP3 EBI account.</p>
+    <p>If you don't have an account, you can <a href="https://sp3ebi.mmmoxford.uk/register_sp3_user">register by clicking this link</a>.</p>
+    <br>
+    <div class="col-md-6">
+      <form action="login" class="form-horizontal" method="post" role="form">
+	<input name="" type="hidden" value="" />
+	<input name="next" type="hidden" value="{{ next }}" />
+	<div class="form-group">
+	  <div class="col-md-10">
+	    <label class="control-label" for="Email">Username</label>
+	    <input class="form-control" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="username" type="text" value="" />
+	    <span class="field-validation-valid text-danger" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+	  </div>
+	</div>
+	<div class="form-group">
+	  <div class="col-md-10">
+	    <label class="control-label" for="Password">Password</label>
+	    <input class="form-control" data-val="true" data-val-required="The Password field is required." id="password" name="password" type="password" />
+	    <span class="field-validation-valid text-danger" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+	  </div>
+	</div>
+	<div class="form-group">
+	  <div class="col-md-offset-2 col-md-10">
+	    <input type="submit" value="Log in" class="btn btn-primary" />
+	  </div>
+	</div>
+      </form>
+      <div class="col-md-6"></div>
+    </div>
+    {% include 'footer.template' %}
+  </div>
+</body>

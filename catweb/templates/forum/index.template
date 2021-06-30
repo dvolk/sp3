@@ -1,0 +1,20 @@
+{% extends 'base1.template' %}
+
+{% block content %}
+  <header class="w3-panel w3-green">
+    <h2>Discussion Index</h2>
+  </header>
+
+  <p class="w3-large"><i class="fa fa-bank fa-fw"></i> <a href="/forum/post/new">Make a new discussion</a></p>
+
+  {% for post in posts if post['status'] != 'deleted' %}
+    <div class="w3-panel w3-leftbar w3-white">
+      <a href="/forum/post/{{ post['id'] }}">{{ post['title']|e }}</a>
+      <br/>
+      by {{ post['username']|e }} on {{ datefmt(post['posted']) }}{% if post['replies_count'] != 0 %}. Last replied {{ datefmt(post['replied']) }}{% endif %}
+      <br/>
+      <a href="/forum/post/{{ post['id'] }}">{{ post['replies_count'] }} {% if post['replies_count'] == 1 %} comment{% else %} comments{% endif %}</a>
+    </div>
+  {% endfor %}
+
+{% endblock content %}

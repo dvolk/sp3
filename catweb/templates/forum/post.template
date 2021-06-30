@@ -1,0 +1,48 @@
+{% extends 'base1.template' %}
+
+{% block content %}
+  <header class="w3-panel w3-green">
+    <h2>Discussion Posts</h2>
+  </header>
+
+  <div class="w3-panel w3-leftbar w3-white">
+    <p>
+      <strong>{{ post['username']|e }}</strong>
+      on {{ timefmt(post['posted']) }}.
+      {% if post['edited'] != post['posted'] %}&nbsp; Last updated on {{ timefmt(post['edited']) }}. {% endif %} &nbsp;
+      {% if u.id == post['username'] %}
+	<a href="/forum/post/edit/{{ post['id'] }}">edit</a>&nbsp;
+	<a href="/forum/post/delete/{{ post['id'] }}">delete</a>&nbsp;
+      {% endif %}
+      <a href="#{{ post['id'] }}">link</a>
+      <div class="post_post" style="">
+	{{ post_to_html(post) }}
+      </div>
+    </p>
+  </div>
+
+  {% for reply in replies if reply['status'] != 'deleted' %}
+    <div class="w3-panel w3-leftbar w3-white">
+    <p id="{{ reply['id'] }}">
+      <strong>{{ reply['username']|e }}</strong>
+	on {{ timefmt(reply['posted']) }}.
+	{% if reply['edited'] != reply['posted'] %}&nbsp; Last updated on {{ timefmt(reply['edited']) }}. {% endif %}
+	&nbsp;
+	{% if u.id == reply['username'] %}
+	  <a href="/forum/post/edit/{{ reply['id'] }}">edit</a>&nbsp;
+	  <a href="/forum/post/delete/{{ reply['id'] }}">delete</a>&nbsp;
+	{% endif %}
+	<a href="#{{ reply['id'] }}">link</a>
+    </p>
+    <div class="post_reply_content">
+      {{ post_to_html(reply) }}
+    </div>
+    </div>
+  {% endfor %}
+
+  <div class="w3-container w3-pale-yellow">
+  <h4>New reply</h4>
+    {% include 'forum/new_post.template' %}
+  </div>
+
+{% endblock content %}

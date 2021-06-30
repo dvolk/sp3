@@ -1,0 +1,23 @@
+<form method="POST" action='/forum/new_post'>
+  <input type="hidden" name="parent_id" value="{{ parent_id }}"></input>
+  <input type="hidden" name="edit_id" value="{{ edit_id }}"></input>
+
+  {% if edit_id %}
+    <div class="w3-panel w3-pale-red">
+      <p>You are free to edit your own posts. However, please keep in mind that substantially editing a post may make the entire conversation difficult to follow as the subsequent replies may no longer be relevant. We recommend that you do not edit posts unless you are fixing formatting or spelling errors.</p>
+    </div>
+  {% endif %}
+
+  {% if parent_id == -1 %}
+    <label> Post title</label>
+    <input name="title" type="text" class="w3-input" placeholder="Title" value="{{ title|e }}" required="required" pattern=".{20,}">
+    <br/>
+    <label>Post text</label>
+  {% endif %}
+  <textarea required="required" pattern=".{32,}" rows=10 name="content" class="w3-input">{{ content|e }}</textarea>
+  <p>The forum supports <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">markdown formatting</a></p>
+<p>
+  <input class="w3-button w3-blue" type="submit" name="post" value="Submit">
+  <input class="w3-button w3-green" type="submit" name="preview" value="Preview">
+  </p>
+</form>

@@ -1,0 +1,35 @@
+{% extends 'base1.template' %}
+
+{% block content %}
+
+  <header class="w3-panel w3-green">
+    <h2>Preview Post</h2>
+  </header>
+
+  {% if parent_id == '-1' %}
+  <h2>{{ title|e }}</h2>
+{% endif %}
+
+<div class="w3-panel w3-pale-red">
+  <p>This is a preview. To post, go back to the previous page and click Submit</p>
+</div>
+
+<div class="w3-container w3-white">
+  {{ text_to_html(content) }}
+</div>
+
+<div class="w3-panel w3-pale-red">
+  <p>This is a preview. To post, go back to the previous page and click Submit</p>
+</div>
+
+{% if edit_id %}
+  <a href="/forum/post/edit/{{ edit_id }}?post_uuid={{ post_uuid }}"><button class="w3-btn w3-blue">Back</button></a>
+{% elif parent_id != "-1" %}
+  <a href="/forum/post/{{ parent_id }}?post_uuid={{ post_uuid }}"><button class="w3-btn w3-blue">Back</button></a>
+{% else %}
+  <a href="/forum/post/new?post_uuid={{ post_uuid }}"><button class="w3-btn w3-blue">Back</button></a>
+{% endif %}
+</div>
+</body>
+
+{% endblock content %}
