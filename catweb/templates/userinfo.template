@@ -8,13 +8,13 @@
 
   <h4>Account Info</h4>
 
-  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
     <thead>
     </thead>
     <tbody>
       {% for k,v in current_user.u.items() %}
 	<tr>
-	  <td>{{ k }}</td>
+	  <td>{{ k.replace("_", " ")|capitalize }}</td>
 	  <td>{{ v }}</td>
 	</tr>
       {% endfor %}
@@ -23,14 +23,22 @@
 
   <h4>Organisation</h4>
 
-  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
     <thead>
     </thead>
     <tbody>
       {% for k, v in current_user.g.items() %}
 	<tr>
-	  <td>{{ k }}</td>
-	  <td>{% if v is iterable and (v is not string and v is not mapping) %}{{ v|join(", ") }}{% else %}{{ v }}{% endif %}</td>
+	  <td>{{ k.replace("_", " ")|capitalize }}</td>
+	  <td>
+	    {% if v is iterable and (v is not string and v is not mapping) %}
+	      {% for vv in v %}
+		{{ vv }}<br/>
+	      {% endfor %}
+	    {% else %}
+	      {{ v }}
+	    {% endif %}
+	  </td>
 	</tr>
       {% endfor %}
     </tbody>
