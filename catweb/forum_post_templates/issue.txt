@@ -1,0 +1,10 @@
+- Summary of issue:
+
+- Steps to reproduce:
+
+- Expected results:
+
+- Actual results:
+
+- Additional information (timestamp, test story ID etc.):
+
