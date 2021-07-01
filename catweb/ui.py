@@ -138,7 +138,11 @@ template_nav_links = [
     ["Compute", "fa fa-server fa-fw", "/cluster"],
     ["Documentation", "fa fa-bell fa-fw", "https://sp3docs.mmmoxford.uk/"],
     ["Forum", "fa fa-bank fa-fw", "/forum"],
-    ["Report Issue", "fa fa-history fa-fw", "/forum/post/new?post_template=issue",],
+    [
+        "Report Issue",
+        "fa fa-history fa-fw",
+        "/forum/post/new?post_template=issue",
+    ],
     ["Admin", "fa fa-cog fa-fw", "/admin"],
 ]
 
@@ -2203,12 +2207,6 @@ def datefmt(epochtime):
     return time.strftime("%Y-%m-%d", time.localtime(epochtime))
 
 
-version = (
-    subprocess.check_output(shlex.split("git describe --tags --always --dirty"))
-    .decode()
-    .strip()
-)
-
 pattern = (
     r"((([A-Za-z]{3,9}:(?:\/\/)?)"  # scheme
     r"(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+(:\[0-9]+)?"  # user@hostname:port
@@ -2276,7 +2274,7 @@ def index():
         timefmt=timefmt,
         datefmt=datefmt,
         u=flask_login.current_user,
-        version=version,
+        sel="Forum",
     )
 
 
@@ -2303,7 +2301,7 @@ def post_edit(edit_id):
         title=title,
         content=content,
         u=flask_login.current_user,
-        version=version,
+        sel="Forum",
     )
 
 
@@ -2339,7 +2337,7 @@ def post_new():
         u=flask_login.current_user,
         content=content,
         template_names=list(post_templates.keys()),
-        version=version,
+        sel="Forum",
     )
 
 
@@ -2386,9 +2384,9 @@ def post(post_id):
         post_to_html=post_to_html,
         timefmt=timefmt,
         u=flask_login.current_user,
-        version=version,
         title="Discussion Posts",
         content=content,
+        sel="Forum",
     )
 
 
@@ -2415,7 +2413,7 @@ def new_post():
                 text_to_html=text_to_html,
                 post_uuid=post_uuid,
                 edit_id=edit_id,
-                version=version,
+                sel="Forum",
             )
 
         with con:
@@ -2441,7 +2439,10 @@ def new_post():
                 else:
                     con.execute(
                         "update post set replied = ?, replies_count = replies_count + 1 where id = ?",
-                        (now, parent_id,),
+                        (
+                            now,
+                            parent_id,
+                        ),
                     )
 
         # save the post to posts/
