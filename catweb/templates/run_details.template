@@ -32,6 +32,10 @@
   <input type="text" size="40" class="w3-input" id="search_sample" placeholder="e.g. tuberculosis, bovis, abscessus or failed"><span id="samplecount"> {{ trace_nice | length - 1}} samples</span>
 </div>
 
+  {% if fetch_uuid %}
+    <p>This run links back to a fetch. <a href="/fetch_details/{{ fetch_uuid }}">Click here</a> to view fetch details.</p>
+  {% endif %}
+
   {% if trace_nice %}
 
     {% if task_count > 0 and expected_tasks > 0 %}

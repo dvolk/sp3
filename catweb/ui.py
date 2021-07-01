@@ -1091,6 +1091,14 @@ def run_details(flow_name, run_uuid):
     if not rows:
         abort(404, description="Run not found")
 
+    # get fetch id from catpile
+    r = requests.get(f"http://localhost:22000/get_fetch_for_run/{run_uuid}").json()
+    if r:
+        fetch_uuid = r
+    else:
+        fetch_uuid = None
+    logging.warning(fetch_uuid)
+
     data = json.loads(rows[0][20])
     user_param_dict = data["user_param_dict"]
 
@@ -1170,6 +1178,7 @@ def run_details(flow_name, run_uuid):
         task_count=task_count,
         expected_tasks=expected_tasks,
         pipeline_no_report=pipeline_no_report,
+        fetch_uuid=fetch_uuid,
     )
 
 
