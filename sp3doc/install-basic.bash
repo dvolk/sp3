@@ -49,7 +49,7 @@ cd sp3
 # sp3 packages
 #
 pip3 install -r requirements.txt
-pip3 install waitress pymongo newick argh sentry-sdk sentry-sdk[flask]
+pip3 install waitress pymongo newick argh markdown2 sentry-sdk sentry-sdk[flask]
 
 #
 # copy slurm emu files to /usr/bin
