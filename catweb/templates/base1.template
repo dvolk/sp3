@@ -72,7 +72,7 @@
       <!-- End page content -->
       <!-- Footer -->
       <div class="w3-container">
-	<p>Version {{ catweb_version }} [:{{ port }}] - by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a></p>
+	<p style="text-align:center;">Version {{ catweb_version }} [:{{ port }}] - by <a href="mailto:denis.volk@ndm.ox.ac.uk">Denis Volk</a> and <a href="mailto:fan.yang-turner@ndm.ox.ac.uk">Fan Yang</a></p>
       </div>
     </div>
 
