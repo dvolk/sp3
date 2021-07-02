@@ -15,6 +15,7 @@ cd /home/ubuntu/sp3/catweb/
 cp config.yaml-example config.yaml
 sed -i 's/192.168.9.9/10.0.1.2/g' config.yaml
 sed -i 's;https://cats.oxfordfun.com;'$SP3URL';g' config.yaml
+python3 make_secret_key.py
 
 # configure covid pipeline
 cd /home/ubuntu/sp3/catweb/config.yaml.d

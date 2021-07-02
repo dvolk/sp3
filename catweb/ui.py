@@ -82,7 +82,9 @@ logger = setup_logging()
 logger.debug("Logging initialized")
 
 app = Flask(__name__)
-app.secret_key = "secret key"
+
+with open(".catweb-secret-key") as f:
+    app.secret_key = f.read()
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
