@@ -220,6 +220,8 @@ class User(flask_login.UserMixin):
             ).text
             logging.warning(r)
             self.g = json.loads(r)
+            if not self.g:
+                return self.u, dict()
             name = self.g["name"]
             self.g = self.g["attributes"]
             self.g["name"] = name
