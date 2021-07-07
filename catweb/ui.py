@@ -2281,6 +2281,7 @@ def post_to_html(post):
 
 
 @app.route("/forum")
+@flask_login.login_required
 def index():
     print(f"stat_in_cache={stat_in_cache}, stat_missed_cache={stat_missed_cache}")
     posts = con.execute(
@@ -2381,6 +2382,7 @@ def post_delete(post_id):
 
 
 @app.route("/forum/post/<post_id>")
+@flask_login.login_required
 def post(post_id):
     post = con.execute("select * from post where id = ?", (post_id,)).fetchone()
     if not post:
