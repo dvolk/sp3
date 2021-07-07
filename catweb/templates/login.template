@@ -18,7 +18,7 @@
 
       <h2>Sign in</h2>
       {% if msg %}
-	<div class='w3-card w3-panel w3-red'><p><strong>Error: {{ msgs[msg] }}</strong><p></div>
+	<div class='w3-card w3-panel w3-red'><p><strong>{{ msgs[msg] }}</strong><p></div>
       {% endif %}
       <form action="/login" method="post" style="display:inline">
 	<label>Username</label>

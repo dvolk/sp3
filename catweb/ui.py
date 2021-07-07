@@ -290,8 +290,14 @@ def register_sp3_user():
     if request.method == "GET":
         return render_template("register.template")
     if request.method == "POST":
-        r = requests.get("http://localhost:13666/add_user", params=request.form).text
-        return redirect("/")
+        try:
+            r = requests.get("http://localhost:13666/add_user", params=request.form).text
+        except:
+            return render_template("register.template", error="internal-error")
+        if r == "OK":
+            return redirect("/login?m=thanks")
+        else:
+            return render_template("register.template", error=r)
 
 
 def is_public_fetch_source(kind):
@@ -325,6 +331,7 @@ def login():
             "not_active": "User account has not been activated. Please contact the administrators after 1 day.",
             "no_org": "User is not in any organisation. Please contact the administrators.",
             "wrong_org": "User belongs to organisation with invalid configuration. Please contact the administrators.",
+            "thanks": "Thank you for registering on this SP3 instance. You will be emailed when your account is activated."
         }
 
         return render_template(
