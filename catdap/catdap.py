@@ -150,6 +150,8 @@ def add_user():
 
     if len(password) < 12:
         return "err-password_too_short"
+    if len(password) > 4097:
+        return "err-password_too_long"
 
     password_hash = bcrypt.hash(password)
 

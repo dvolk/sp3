@@ -220,6 +220,8 @@ class User(flask_login.UserMixin):
             ).text
             logging.warning(r)
             self.g = json.loads(r)
+            if not self.g:
+                return self.u, dict()
             name = self.g["name"]
             self.g = self.g["attributes"]
             self.g["name"] = name
@@ -288,8 +290,14 @@ def register_sp3_user():
     if request.method == "GET":
         return render_template("register.template")
     if request.method == "POST":
-        r = requests.get("http://localhost:13666/add_user", params=request.form).text
-        return redirect("/")
+        try:
+            r = requests.get("http://localhost:13666/add_user", params=request.form).text
+        except:
+            return render_template("register.template", error="internal-error")
+        if r == "OK":
+            return redirect("/login?m=thanks")
+        else:
+            return render_template("register.template", error=r)
 
 
 def is_public_fetch_source(kind):
@@ -323,6 +331,7 @@ def login():
             "not_active": "User account has not been activated. Please contact the administrators after 1 day.",
             "no_org": "User is not in any organisation. Please contact the administrators.",
             "wrong_org": "User belongs to organisation with invalid configuration. Please contact the administrators.",
+            "thanks": "Thank you for registering on this SP3 instance. You will be emailed when your account is activated."
         }
 
         return render_template(
@@ -2272,6 +2281,7 @@ def post_to_html(post):
 
 
 @app.route("/forum")
+@flask_login.login_required
 def index():
     print(f"stat_in_cache={stat_in_cache}, stat_missed_cache={stat_missed_cache}")
     posts = con.execute(
@@ -2372,6 +2382,7 @@ def post_delete(post_id):
 
 
 @app.route("/forum/post/<post_id>")
+@flask_login.login_required
 def post(post_id):
     post = con.execute("select * from post where id = ?", (post_id,)).fetchone()
     if not post:

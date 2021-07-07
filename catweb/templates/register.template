@@ -16,7 +16,13 @@
 
     <div class="w3-container w3-auto" style="margin-top: 5%;">
 
-    <h2>Register a SP3 user account</h2>
+      <h2>Register a SP3 user account</h2>
+
+      {% if error %}
+      <div class="w3-container w3-panel w3-red">
+	<p>An error was encountered when making the account: {{ error }}</p>
+      </div>
+      {% endif %}
 
     <p>* designates a mandatory field</p>
 
