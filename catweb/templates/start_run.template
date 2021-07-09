@@ -23,6 +23,17 @@
         <input class="w3-input" name="run_name" id="run_name" type="text"
                value="{{ flow_cfg['name'] }}-{{ now }}">
       </p>
+  {# ==============Execution Context ================ #}
+  <div class="input-group mb-3" hidden>
+    <div class="input-group-prepend">
+      <label class="input-group-text" for="context">Execution context</label>
+    </div>
+    <select class="w3-input custom-select" id="context" name="context">
+      {% for context in flow_cfg['contexts'] %}
+      <option value="{{ context['name'] }}">{{ context['name'] }}</option>
+      {% endfor %}
+    </select>
+  </div>
 
       {# ==============User Parameter Key-Value ================ #}
       {% for param in flow_cfg['param']['description'] %}
