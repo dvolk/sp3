@@ -31,7 +31,6 @@ import pandas
 import requests
 import sentry_sdk
 import waitress
-from flask import *
 from flask import (
     Flask,
     abort,
