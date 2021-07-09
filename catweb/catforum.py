@@ -1,10 +1,21 @@
-import sqlite3, json, uuid, time, re, os, html, pathlib, uuid, subprocess, shlex
+import html
+import json
+import os
+import pathlib
+import re
+import shlex
+import sqlite3
+import subprocess
+import time
+import uuid
 from logging import warning as logging_warning
 
-from flask import *
+import argh
 import flask_login
+import markdown2
+import requests
+from flask import *
 from werkzeug.urls import url_parse
-import markdown2, argh, requests
 
 con = sqlite3.connect("/db/catforum.sqlite", check_same_thread=False)
 con.row_factory = sqlite3.Row

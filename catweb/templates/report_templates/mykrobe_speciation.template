@@ -3,8 +3,9 @@
 {% set phylo = report['mykrobe_speciation']['data'] %}
 <p>Mykrobe predictor version: <strong>{{ report['mykrobe_speciation']['data']['mykrobe-predictor_version'] }}</strong> &nbsp;&nbsp;&nbsp;&nbsp;
   Mykrobe atlas version: <strong>{{ report['mykrobe_speciation']['data']['mykrobe-atlas_version'] }}</strong></p>
-  
-  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
+
+  <p>
+  <table class="w3-table w3-bordered w3-hoverable w3-white">
     <thead>
       <th>Type</th>
       <th>Identified</th>
@@ -13,40 +14,43 @@
     </thead>
     <tbody>
       {% for phylo_type in ['phylo_group', 'species', 'sub_complex'] %}
-	{% for k,v in phylo[phylo_type].items() %}
-	  <tr>
-	    <td>{{ phylo_type|capitalize|replace('_', ' ') }}</td>
-	    <td>{{ k }}</td>
-	    <td>{% if v['percent_coverage'] != -1 %}{{ v['percent_coverage'] }}%{% endif %}</td>
-	    <td>{% if v['median_depth'] != -1 %}{{ v['median_depth'] }}{% endif %}</td>
-	  </tr>
-	{% endfor %}
+        {% for k,v in phylo[phylo_type].items() %}
+          <tr>
+            <td>{{ phylo_type|capitalize|replace('_', ' ') }}</td>
+            <td>{{ k }}</td>
+            <td>{% if v['percent_coverage'] != -1 %}{{ v['percent_coverage'] }}%{% endif %}</td>
+            <td>{% if v['median_depth'] != -1 %}{{ v['median_depth'] }}{% endif %}</td>
+          </tr>
+        {% endfor %}
       {% endfor %}
   </table>
+  </p>
   {% if 'lineages' in phylo %}
     {% for lineage in phylo['lineages'] %}
-      <p><strong>{{ lineage |capitalize }}</strong></p>
-      <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
-	<thead>
-	  <th>Calls</th>
-	  <th>Variant name</th>
-	  <th>Coverage</th>
-	  <th>Median depth</th>
-	  <th>Min non-zero depth</th>
-	  <th>Kmer_count</th>
-	  <th>Klen</th>
-	</thead>
-	{% for k,v in phylo[lineage].items() %}
-	  <tr>
-	    <td>{{ k|capitalize }}</td>
-	    <td>{{ list(v.keys())[0] }}</td>
-	    <td>{{ list(v.values())[0]['percent_coverage'] }}</td>
-	    <td>{{ list(v.values())[0]['median_depth'] }}</td>
-	    <td>{{ list(v.values())[0]['min_non_zero_depth'] }}</td>
-	    <td>{{ list(v.values())[0]['kmer_count'] }}</td>
-	    <td>{{ list(v.values())[0]['klen'] }}</td>
-	  </tr>
+      <p><strong>{{ lineage|capitalize }}</strong></p>
+<p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white">
+        <thead>
+          <th>Calls</th>
+          <th>Variant name</th>
+          <th>Coverage</th>
+          <th>Median depth</th>
+          <th>Min non-zero depth</th>
+          <th>Kmer_count</th>
+          <th>Klen</th>
+        </thead>
+        {% for k,v in phylo[lineage].items() %}
+          <tr>
+            <td>{{ k|capitalize }}</td>
+            <td>{{ list(v.keys())[0] }}</td>
+            <td>{{ list(v.values())[0]['percent_coverage'] }}</td>
+            <td>{{ list(v.values())[0]['median_depth'] }}</td>
+            <td>{{ list(v.values())[0]['min_non_zero_depth'] }}</td>
+            <td>{{ list(v.values())[0]['kmer_count'] }}</td>
+            <td>{{ list(v.values())[0]['klen'] }}</td>
+          </tr>
     {% endfor %}
       </table>
+      </p>
   {% endfor %}
 {% endif %}

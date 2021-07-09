@@ -1,19 +1,36 @@
 {% extends "base1.template" %}
-{% block content %}
 
-<h4>{{ source['display_name'] }}</h4>
-<p>{{ source['description'] }}</p>
-<hr/>
-<form action="/fetch_new" method="post">
-  <label>Fetch Name: (required and editable)</label>
-  <input name="fetch_name" type=text class="w3-input" value="{{ name }}" required>
-  <p>Paste accession numbers in the text box below, one accession per row, only accession numbers, no quote, or comma etc. in one row.</p>
-  <textarea style="font-family: monospace; width:100%" rows=20 class="w3-input" name="fetch_samples" id="fetch_samples">
-</textarea>
-  <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
-  <input type="hidden" id="fetch_type" name="fetch_type" value="all">
-  <input type="hidden" id="fetch_range" name="fetch_range" value="">
-  <p>The list of above accessions would be one dataset for you to run, suggest 500 samples maximum.</p>
-  <button type="Submit" class="w3-input w3-blue">Start Fetch</button>
-</form>
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>New ENA fetch</h1>
+  </header>
+
+{% endblock header %}
+
+{% block content %}
+  <div class="w3-container w3-panel w3-white">
+
+    <h2>{{ source['display_name'] }}</h2>
+    <p>{{ source['description'] }}</p>
+    <p>
+    <form action="/fetch_new" method="post">
+      <label>Fetch Name: (required and editable)</label>
+      <p>
+        <input class="w3-input" type="text" name="fetch_name" value="{{ name }}" required/>
+        </p>
+      <label>Paste accession numbers in the text box below, one accession per row, only accession numbers, no quote, or comma etc. in one row.</label>
+      <p>
+        <textarea style="font-family: monospace; width:100%" rows=20 class="w3-input" name="fetch_samples" id="fetch_samples"></textarea>
+      </p>
+      <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
+      <input type="hidden" id="fetch_type" name="fetch_type" value="all">
+      <input type="hidden" id="fetch_range" name="fetch_range" value="">
+      <p>The list of above accessions would be one dataset for you to run, suggest 500 samples maximum.</p>
+      <p>
+        <button class="w3-btn w3-blue" type="Submit">Start fetch</button>
+      </p>
+    </form>
+    </p>
+  </div>
 {% endblock content %}

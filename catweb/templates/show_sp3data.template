@@ -1,24 +1,36 @@
 {% extends 'base1.template' %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>SP3 metadata</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
+  <div class="w3-container w3-panel w3-white">
 
-<h4>SP3 metadata table</h4>
+    <h2>SP3 metadata table</h2>
 
-<p>Pipeline run UUID: {{ pipeline_run_uuid }}</p>
+    <p>Pipeline run UUID: {{ pipeline_run_uuid }}</p>
+    <p>
+      <table class="w3-table w3-striped w3-bordered w3-hoverable w3-white">
+        {% for (i, row) in sp3data %}
+          {% for k,v in row.items() %}
+            {% if k not in ['original_file_sha512', 'clean_file_sha512'] %}
+              <tr>
+                {% if k == 'fetch_uuid' %}
+                  <td rowspan="{{ row|length -2 }}" valign="top"><span style="font-size: 2em">{{ i }}</span></td>
+                {% endif %}
+                <td><b>{{ k }}</b></td>
+                <td>{{ v }}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
 
-<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-  {% for (i, row) in sp3data %}
-  {% for k,v in row.items() %}
-  {% if k not in ['original_file_sha512', 'clean_file_sha512'] %}
-  <tr>
-    {% if k == 'fetch_uuid' %}
-    <td rowspan="{{ row|length -2 }}" valign="top"><span style="font-size: 2em">{{ i }}</span></td>
-    {% endif %}
-    <td><b>{{ k }}</b></td>
-    <td>{{ v }}</td>
-  </tr>
-  {% endif %}
-  {% endfor %}
-  {% endfor %}
-</table>
-
+      </table>
+    </p>
+  </div>
 {% endblock content %}

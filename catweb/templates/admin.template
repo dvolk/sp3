@@ -2,111 +2,122 @@
 
 {% block header %}
 
-  <header class="w3-container" style="padding-top:22px">
-    <h5><b><i class="fa fa-cog fa-fw"></i> My Admin</b></h5>
+  <header class="w3-container w3-green">
+    <h1>Admin</h1>
   </header>
 
 {% endblock header %}
 
 {% block content %}
 
-  <h3>SP3 systemd service status</h3>
+  <div class="w3-container w3-panel w3-white">
+    <h2>SP3 systemd service status</h2>
 
-  {% if services is string %}
-    <p>{{ services }}</p> {# error message #}
-  {% else %}
+    {% if services is string %}
+      <p>{{ services }}</p> {# error message #}
+    {% else %}
+      <p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white">
+        <thead>
+          <tr>
+            <th>Systemd service unit</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in services %}
+            <tr {% if l["status"] != "running" %}class="w3-amber"{% endif %}>
+              <td>{{ l["name"] }}</td>
+              <td>{{ l["status"] }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </p>
+    {% endif %}
+  </div>
 
-    <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
-      <thead>
-	<tr>
-	  <th>Systemd service unit</th>
-	  <th>Status</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for l in services %}
-	  <tr {% if l["status"] != "running" %}class="w3-amber"{% endif %}>
-	    <td>{{ l["name"] }}</td>
-	    <td>{{ l["status"] }}</td>
-	  </tr>
-	{% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
+  <div class="w3-container w3-panel w3-white">
+    <h2>Users</h2>
 
-  <h3>Users</h3>
+    <p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
+        <thead>
+          <tr>
+            <th scope="col"><a href="#">Username</a></th>
+            <th scope="col"><a href="#">Organisation</a></th>
+            <th scope="col"><a href="#">Email</a></th>
+            <th scope="col"><a href="#">Added date</a></th>
+            <th scope="col"><a href="#">Activated</a></th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for username, user in user_d.items() %}
+            {% set u_attr = user.get("attributes", {}) %}
+            <tr id="{{ username }}">
+              <td>{{ username }}</td>
+              {% set u_org = u_attr.get('catweb_organisation', "") %}
+              <td>
+                {% if u_org not in all_org_names %}
+                  <span class="w3-red">{{ u_org }} <i class="fa fa-close fa-fw"></i></span>
+                {% else %}
+                  <a href="#{{ u_org }}">{{ u_org }}</a>
+                {% endif %}
+              </td>
+              <td>{{ u_attr.get("email") }}</td>
+              <td>{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>
+              <td>{% if 'requires_review' in user['attributes'] %}<span class="w3-red">No <i class="fa fa-close fa-fw"></i></span>{% else %}Yes{% endif %}</td>
+              <td><a href="/admin_edit_user?username={{ username|urlencode }}">Edit</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </p>
+  </div>
 
-  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-    <thead>
-      <tr>
-	<th scope="col"><a href="#">Username</a></th>
-	<th scope="col"><a href="#">Organisation</a></th>
-	<th scope="col"><a href="#">Email</a></th>
-	<th scope="col"><a href="#">Added date</a></th>
-	<th scope="col"><a href="#">Activated</a></th>
-	<th scope="col">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for username, user in user_d.items() %}
-	{% set u_attr = user.get("attributes", {}) %}
-	<tr id="{{ username }}">
-	  <td>{{ username }}</td>
-	  {% set u_org = u_attr.get('catweb_organisation', "") %}
-	  <td>
-	    {% if u_org not in all_org_names %}
-	       <span class="w3-red">{{ u_org }} <i class="fa fa-close fa-fw"></i></span>
-	     {% else %}
-	       <a href="#{{ u_org }}">{{ u_org }}</a>
-	    {% endif %}
-	  </td>
-	  <td>{{ u_attr.get("email") }}</td>
-	  <td>{% if 'date_added' in user['attributes'] %}{{ user['attributes']['date_added']|epochtodate }} {% else %}None{% endif %}</td>
-	  <td>{% if 'requires_review' in user['attributes'] %}<span class="w3-red">No <i class="fa fa-close fa-fw"></i></span>{% else %}Yes{% endif %}</td>
-	  <td><a href="/admin_edit_user?username={{ username|urlencode }}">Edit</a></td>
-	</tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h3>Organisations</h3>
-  <p>{{ organisation_d|length }} organisations.</p>
-  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-    <thead>
-      <tr>
-	<th><a href="#">Name</a></th>
-	<th>Users</th>
-	<th><a href="#">Pipelines</a></th>
-	<th><a href="#">Upload dirs</a></th>
-	<th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for org in organisation_d %}
-	<tr>
-	  <td><a id="{{ org.get('name') }}">{{ org.get("name") }} ({{ org_to_user.get(org.get("name"), [])|length }})</a></td>
-	  <td>
-	    {% for username in org_to_user.get(org.get("name"), []) %}
-	      <a href="#{{ username }}">{{ username }}</a><br/>
-	    {% endfor %}
-	  </td>
-	  <td>
-	    {% for pipeline in org.get("attributes", {}).get("pipelines", []) %}
-	      {{ pipeline }}<br/>
-	    {% endfor %}
-	  </td>
-	  <td>
-	    {% for upload_dir in org.get("attributes", {}).get("upload_dirs", []) %}
-	      {{ upload_dir }}<br/>
-	    {% endfor %}
-	  </td>
-	  <td>
-	    <a href="/admin_edit_org?org_name={{ org.get("name")|urlencode }}">Edit</a>
-	  </td>
-	</tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Organisations</h2>
+    <p>{{ organisation_d|length }} organisations.</p>
+    <p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
+        <thead>
+          <tr>
+            <th><a href="#">Name</a></th>
+            <th>Users</th>
+            <th><a href="#">Pipelines</a></th>
+            <th><a href="#">Upload dirs</a></th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for org in organisation_d %}
+            <tr>
+              <td><a id="{{ org.get('name') }}">{{ org.get("name") }} ({{ org_to_user.get(org.get("name"), [])|length }})</a></td>
+              <td>
+                {% for username in org_to_user.get(org.get("name"), []) %}
+                  <a href="#{{ username }}">{{ username }}</a><br/>
+                {% endfor %}
+              </td>
+              <td>
+                {% for pipeline in org.get("attributes", {}).get("pipelines", []) %}
+                  {{ pipeline }}<br/>
+                {% endfor %}
+              </td>
+              <td>
+                {% for upload_dir in org.get("attributes", {}).get("upload_dirs", []) %}
+                  {{ upload_dir }}<br/>
+                {% endfor %}
+              </td>
+              <td>
+                <a href="/admin_edit_org?org_name={{ org.get("name")|urlencode }}">Edit</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </p>
+  </div>
 
 
 {% endblock content %}

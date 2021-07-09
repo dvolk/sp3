@@ -5,19 +5,19 @@
    {% for key, value in row.items() %}
      {% if key == 'species'%}
         {% else %}
-	{% if value | length > 1 %}
-        <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-	  {% for item in value %}
-	  {% if item | length > 1 %}
-	  <tr>
-	    {% for cell in item%}
-	      <td style="width: 16.66%">{{cell }}</td>
-	    {% endfor%}
-	  </tr>
-	  {% endif %}
-	  {% endfor %}
-	</table>
-	{% endif %}
+        {% if value | length > 1 %}
+        <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
+          {% for item in value %}
+          {% if item | length > 1 %}
+          <tr>
+            {% for cell in item%}
+              <td style="width: 16.66%">{{cell }}</td>
+            {% endfor%}
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </table>
+        {% endif %}
      {% endif%}
   {% endfor %}
 {% endif %}

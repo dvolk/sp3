@@ -1,0 +1,35 @@
+name: "RegionsScan"
+display_name: "Regions Scan for Masking"
+show: yes
+script: 'regionscan_kraken.nf'
+# relative if context has these dirs
+root_dir: 'SETMASK/'
+prog_dir: 'SETMASK/'
+output_dir: 'output/'
+description: "David Wyllie's Adaptive Masking Pipeline"
+version: "0.1.0"
+contexts:
+  - name: local
+    arguments: "-with-singularity /data/images/setmask-v0.1.1.img -process.executor slurm"
+param:
+  description:
+    - name: 'indir'
+      arg: "--input"
+      type: input-reqr
+      desc: 'Read Directory'
+    - name: 'readpat'
+      arg: '--kraken_pattern'
+      type: input-list
+      desc: 'kraken file pattern (nextflow syntax, e.g.: **/speciation/*_kraken2.tab)'
+    - name: 'readpat-gvcf'
+      arg: '--gvcf_pattern'
+      type: input-list
+      desc: 'gvcf file pattern (nextflow syntax, e.g.: **/minos/*_samtools.vcf)'
+    - name: 'genbank'
+      desc: 'Genbank file'
+      arg: '--genbank'
+      type: switch
+      globs:
+        - /data/references/masking/*/*.gb
+output:
+    parameter: "--output"

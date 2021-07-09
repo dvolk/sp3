@@ -1,32 +1,51 @@
 {% extends 'base1.template' %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Select pipeline</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
+  <div class="w3-container w3-panel w3-white">
 
-  <h3>Fetch information</h3>
+    <h2>Fetch information</h2>
 
-  <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
-    <tr>
-      <td>Fetch UUID</td><td>{{ guid }}</td>
-    </tr>
-    <tr>
-      <td>Fetch name</td><td>{{ name }}</td>
-    </tr>
-  </table>
-  <br>
+    <p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white">
+        <tr>
+          <td>Fetch UUID</td><td>{{ guid }}</td>
+        </tr>
+        <tr>
+          <td>Fetch name</td><td>{{ name }}</td>
+        </tr>
+      </table>
+    </p>
 
-<div class="w3-padding w3-border w3-pale-red">
-<h3>Select Pipeline</h3>
-<p>After selecting a pipeline, please click "Update".</p>
-    <form action="/select_flow/{{ guid }}" method="get">
-	  <select name="flow_name" class="w3-input" id="flow_option">
-	    {% for name in user_pipelines %}
-	    <option {% if flow_name == name %}selected{% endif %}>{{ name }}</option>
-	    {% endfor %}
-	  </select>
-	  <button type="Submit" class="w3-input w3-blue">Update</button>
-    </form>
-<p>Selected pipeline: <strong><span id="selected_flow">{{ flow_name }}</span></strong></p>
-</div>
-<br/>
-<a class="w3-input w3-btn w3-green" id='submit_pipeline' href='/flow/{{ flow_name }}/new?given_input={{ output_dir_b16 }}&fetch_uuid={{ guid }}' data-confirm="Are you sure you want to run the pipeline {{ flow_name }}?">Continue</a>
+  </div>
+
+  <div class="w3-container w3-panel w3-pale-red">
+    <h2>Select Pipeline</h2>
+    <p>After selecting a pipeline, please click "Update".</p>
+    <p>
+      <form action="/select_flow/{{ guid }}" method="get">
+        <select name="flow_name" class="w3-input" id="flow_option">
+          {% for name in user_pipelines %}
+            <option {% if flow_name == name %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+        <p>
+          <button type="Submit" class="w3-input w3-blue">{{ icon('exclamation-circle') }} Update</button>
+        </p>
+      </form>
+    </p>
+    <p>Selected pipeline: <strong><span id="selected_flow">{{ flow_name }}</span></strong></p>
+
+    <p>
+      <a class="w3-input w3-btn w3-green" id='submit_pipeline' href='/flow/{{ flow_name }}/new?given_input={{ output_dir_b16 }}&fetch_uuid={{ guid }}' data-confirm="Are you sure you want to run the pipeline {{ flow_name }}?">{{ icon('arrow-right') }} Continue</a>
+    </p>
+  </div>
 
 {% endblock %}

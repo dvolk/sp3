@@ -1,38 +1,50 @@
 {% extends "base1.template" %}
 
 {% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/dropzone.min.css"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/basic.min.css"/>
-<script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/dropzone.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/dropzone.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/basic.min.css"/>
+  <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/dropzone.min.js"></script>
+{% endblock %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Upload files</h1>
+  </header>
+
 {% endblock %}
 
 {% block content %}
-<h4>Upload Files</h4>
-<p>Upload data via browser here. For bulk upload, we recommend our pilot <strong>SP3 upload tool: <a href='https://github.com/oxfordmmm/catsup'>catsup</a>.</strong></p>
+  <div class="w3-container w3-panel w3-white">
 
-<p>File maximum size:<strong>5G</strong>, only <strong>fastq.gz</strong> and <strong>bam</strong> file allowed.</p>
+    <h2>Upload form</h2>
+    <p>Upload data via browser here. For bulk upload, we recommend our pilot <strong>SP3 upload tool: <a href='https://github.com/oxfordmmm/catsup'>catsup</a>.</strong></p>
 
-<form method="POST" action='/drop_upload/{{ subfolder }}' class="dropzone dz-clickable"  id="dropper" enctype="multipart/form-data">
-</form>
-<br/>
-<p>Your files will be ready at: <strong>{{ fetchpath }}</strong></p>
-<a href='/fetch_data2/local1?id={{ fetchpath_encoded }}&kind=local1'>Next step, fetch the data.</a>
-<h4 id='subfolder' hidden>{{ subfolder }}</h4>
+    <p>File maximum size:<strong>5G</strong>, only <strong>fastq.gz</strong> and <strong>bam</strong> files are allowed.</p>
 
+    <form method="POST" action='/drop_upload/{{ subfolder }}' class="dropzone dz-clickable"  id="dropper" enctype="multipart/form-data">
+    </form>
+    <br/>
+    <p>Your files will be ready at: <strong>{{ fetchpath }}</strong></p>
+    <p>
+      <a class="w3-btn w3-blue" href='/fetch_data2/local1?id={{ fetchpath_encoded }}&kind=local1'>Next step, fetch the data.</a>
+    </p>
+    <h4 id='subfolder' hidden>{{ subfolder }}</h4>
+  </div>
 
 {% endblock content %}
 
 {% block scripts %}
-<script type="application/javascript">
-  var subfolder = document.getElementById("subfolder").innerHTML
-  var newulr = '/drop_upload' + '/' + subfolder 
-  Dropzone.options.dropper = {
-      paramName: 'file',
-      chunking: true,
-      forceChunking: true,
-      url: newulr,
-      maxFilesize: 5125, // megabytes
-      chunkSize: 1000000 // bytes
-  }
-</script>
+  <script type="application/javascript">
+    var subfolder = document.getElementById("subfolder").innerHTML
+    var newulr = '/drop_upload' + '/' + subfolder
+    Dropzone.options.dropper = {
+    paramName: 'file',
+    chunking: true,
+    forceChunking: true,
+    url: newulr,
+    maxFilesize: 5125, // megabytes
+    chunkSize: 1000000 // bytes
+    }
+  </script>
 {% endblock scripts %}

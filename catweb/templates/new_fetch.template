@@ -1,14 +1,21 @@
 {% extends "base1.template" %}
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Fetch new dataset</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
-
-  <div class="w3-container">
-  <h2>Fetch Dataset</h2>
-
-  {% for k,v in sources.items() %}
-    <div class="w3-panel w3-card">
-      <h3><a href="/fetch_data2/{{ k }}">{{ v['display_name'] }}</a></h3>
-      <p>{{ v['description'] }}</p>
-    </div>
-  {% endfor %}
+  <div class="w3-container w3-panel w3-white">
+    <h2>Select fetch type</h2>
+    {% for k,v in sources.items() %}
+      <div class="w3-panel w3-leftbar">
+        <h3><a href="/fetch_data2/{{ k }}">{{ v['display_name'] }}</a></h3>
+        <p>{{ v['description'] }}</p>
+      </div>
+    {% endfor %}
+  </div>
 
 {% endblock content %}

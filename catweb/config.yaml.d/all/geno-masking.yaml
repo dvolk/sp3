@@ -1,0 +1,25 @@
+name: "GenoMasking"
+display_name: "GenoMasking after Region Scan"
+show: yes
+script: 'masking.nf'
+# relative if context has these dirs
+root_dir: 'automated_genome_masking/'
+prog_dir: 'automated_genome_masking/'
+output_dir: 'output/'
+description: "Alex Orlek's Genome Masking Pipeline"
+version: "0.1.0"
+contexts:
+  - name: local
+    arguments: "-with-singularity /data/images/genomask-v0.1.0.img -process.executor slurm --exclude_path nothing"
+param:
+  description:
+    - name: 'indir'
+      arg: "--analysis_path"
+      type: input-reqr
+      desc: 'Analysis Directory (Regionscan visual path)'
+    - name: 'fastas'
+      arg: "--fasta_path"
+      type: input-reqr
+      desc: 'Fasta Directory (Clockwork output path)'
+output:
+    parameter: "--output"

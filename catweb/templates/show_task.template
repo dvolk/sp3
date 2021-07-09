@@ -1,21 +1,49 @@
 {% extends "base1.template" %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Task details</h1>
+  </header>
+
+{% endblock header %}
+
+
 {% block content %}
-    <h4>Task details</h4>
-<p>
-  <a href="/flow/{{ flow_name }}">{{ flow_display_name }}</a> /
-  <a href="/flow/{{ flow_name }}/details/{{ run_uuid }}">{{ run_name }}</a> /
-  {% if sample_name %}
-    <a href="/flow/{{ flow_name }}/details/{{ run_uuid }}/task/{{ sample_name }}/{{ task_name }}">{{ sample_name }} / {{ task_name }}</a>
-  {% else %}
-    <a href="/flow/{{ flow_name }}/details/{{ run_uuid }}/task/{{ task_id }}">{{ task_id }}</a>
-  {% endif %}
-<p>
-    <hr/>
-    <h4>Command run:</h4>
-    <div class="w3-white"><pre>
-{{ files['.command.sh'] }}</pre></div><h4>Command output:</h4><h5>Stdout:</h5>
-    <div class="w3-white"><pre>
-{{ files['.command.out'] }}</pre></div></pre><h5>Stderr:</h5>
-    <div class="w3-white"><pre>
-{{ files['.command.err'] }}</pre></div>
+  <div class="w3-container w3-panel w3-white">
+    {% if sample_name %}
+      <h2>Task {{ task_name|e }}</h2>
+    {% endif %}
+
+    <p>
+      <a href="/flow/{{ flow_name }}">{{ flow_display_name }}</a> /
+      <a href="/flow/{{ flow_name }}/details/{{ run_uuid }}">{{ run_name }}</a> /
+      {% if sample_name %}
+        <a href="/flow/{{ flow_name }}/details/{{ run_uuid }}/task/{{ sample_name }}/{{ task_name }}">{{ sample_name }} / {{ task_name }}</a>
+      {% else %}
+        <a href="/flow/{{ flow_name }}/details/{{ run_uuid }}/task/{{ task_id }}">{{ task_id }}</a>
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="w3-container w3-panel w3-white">
+    <h2>Command run</h2>
+    <p>
+      <pre>{{ files['.command.sh'] }}</pre>
+    </p>
+  </div>
+
+  <div class="w3-container w3-panel w3-white">
+    <h2>Command stdout:</h2>
+    <p>
+      <pre>{{ files['.command.out'] }}</pre>
+    </p>
+  </div>
+
+  <div class="w3-container w3-panel w3-white">
+    <h2>Command stderr:</h2>
+    <p>
+      <pre>{{ files['.command.err'] }}</pre>
+    </p>
+  </div>
 {% endblock content %}

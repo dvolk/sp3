@@ -2,59 +2,60 @@
 
 {% block header %}
 
-  <header class="w3-container" style="padding-top:22px">
-    <h5><b><i class="fa fa-bullseye fa-fw"></i> My Trees</b></h5>
+  <header class="w3-container w3-green">
+    <h1>TB Phylogenetic trees</h1>
   </header>
 
 {% endblock header %}
 
 {% block content %}
-<div class="container">
-  <h4>List of phylogenetics trees</h4>
+<div class="w3-container w3-panel w3-white">
   <p>To create a new tree: to go a sample report, click 'Query genetic neighbourhood', and follow the instructions.</p>
   <p>On the sample report, you can also click 'List trees containing this sample (and run)' to see only that have that sample (for that run).</p>
   {% if pipeline_run_uuid and sample_name %}
     <p>List contains trees containing sample <strong>{{ sample_name }}</strong> in pipeline run id <strong>{{ pipeline_run_uuid }}</strong></p>
   {% endif %}
-   <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+  <p>
+   <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
      <thead>
        <tr>
-	 <th><a href="#">Name</a></th>
+         <th><a href="#">Name</a></th>
          <th><a href="#">Status</a></th>
-	 <th><a href="#">Count</a></th>
-	 <th><a href="#">Added time</a></th>
-	 <th><a href="#">Started time</a></th>
-	 <th><a href="#">Duration</a></th>
-<!--	 <th>Organisation</th> -->
-	 <th>Action</th>
+         <th><a href="#">Count</a></th>
+         <th><a href="#">Added time</a></th>
+         <th><a href="#">Started time</a></th>
+         <th><a href="#">Duration</a></th>
+<!--     <th>Organisation</th> -->
+         <th>Action</th>
        </tr>
      </thead>
      <tbody>
         {% for tree in trees %}
          <tr>
-	   <td>{{ tree[1] }}</td>
-	   <td>{{ tree[3] }}</td>
-	   <td>{{ tree[4] }}</td>
-	   <td>{{ strftime("%d-%m-%Y %H:%M", localtime(tree[5])) }}</td>
-	   {% if tree[6] > 0 %}
-	     <td>{{ strftime("%d-%m-%Y %H:%M", localtime(tree[6])) }}</td>
-	   {% else %}
-	     <td></td>
-	   {% endif %}
-	   {% if tree[7] > 0 %}
-	     <td>{{ tree[7]-tree[6] }} s</td>
-	   {% else %}
-	     <td></td>
-	   {% endif %}
-<!--	   <td>{{ tree[9] }}</td> -->
-	   {% if tree[7] > 0 %}
-	     <td><a href="/view_tree/{{ tree[0] }}">View tree</a></td>
-	   {% else %}
-	     <td></td>
-	   {% endif %}
+           <td>{{ tree[1] }}</td>
+           <td>{{ tree[3] }}</td>
+           <td>{{ tree[4] }}</td>
+           <td>{{ strftime("%d-%m-%Y %H:%M", localtime(tree[5])) }}</td>
+           {% if tree[6] > 0 %}
+             <td>{{ strftime("%d-%m-%Y %H:%M", localtime(tree[6])) }}</td>
+           {% else %}
+             <td></td>
+           {% endif %}
+           {% if tree[7] > 0 %}
+             <td>{{ tree[7]-tree[6] }} s</td>
+           {% else %}
+             <td></td>
+           {% endif %}
+<!--       <td>{{ tree[9] }}</td> -->
+           {% if tree[7] > 0 %}
+             <td><a href="/view_tree/{{ tree[0] }}">View tree</a></td>
+           {% else %}
+             <td></td>
+           {% endif %}
          </tr>
       {% endfor %}
     </tbody>
-    </table>
+   </table>
+</p>
 </div>
 {% endblock %}

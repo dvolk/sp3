@@ -1,57 +1,69 @@
 {% extends "base1.template" %}
+
+{% block header %}
+  <header class="w3-container w3-green">
+    <h1>List of runs</h1>
+  </header>
+{% endblock %}
+
 {% block content %}
-  <h4>{{ pipeline_cfg['display_name'] }}</h4>
-<p>
-  {% if not current_user.is_readonly_user() %}
-    <a href="/fetch"><button type="button" class="w3-btn w3-blue">Fetch and Run</button></a>
-    <a href="/flow/{{ pipeline_cfg['flow_name'] }}/new"><button type="button" class="w3-btn w3-blue">New Run</button></a>
-    <a href="/edit_flow_config/{{ pipeline_cfg['flow_name'] }}"><button type="button" class="w3-btn w3-green">View Config</button></a>
-  {% endif %}
-  <a href="/flow/{{ pipeline_cfg['flow_name'] }}/nf_script"><button type="button" class="w3-btn w3-green">View Script</button></a>
-  {% if has_dagpng %}
-    <a href="/flow/{{ pipeline_cfg['flow_name'] }}/dagpng"><button type="button" class="w3-btn w3-green">View Graph</button></a>
-  {% endif %}
-  {% if 'Clockwork' in pipeline_cfg['flow_name'] %}
-    <a href="/cw_query"><button type="button" class="w3-btn w3-green">View TB Neighbourhood</button></a>
-  {% endif %}
-</p>
-<p>
-  Click on details on the right in the table below for more information, including sample reports.
-</p>
-<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default" style="margin-top:10px">
-  <thead>
-    <tr>
-      <th scope="col"><a href="#">Started On</a></th>
-      <th scope="col"><a href="#">User</a></th>
-      <th scope="col"><a href="#">Name</a></th>
-      <th scope="col"><a href="#">Duration</a></th>
-      {% if not pipeline_cfg.get('no_sample_count') %}<th scope="col"><a href="#">Samples</a></th>{% endif %}
-      <th scope="col"><a href="#">Status</a></th>
-      <th scope="col">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for run in pipeline_runs %}
-      <tr>
-	<th scope="row">{{ run["date_time"] }}</th>
-	<td>{{ run["user"] }}</td>
-	<td>{{ run["output_name"] }}</td>
-	<td>{{ run["duration"] }}</td>
-	{% if not pipeline_cfg.get('no_sample_count') %}<td>{% if run["input_files_count"] == -1 %}{% else %}{{ run["input_files_count"] }}{% endif %}</td>{% endif %}
-	<td>
-	  <span href="#" style="padding: 3px; background-color: {% if run['status'] == "ERR" or run['status'] == "FAIL" %}#FF6347{% elif run['status'] == "OK" %}#F0F8FF{% else %}#00BFFF{% endif %}">
-	    {% if run['status'] == "-" %}
-	      RUNNING
-	    {% else %}
-	      {{ run['status'] }}
+  <div class="w3-container w3-panel w3-white">
+    
+    <h2>{{ pipeline_cfg['display_name'] }}</h2>
+    <p>
+      {% if not current_user.is_readonly_user() %}
+	<a href="/fetch"><button type="button" class="w3-btn w3-blue">Fetch and Run</button></a>
+	<a href="/flow/{{ pipeline_cfg['flow_name'] }}/new"><button type="button" class="w3-btn w3-blue">New Run</button></a>
+	<a href="/edit_flow_config/{{ pipeline_cfg['flow_name'] }}"><button type="button" class="w3-btn w3-green">View Config</button></a>
+      {% endif %}
+      <a href="/flow/{{ pipeline_cfg['flow_name'] }}/nf_script"><button type="button" class="w3-btn w3-green">View Script</button></a>
+      {% if has_dagpng %}
+	<a href="/flow/{{ pipeline_cfg['flow_name'] }}/dagpng"><button type="button" class="w3-btn w3-green">View Graph</button></a>
+      {% endif %}
+      {% if 'Clockwork' in pipeline_cfg['flow_name'] %}
+	<a href="/cw_query"><button type="button" class="w3-btn w3-green">View TB Neighbourhood</button></a>
+      {% endif %}
+    </p>
+    <p>
+      Click on details on the right in the table below for more information, including sample reports.
+    </p>
+    <p>
+    <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
+      <thead>
+	<tr>
+	  <th scope="col"><a href="#">Started On</a></th>
+	  <th scope="col"><a href="#">User</a></th>
+	  <th scope="col"><a href="#">Name</a></th>
+	  <th scope="col"><a href="#">Duration</a></th>
+	  {% if not pipeline_cfg.get('no_sample_count') %}<th scope="col"><a href="#">Samples</a></th>{% endif %}
+	  <th scope="col"><a href="#">Status</a></th>
+	  <th scope="col">Action</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for run in pipeline_runs %}
+	  <tr>
+	    <th scope="row">{{ run["date_time"] }}</th>
+	    <td>{{ run["user"] }}</td>
+	    <td>{{ run["output_name"] }}</td>
+	    <td>{{ run["duration"] }}</td>
+	    {% if not pipeline_cfg.get('no_sample_count') %}<td>{% if run["input_files_count"] == -1 %}{% else %}{{ run["input_files_count"] }}{% endif %}</td>{% endif %}
+	    <td>
+	      <span href="#" style="padding: 3px; background-color: {% if run['status'] == "ERR" or run['status'] == "FAIL" %}#FF6347{% elif run['status'] == "OK" %}#F0F8FF{% else %}#00BFFF{% endif %}">
+		{% if run['status'] == "-" %}
+		  RUNNING
+		{% else %}
+		  {{ run['status'] }}
+		{% endif %}
+		<span>
+	    </td>
+	    {% if run['status'] != "STARTING" %}
+	      <td><a href="/flow/{{ pipeline_cfg['flow_name'] }}/{% if run['status'] == "FAIL" %}go_details{% else %}details{% endif %}/{{ run['run_uuid'] }}">Details</td>
 	    {% endif %}
-	    <span>
-	</td>
-	{% if run['status'] != "STARTING" %}
-	  <td><a href="/flow/{{ pipeline_cfg['flow_name'] }}/{% if run['status'] == "FAIL" %}go_details{% else %}details{% endif %}/{{ run['run_uuid'] }}">Details</td>
-	{% endif %}
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+	  </tr>
+	{% endfor %}
+      </tbody>
+    </table>
+    </p>
+  </div>
 {% endblock content %}

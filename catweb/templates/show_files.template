@@ -1,13 +1,37 @@
 {% extends "base1.template" %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Output files</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
-  <h4>Output Files</h4>
-  <p>Run uuid: {{ uuid }}</p>
-  <p><a href="{{ download_url }}{{ uuid }}/"><b>Download link</b></a></p>
-  <p>Download files with wget command:</p>
-<pre>wget -m -nH --cut-dirs=1 -np -R 'index.*' {{ download_url }}{{ uuid }}/</pre>
-<p>You can selectively download files using the -A flag. For example, to download only vcf files, add: <pre>-A '*.vcf'</pre> to the above command.</p>
-  <hr/>
-  <pre>
+  <div class="w3-container w3-panel w3-white">
+
+    <h2>Browse and download</h2>
+    <p><p>
+      <a href="{{ download_url }}{{ uuid }}/">
+        <button class="w3-btn w3-blue w3-large"><strong>{{ icon('cloud-download') }} Click to browse</strong></button>
+      </a>
+    </p></p>
+    </div>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Command-line download</h2>
+    <p>You can use eg. <strong>wget</strong> to download the files:</p>
+    <pre>wget -m -nH --cut-dirs=1 -np -R 'index.*' {{ download_url }}{{ uuid }}/</pre>
+    <p>You can selectively download files using the -A flag. For example, to download only vcf files, add: <pre>-A '*.vcf'</pre> to the above command.</p>
+
+  </div>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Output file list</h2>
+    <p>
+      This is a listing of all the output files in this run. To download the files, please see the two sections avove
+    </p>
+    <pre>
 {{ content }}
-  </pre>
+    </pre>
+  </div>
 {% endblock content %}

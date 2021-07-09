@@ -1,34 +1,53 @@
 {% extends 'base1.template' %}
 
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Create TB tree</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
-  <div class="container">
-    <h4>TB Phylo Tree</h4>
-    <p style="padding: 5px; border: 2px solid red;">Note: We recommend building tree with 50 samples or less for performance reasons.</p>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Create tree form</h2>
+
+    {% if run_names_sample_names|length >= 50 %}
+      <div class="w3-container w3-panel w3-pale-red">
+        <p>Note: We recommend building trees with 50 samples or less for performance reasons.</p>
+      </div>
+    {% endif %}
+
     <p>You have selected to build a tree with {{ run_names_sample_names|length }} samples.</p>
     <form action='/submit_tree' method="POST">
       <p>
-	Give your tree a name: <input type="text" name="my_tree_name" value='I forgot to name my tree'/>
+        <label>Give your tree a name:</label>
+      </p>
+      <p>
+        <input class="w3-input" type="text" name="my_tree_name" value='Please name me!'/>
       </p>
       <br/>
-      <input type="submit" class="form-input btn btn-primary" value="Confirm and Submit">
+      <input type="submit" class="w3-btn w3-blue" value="Confirm and Submit">
       <input type="hidden" name="run_ids_sample_names" value='{{ run_ids_sample_names }}'/>
     </form>
-    <br/>
-    <table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-      <thead>
-	<tr>
-         <th>Count</th>
-         <th>Run name + Sample name</th>
-	</tr>
-     </thead>
-      <tbody>
-        {% for run_name_sample_name in run_names_sample_names %}
+
+    <p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
+        <thead>
           <tr>
-            <td>{{ loop.index }}</th>
-            <td style="font-family: monospace">{{ run_name_sample_name }}</td>
+            <th>Count</th>
+            <th>Run name + Sample name</th>
           </tr>
+        </thead>
+        <tbody>
+          {% for run_name_sample_name in run_names_sample_names %}
+            <tr>
+              <th>{{ loop.index }}</th>
+              <td>{{ run_name_sample_name }}</td>
+            </tr>
         {% endfor %}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </p>
   </div>
 {% endblock %}

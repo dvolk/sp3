@@ -28,10 +28,11 @@ import threading
 import time
 import uuid
 
+import psutil
+
 import config
 import db
 import nflib
-import psutil
 
 nf_returncode = 1
 time_started = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())

@@ -5,85 +5,103 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 {% endblock %}
 
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>New local fetch</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
 
-<h4>{{ source['display_name'] }}</h4>
-<p>{{ source['description'] }}</p>
-<hr/>
+  <div class="w3-container w3-panel w3-white">
 
 
-<form action="/fetch_new" method="post">
-  <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
+    <h2>{{ source['display_name'] }}</h2>
+    <p>{{ source['description'] }}</p>
 
-{% if not paths %}
-  <p>No paths found</p>
+    <p>
+      <form action="/fetch_new" method="post">
+        <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
 
-{% else %}
-  <div class="w3-container w3-half">
-    <label>{{ source['data_identifier_display_name'] }}</label>
-    <select name="fetch_name" class="w3-input" onchange="load_filenames(this)" id="fetch_name">
-      {% for p in paths %}
-	<option {% if p == data_identifier %} selected {% endif %}>{{ p }}</option>
-      {% endfor %}
-    </select>
-    {% if source['fetch_methods'] %}
-      <label>Fetch method</label>
-      <select name="fetch_method" class="w3-input">
-	{% for m in source['fetch_methods'] %}
-	  <option>{{ m }}</option>
-	{% endfor %}
-      </select>
-    {% endif %} {# if source['fetch_methods'] #}
-    <p>For fetch from <b>S3 buckets (catsup upload)</b>, please choose <b>copy</b> as fetch method</p>
-    <br/>
+        {% if not paths %}
+          <div class="w3-container w3-panel w3-pale-red">
+            <p>No paths found</p>
+          </div>
 
-    <button type="Submit" class="w3-input w3-blue">Start Fetch</button>
-  </div>
-<div class="w3-container w3-half" id="tablearea">
-</div>
-</form>
+        {% else %}
+          <div class="w3-container w3-panel w3-half">
+            <label>{{ source['data_identifier_display_name'] }}</label>
+            <p>
+              <select name="fetch_name" class="w3-input" onchange="load_filenames(this)" id="fetch_name">
+                {% for p in paths %}
+                  <option {% if p == data_identifier %} selected {% endif %}>{{ p }}</option>
+                {% endfor %}
+              </select>
+            </p>
+            {% if source['fetch_methods'] %}
+              <label>Fetch method</label>
+            <p>
+              <select name="fetch_method" class="w3-input">
+                {% for m in source['fetch_methods'] %}
+                  <option>{{ m }}</option>
+                {% endfor %}
+              </select>
+            </p>
+            {% endif %} {# if source['fetch_methods'] #}
+            <p>For fetch from <b>S3 buckets (catsup upload)</b>, please choose <b>copy</b> as fetch method</p>
+            <br/>
 
-{% endif %} {# if not paths #}
-<div id="selected_path" hidden></div>
+            <button type="Submit" class="w3-input w3-blue">Start Fetch</button>
+          </div>
+          <div class="w3-container w3-panel w3-half" id="tablearea">
+          </div>
+      </form>
+
+    {% endif %} {# if not paths #}
+
+    <div id="selected_path" hidden></div>
+
 {% endblock content %}
 
 {% block scripts %}
-<script type="application/javascript">
-function refresh_list(data){
-   var templateText = $("#tableTemplate").html();
-   var template = Handlebars.compile(templateText);
-   var renderedText = template(data);
-   var renderedDom = $(renderedText);
-   $("#tablearea").empty();
-   $("#tablearea").append(renderedDom);
-}
+  <script type="application/javascript">
+    function refresh_list(data){
+    var templateText = $("#tableTemplate").html();
+    var template = Handlebars.compile(templateText);
+    var renderedText = template(data);
+    var renderedDom = $(renderedText);
+    $("#tablearea").empty();
+    $("#tablearea").append(renderedDom);
+    }
 
-function load_filenames(){
-      var e = document.getElementById("fetch_name");
-      var result = e.options[e.selectedIndex].text;
-      $("#selected_path").innerHTML = result;
-      var url = '/get_files'
-      var payload = { 'path': result }
-      fetch(url, { method: 'POST',
-            headers: { 'Content-type': 'application/json' },
-            body: JSON.stringify(payload) })
-            .then((response) => response.json())
-            .then((data) => {
-                refresh_list(data)
-            })
-       };
-load_filenames();
-</script>
-<script type="text/x-handlebars-template" id="tableTemplate">
-  <h3>Files in directory:</h3>
-  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
-    {% raw %}
-    {{#each filenames}}
-    <tr>
-      <td>{{this}}</td>
-    </tr>
-    {{/each}}
-    {% endraw %}
-  </table>
-</script>
+    function load_filenames(){
+    var e = document.getElementById("fetch_name");
+    var result = e.options[e.selectedIndex].text;
+    $("#selected_path").innerHTML = result;
+    var url = '/get_files'
+    var payload = { 'path': result }
+    fetch(url, { method: 'POST',
+    headers: { 'Content-type': 'application/json' },
+    body: JSON.stringify(payload) })
+    .then((response) => response.json())
+    .then((data) => {
+    refresh_list(data)
+    })
+    };
+    load_filenames();
+  </script>
+  <script type="text/x-handlebars-template" id="tableTemplate">
+    <h3>Files in directory:</h3>
+    <table class="w3-table w3-bordered w3-hoverable w3-white">
+      {% raw %}
+        {{#each filenames}}
+        <tr>
+          <td>{{this}}</td>
+        </tr>
+        {{/each}}
+      {% endraw %}
+    </table>
+  </script>
 {% endblock %}

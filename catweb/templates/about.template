@@ -1,0 +1,38 @@
+{% extends "base1.template" %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>About</h1>
+  </header>
+
+{% endblock header %}
+
+
+{% block content %}
+
+
+<div class="w3-container w3-panel w3-white">
+  <h2>History</h2>
+  <p>The SP3 project started in the Modernising Medical Microbiology research group at the University of Oxford in 2018 as a way for enabling users to run bioinformatic pipelines on cloud platforms (or on-premises) in an easier and more organised way.</p>
+  <p></p>
+  <h2>Authors</h2>
+  <h3>Software engineers</h3>
+  <p>
+    The SP3 software was principally developed Denis Volk and Fan Yang-Turner.
+  </p>
+  <h3>Bioinformatics</h3>
+  <p>
+    The clockworked-combined and compasscompact-bwa pipelines that are bundled with SP3 were variously developed by Martin Hunt, Fan Yang-Turner, Denis Volk, Stephen Bush, Jeremy Swann, Trien Do, and Anna Price.
+  </p>
+  <p>
+    The TB antibiotic resistance prediction was written by Phil Fowler, using data from the CRyPTIC project.
+  </p>
+  <h3>Acknowledgements</h3>
+  <p>
+    Derrick Crook, Tim Peto, David Wyllie, Sarah Hoosdally, Katherine Fletcher, Aysha Roohi, Owen Jones, Hassan Hartman, Arthur Morris, and Thomas Whalley.
+  </p>
+</div>
+
+  
+{% endblock %}

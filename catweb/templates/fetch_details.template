@@ -1,62 +1,84 @@
 {% extends 'base1.template' %}
 
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Fetch details</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
 
-<h4 id='details'>Details</h4>
-<p>Fetch UUID: {{ guid }}</p>
-<p>Accession: {{ name }}</p>
-<p>Fetch range: {{ fetch_range }}</p>
-<p>Fetch samples: {{ fetch_samples }}</p>
-<p>Status: {{ status }}</p>
-<p>Progress: {{ progress }} / {{ total }}</p>
-<p>Pipeline input dir: {{ input_dir }}</p>
+  <div class="w3-container w3-panel w3-white">
 
-{% if ena_table or sp3data %}
-{% if ena_table %}
-<h4 id='metadata'>ENA metadata table</h4>
-{{ ena_table|safe }}
+    <h2 id='details'>Details</h2>
+    <p>Fetch UUID: <strong>{{ guid }}</strong></p>
+    <p>Accession: <strong>{{ name }}</strong></p>
+    <p>Fetch range: <strong>{{ fetch_range }}</strong></p>
+    <p>Fetch samples: <strong>{{ fetch_samples }}</strong></p>
+    <p>Status: <strong>{{ status }}</strong></p>
+    <p>Progress: <strong>{{ progress }} / {{ total }}</strong></p>
+    <p>Pipeline input dir: <strong>{{ input_dir }}</strong></p>
+
+  </div>
+
+  {% if ena_table or sp3data %}
+    <div class="w3-container w3-panel w3-white">
+      {% if ena_table %}
+        <h2 id='metadata'>ENA metadata table</h4>
+<p>
+  {{ ena_table|safe }}
+</p>
 {% else %}
-<h4 id='metadata'>SP3 metadata table</h4>
-
-<table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-  {% for (i, row) in sp3data %}
-  {% for k,v in row.items() %}
-  {% if k not in ['original_file_sha512', 'clean_file_sha512'] %}
-  <tr>
-    {% if k == 'fetch_uuid' %}
-    <td rowspan="{{ row|length -2 }}" valign="top"><span style="font-size: 2em">{{ i }}</span></td>
-    {% endif %}
-    <td><b>{{ k }}</b></td>
-    <td>{{ v }}</td>
-  </tr>
-  {% endif %}
-  {% endfor %}
-  {% endfor %}
-</table>
+  <h2 id='metadata'>SP3 metadata table</h4>
+<p>
+  <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
+    {% for (i, row) in sp3data %}
+      {% for k,v in row.items() %}
+        {% if k not in ['original_file_sha512', 'clean_file_sha512'] %}
+          <tr>
+            {% if k == 'fetch_uuid' %}
+              <td rowspan="{{ row|length -2 }}" valign="top"><span style="font-size: 2em">{{ i }}</span></td>
+            {% endif %}
+            <td><b>{{ k }}</b></td>
+            <td>{{ v }}</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </table>
+</p>
 
 {% endif %}
+</div>
 {% endif %}
 
-<h4 id="files">Files</h4>
-<table>
-  <tr>
-    <th>File</th>
-    <th>MD5</th>
-  </tr>
-  {% for row in file_table %}
-    {% if loop.index0 < progress %}
-      <tr style='background-color: #ADFF2F'>
-    {% else %}
+  {% if file_table %}
+    <h2 id="files">Files</h4>
+    <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
       <tr>
-    {% endif %}
-      <td>{{ row[0] }}</td>
-      <td>{{ row[1] }}</td>
-    </tr>
-  {% endfor %}
-</table>
+        <th>File</th>
+        <th>MD5</th>
+      </tr>
+      {% for row in file_table %}
+        {% if loop.index0 < progress %}
+          <tr style='background-color: #ADFF2F'>
+        {% else %}
+          <tr>
+        {% endif %}
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+          </tr>
+        {% endfor %}
+    </table>
+  {% endif %}
 
-<h4 id='log'>Log</h4>
+  {% if log %}
+    <div class="w3-container w3-panel w3-white">
+      <h2 id='log'>Log</h4>
 <pre style='font-family: monospace;'>{{ log }}</pre>
+</div>
+{% endif %}
 
 {% endblock content %}
-  

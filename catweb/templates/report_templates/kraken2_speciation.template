@@ -1,33 +1,31 @@
 <p>Report generated on: <strong>{{ report['kraken2_speciation']['finished_epochtime'] }}</strong></p>
 
-<div class='row'>
-  <div class="col-md-10">
-    <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
-      <thead>
-	<th>Type</th>
-	<th>Identified</th>
-	<th>Coverage</th>
-	<th>Reads</th>
-      </thead>
-      <tbody>
-	{% set type_name_table = { "Family": "Family", "Genus": "Genus", "Species complex": "Species complex (G1)", "Species": "Species" } %}
-	{% set types = ['Family', 'Genus', 'Species complex', 'Species'] %}
-	{% for type in types %}
-	    {% for row in report['kraken2_speciation']['data'][type] %}
-            <tr>
-               <td>{{ type_name_table[type] }}</td>
-               <td>{{ row['name'] }}</td>
-	       <td>{{ row['percentage'] }}%</td>
-	       <td>{{ row['reads'] }}</td>
-	    </tr>
-	    {% endfor %}
-	  {% endfor %}
-	<ul>
-	{% for k, v in report['kraken2_speciation']['data']['Warnings'].items() %}    
+<p>
+  <table class="w3-table w3-bordered w3-hoverable w3-white">
+    <thead>
+      <th>Type</th>
+      <th>Identified</th>
+      <th>Coverage</th>
+      <th>Reads</th>
+    </thead>
+    <tbody>
+      {% set type_name_table = { "Family": "Family", "Genus": "Genus", "Species complex": "Species complex (G1)", "Species": "Species" } %}
+      {% set types = ['Family', 'Genus', 'Species complex', 'Species'] %}
+      {% for type in types %}
+        {% for row in report['kraken2_speciation']['data'][type] %}
+          <tr>
+            <td>{{ type_name_table[type] }}</td>
+            <td>{{ row['name'] }}</td>
+            <td>{{ row['percentage'] }}%</td>
+            <td>{{ row['reads'] }}</td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+      <ul>
+        {% for k, v in report['kraken2_speciation']['data']['Warnings'].items() %}
           <li> {{ k }}: {{ v }}</li>
         {% endfor %}
-	</ul>
-      </tbody>
-    </table>
-  </div>
-</div>
+      </ul>
+    </tbody>
+  </table>
+</p>

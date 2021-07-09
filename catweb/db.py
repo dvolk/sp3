@@ -3,13 +3,10 @@ import json
 import logging
 import sqlite3
 import time
+import uuid
 
 import gridfs
 import pymongo
-
-# TODO
-# migrate
-# fix get_status
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["catweb"]
@@ -17,6 +14,7 @@ fs = gridfs.GridFS(mydb)
 nfruns_db = mydb["nfruns"]
 nftraces_db = mydb["traces"]
 reference_cache_db = mydb["reference_cache"]
+forum_post_cache = mydb["forum_post_cache"]
 
 logger = logging.getLogger("api")
 
@@ -295,3 +293,17 @@ def search_for_input_sample(sample_part, org, is_admin=False):
         return str(e)
 
     return rows
+
+
+def forum_set_post_cache(title, content):
+    cache_uuid = str(uuid.uuid4())
+    forum_post_cache.insert({"uuid": cache_uuid, "title": title, "content": content})
+    return cache_uuid
+
+
+def forum_get_post_cache(cache_uuid):
+    ret = forum_post_cache.find_one({"uuid": cache_uuid})
+    if ret:
+        return ret["title"], ret["content"]
+    else:
+        return "", ""

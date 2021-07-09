@@ -2,29 +2,44 @@
 
 {% block header %}
 
-  <header class="w3-container" style="padding-top:22px">
-    <h5><b><i class="fa fa-eye fa-fw"></i> My Datasets</b></h5>
+  <header class="w3-container w3-green">
+    <h1>Datasets</h1>
   </header>
 
 {% endblock header %}
 
 {% block content %}
-  <h4>Datasets</h4>
   {% if not current_user.is_readonly_user() %}
-    <a href="/fetch_data"><button type="button" class="w3-btn w3-blue">New Fetch</button></a>
-    <a href="/drop_upload"><button type="button" class="w3-btn w3-blue">Upload Datasets</button></a>
+    <div class="w3-container w3-panel w3-white">
+      <h2>New dataset</h2>
+      <p>
+        <a href="/fetch_data"><button type="button" class="w3-btn w3-blue">
+            {{ icon('cloud-upload') }} New Fetch
+          </button></a>
+        <a href="/drop_upload"><button type="button" class="w3-btn w3-blue">
+            {{ icon('cloud-upload') }} Upload Dataset form
+          </button></a>
+      </p>
+      <p>
+        The upload form should only be used for small uploads and quick tests.
+      </p>
+    </div>
   {% endif %}
-  <br/>
-<p><b>Note</b>: Only dataset fetched in the <b>last 7 days</b> are available for run.</p>
-<table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default" style="margin-top: 10px">
-  <thead>
-    <tr>
-      <th scope="col"><a href="#">Submit time</a></th>
-      <th scope="col"><a href="#">Kind</a></th>
-      <th scope="col"><a href="#">Name</a></th>
-      <th scope="col"><a href="#">Progress</a></th>
-      <th scope="col"><a href="#">Status</a></th>
-      <th scope="col" class='text-right'>Action</a></th>
+  <div class="w3-container w3-panel w3-white">
+    <h2>List of datasets</h2>
+    <p>
+      <b>Note</b>: Only dataset fetched in the <b>last 7 days</b> are available.
+    </p>
+    <p>
+    <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default" style="margin-top: 10px">
+      <thead>
+        <tr>
+          <th><a href="#">Submit time</a></th>
+          <th><a href="#">Kind</a></th>
+          <th><a href="#">Name</a></th>
+          <th><a href="#">Progress</a></th>
+          <th><a href="#">Status</a></th>
+          <th class='text-right'>Action</a></th>
 </tr>
 </thead>
 <tbody>
@@ -35,41 +50,43 @@
       <td scope="row">{{ v['name'] }}</td>
       <td scope="row">{{ v['progress'] }} / {{ v['total'] }}</td>
       <td scope="row">
-	<span href="#" style="padding: 3px;" class="{% if v['status'] == 'failure' or v['status'] == 'failed' %}w3-red{% else %}w3-green{% endif %}">{{ v['status'] }}</span>
+        <span href="#" style="padding: 3px;" class="{% if v['status'] == 'failure' or v['status'] == 'failed' %}w3-red{% else %}w3-green{% endif %}">{{ v['status'] }}</span>
       </td>
       <td scope="row" class='text-right'>
-	{% if v['status'] == 'queued' %}
-	  {% if not current_user.is_readonly_user() %}
-	    <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
-	  {% endif %}
+        {% if v['status'] == 'queued' %}
+          {% if not current_user.is_readonly_user() %}
+            <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+          {% endif %}
         {% endif %}
-	{% if v['status'] == 'running' %}
-	  <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
-	  {% if v['kind'] in ['ena1','ena2'] %}
-	    {% if not current_user.is_readonly_user() %}
-              / <a class='text-danger text-muted' href="/fetch_stop/{{ k }}">Stop</a>
-	    {% endif %}
-	  {% endif %}
-	{% endif %}
-	{% if v['status'] == 'success' %}
-	  {% if not current_user.is_readonly_user() %}
-	    <a class='text-primary' href="/select_flow/{{ k }}"><button type="button" class="btn-sm btn-primary">Run</button></a> /
-	  {% endif %}
+        {% if v['status'] == 'running' %}
           <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
-	  {% if not current_user.is_readonly_user() %}
-	    / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
-	  {% endif %}
+          {% if v['kind'] in ['ena1','ena2'] %}
+            {% if not current_user.is_readonly_user() %}
+              / <a class='text-danger text-muted' href="/fetch_stop/{{ k }}">Stop</a>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+        {% if v['status'] == 'success' %}
+          {% if not current_user.is_readonly_user() %}
+            <a class='text-primary' href="/select_flow/{{ k }}"><button type="button" class="w3-blue w3-round">{{ icon('arrow-right') }} Run</button></a> /
+          {% endif %}
+          <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
+          {% if not current_user.is_readonly_user() %}
+            / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+          {% endif %}
         {% endif %}
         {% if v['status'] == 'failure' %}
-	  <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
-	  {% if not current_user.is_readonly_user() %}
-	    / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
-	  {% endif %}
+          <a class='text-info' href="/fetch_details/{{ k }}">Details</a>
+          {% if not current_user.is_readonly_user() %}
+            / <a class='text-danger' id='delete_link' href="/fetch_delete/{{ v['kind']}}/{{ k }}" data-confirm="Are you sure to delete this dataset?" > Delete
+          {% endif %}
         {% endif %}
       </td>
     </tr>
   {% endfor %}
 </tbody>
 </table>
+</p>
+</div>
 
 {% endblock content %}

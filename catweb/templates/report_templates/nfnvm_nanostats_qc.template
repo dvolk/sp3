@@ -2,7 +2,7 @@
 
 <div class='row'>
   <div class='col-md-4'>
-    <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
+    <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
       {% for k, v in report['nfnvm_nanostats_qc']['data'].items() %}
       <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
       {% endfor %}

@@ -1,40 +1,54 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      .outer {
-      display: table;
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      }
+  <title>Oxford Scalable Pathogen Pipeline Platform (SP3)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      .middle {
-      display: table-cell;
-      vertical-align: middle;
-      }
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
 
-      .inner {
-      margin-left: auto;
-      margin-right: auto;
-      width: 600px;
-      /*whatever width you want*/
-      }
-    </style>
-  </head>
+  <link rel="stylesheet" href="/static/css/w3.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    Html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+    pre { white-space: pre-wrap }
+    .outer {
+    display: table;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    }
+
+    .middle {
+    display: table-cell;
+    vertical-align: middle;
+    }
+
+    .inner {
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+    /*whatever width you want*/
+    }
+  </style>
   <body>
     <div class="outer">
       <div class="middle">
-	<div class="inner">
-	  <div align="center">
-	    <h1>An error occured!</h1>
-	    <img src="/static/giphy.gif">
-	    <p><a href="https://sp3forum.mmmoxford.uk/post/new?post_template=issue"><button style="font-size: 1em; padding: 20px; background-color: #f77; border-radius: 10px">Report an issue</button></a></p>
-	    <p>Error description:</p>
-	    <p>{{ error }}</p>
-	  </div>
-	</div>
+        <div class="inner">
+          <div align="center">
+            <h1>{{ icon('exclamation-circle') }} An error occured</h1>
+            <p>
+              <a href="/forum/post/new?post_template=issue">
+                <button class="w3-btn w3-blue w3-xlarge">{{ icon('arrow-right') }} Report an issue</button>
+              </a>
+            </p>
+            <p>Error description:</p>
+            <p>{{ error }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </body>

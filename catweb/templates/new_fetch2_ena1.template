@@ -1,20 +1,42 @@
 {% extends "base1.template" %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>New ENA fetch</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
+  <div class="w3-container w3-panel w3-white">
 
-  <h4>{{ source['display_name'] }}</h4>
-<p>{{ source['description'] }}</p>
+    <h2>{{ source['display_name'] }}</h2>
 
-<form action="/fetch_new" method="post">
-  <input type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}">
-  <label>{{ source['data_identifier_display_name'] }}</label>
-  <input name="fetch_name" type=text class="w3-input" {% if data_identifier %}value='{{ data_identifier }}'{% endif %} required>
-  <p>Any accession number, such as PRJEB2221, SAMEA961610, ERS013327, ERX2005830 or ERR025833</p>
-  {% if source['has_data_filter'] == 'yes' %}
-    <label>{{ source['data_filter_display_name'] }}</label>
-    <input name="fetch_range" type=text class="w3-input">
-  <p>Syntax example: 0,2,10-20</p>
-{% endif %} {# source['has_data_filter'] == 'yes' #}
+    <p>{{ source['description'] }}</p>
 
-<button type="Submit" class="w3-input w3-blue">Start Fetch</button>
-</form>
+    <form action="/fetch_new" method="post">
+      <label>{{ source['data_identifier_display_name'] }}</label>
+      <p>
+        <input class="w3-input" type="hidden" id="fetch_kind" name="fetch_kind" value="{{ fetch_kind }}"/>
+      </p>
+
+      <label>
+        Any accession number, such as PRJEB2221, SAMEA961610, ERS013327, ERX2005830 or ERR025833
+      </label>
+      <p>
+        <input class="w3-input" name="fetch_name" type="text" {% if data_identifier %}value='{{ data_identifier }}'{% endif %} required/>
+      </p>
+
+      {% if source['has_data_filter'] == 'yes' %}
+        <label>{{ source['data_filter_display_name'] }}</label>
+        <input class="w3-input" name="fetch_range" type="text"/>
+      <p>Syntax example: 0,2,10-20</p>
+    {% endif %} {# source['has_data_filter'] == 'yes' #}
+
+    <p>
+      <button type="Submit" class="w3-btn w3-blue">Start fetch</button>
+    </p>
+    </form>
+  </div>
 {% endblock content %}

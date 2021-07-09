@@ -6,8 +6,9 @@ import pathlib
 import shlex
 import subprocess
 
-import validate
 import yaml
+
+import validate
 
 
 class Config:

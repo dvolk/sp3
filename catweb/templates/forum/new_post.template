@@ -17,7 +17,7 @@
   <textarea required="required" pattern=".{32,}" rows=10 name="content" class="w3-input">{{ content|e }}</textarea>
   <p>The forum supports <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">markdown formatting</a></p>
 <p>
-  <input class="w3-button w3-blue" type="submit" name="post" value="Submit">
-  <input class="w3-button w3-green" type="submit" name="preview" value="Preview">
+  <input class="w3-btn w3-blue" type="submit" name="post" value="Submit">
+  <input class="w3-btn w3-green" type="submit" name="preview" value="Preview">
   </p>
 </form>

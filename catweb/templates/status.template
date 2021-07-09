@@ -2,105 +2,117 @@
 
 {% block header %}
 
-  <header class="w3-container" style="padding-top:22px">
-    <h5><b><i class="fa fa-dashboard fa-fw"></i> My Dashboard</b></h5>
+  <header class="w3-container w3-green">
+    <h1>Dashboard</h1>
   </header>
 
 {% endblock header %}
 
 {% block content %}
 
-<h4>Disk use</h4>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Disk use</h2>
 
-{% for k,v in tbl_df.iterrows() %}
-  {% if v['Mounted'] != '/boot/efi' %}
-    {% set percent_used = v['Use%'][:-1]|int %}
-    {% if percent_used <= 60 %} {% set color_class = "w3-green" %} {% endif %}
-    {% if percent_used >  60 and percent_used <= 85 %} {% set color_class = "w3-yellow" %} {% endif %}
-    {% if percent_used > 85 %} {% set color_class = "w3-red" %} {% endif %}
+    {% for k,v in tbl_df.iterrows() %}
+      {% if v['Mounted'] != '/boot/efi' %}
+	{% set percent_used = v['Use%'][:-1]|int %}
+	{% if percent_used <= 60 %} {% set color_class = "w3-green" %} {% endif %}
+	{% if percent_used >  60 and percent_used <= 85 %} {% set color_class = "w3-yellow" %} {% endif %}
+	{% if percent_used > 85 %} {% set color_class = "w3-red" %} {% endif %}
 
-    <strong>{{ v['Mounted'].strip() }} ({{ v['Used'] }} used out of {{ v['Size'] }} - {{ percent_used }}%)</strong>
-    <div class="w3-border">
-      <div class="{{ color_class }}" style="height:24px;width:{{ percent_used }}%">
-      </div>
+	<strong>{{ v['Mounted'].strip() }} ({{ v['Used'] }} used out of {{ v['Size'] }} - {{ percent_used }}%)</strong>
+	<div class="w3-border">
+	  <div class="{{ color_class }}" style="height:24px;width:{{ percent_used }}%">
+	  </div>
+	</div>
+	<br/>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="w3-container w3-panel w3-white">
+    <h2>Recent OK</h2>
+    <p>To see older runs, click Runs/Outputs in the menu.</p>
+    <p>
+    <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
+      <thead class="w3-green">
+	<tr>
+	  <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
+	  <th scope="col" style="width: 17%"><a href="#">User</a></th>
+	  <th scope="col" style="width: 40%"><a href="#">Name</a></th>
+	  <th scope="col" style="width: 8%"><a href="#">Action</a></th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for entry in recent %}
+	  {% if entry[9] in user_pipeline_list or current_user.is_admin() %}
+	    <tr>
+	      <td scope="row">{{ entry[0] }}</td>
+	      <td>{{ entry[7] }}</td>
+	      <td>{{ entry[19] }}</td>
+	      <td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
+	    </tr>
+	  {% endif %}
+	{% endfor %}
+      </tbody>
+    </table>
+    </p>
+  </div>
+
+  {% if running %}
+    <div class="w3-container w3-panel w3-white">
+      <h2>Running</h2>
+      <p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white table-hover table-sm tablesorter tablesorter-default">
+	<thead class="w3-yellow">
+	  <tr>
+	    <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
+	    <th scope="col" style="width: 17%"><a href="#">User</a></th>
+	    <th scope="col" style="width: 40%"><a href="#">Name</a></th>
+	    <th scope="col" style="width: 8%"><a href="#">Action</a></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for entry in running %}
+	    {% if entry[9] in user_pipeline_list or current_user.is_admin() %}
+	      <tr>
+		<td scope="row">{{ entry[0] }}</td>
+		<td>{{ entry[7] }}</td>
+		<td>{{ entry[19] }}</td>
+		<td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
+	      </tr>
+	    {% endif %}
+	  {% endfor %}
+	</tbody>
+      </table>
+      </p>
     </div>
-    <br/>
   {% endif %}
-{% endfor %}
-
-<h4>Recent OK</h4>
-<p>To see older runs, click Runs/Outputs in the menu.</p>
-<table class="w3-table w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-  <thead class="w3-green">
-    <tr>
-      <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
-      <th scope="col" style="width: 17%"><a href="#">User</a></th>
-      <th scope="col" style="width: 40%"><a href="#">Name</a></th>
-      <th scope="col" style="width: 8%"><a href="#">Action</a></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for entry in recent %}
-    {% if entry[9] in user_pipeline_list or current_user.is_admin() %}
-    <tr>
-      <td scope="row">{{ entry[0] }}</td>
-      <td>{{ entry[7] }}</td>
-      <td>{{ entry[19] }}</td>
-      <td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
-    </tr>
-    {% endif %}
-    {% endfor %}
-  </tbody>
-</table>
-<!--
-CREATE TABLE nfruns (date_time, duration, code_name, status, hash, uuid, command_line, user, sample_group, workflow, context, run_uuid primary key not null, start_epochtime, pid, ppid, end_epochtime);
--->
-{% if running %}
-<h4>Running</h4>
-<table class="w3-table w3-bordered w3-border w3-hoverable w3-white table-hover table-sm tablesorter tablesorter-default">
-  <thead class="w3-yellow">
-    <tr>
-      <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
-      <th scope="col" style="width: 17%"><a href="#">User</a></th>
-      <th scope="col" style="width: 40%"><a href="#">Name</a></th>
-      <th scope="col" style="width: 8%"><a href="#">Action</a></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for entry in running %}
-    {% if entry[9] in user_pipeline_list or current_user.is_admin() %}
-     <tr>
-      <td scope="row">{{ entry[0] }}</td>
-      <td>{{ entry[7] }}</td>
-      <td>{{ entry[19] }}</td>
-      <td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
-    </tr>
-    {% endif %}
-    {% endfor %}
-  </tbody>
-</table>
-{% endif %}
-<h4>Recent Failed</h4>
-<table class="w3-table w3-bordered w3-border w3-hoverable w3-white table-hover table-sm tablesorter tablesorter-default">
-  <thead class="w3-red">
-    <tr>
-      <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
-      <th scope="col" style="width: 17%"><a href="#">User</a></th>
-      <th scope="col" style="width: 40%"><a href="#">Name</a></th>
-      <th scope="col" style="width: 8%"><a href="#">Action</a></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for entry in failed %}
-    {% if entry[9] in user_pipeline_list or current_user.is_admin() %}
-    <tr>
-      <td scope="row">{{ entry[0] }}</td>
-      <td>{{ entry[7] }}</td>
-      <td>{{ entry[19] }}</td>
-      <td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
-    </tr>
-    {% endif %}
-    {% endfor %}
-  </tbody>
-</table>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Recent Failed</h2>
+    <p>
+    <table class="w3-table w3-bordered w3-hoverable w3-white table-hover table-sm tablesorter tablesorter-default">
+      <thead class="w3-red">
+	<tr>
+	  <th scope="col" style="width: 15%"><a href="#">Started On</a></th>
+	  <th scope="col" style="width: 17%"><a href="#">User</a></th>
+	  <th scope="col" style="width: 40%"><a href="#">Name</a></th>
+	  <th scope="col" style="width: 8%"><a href="#">Action</a></th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for entry in failed %}
+	  {% if entry[9] in user_pipeline_list or current_user.is_admin() %}
+	    <tr>
+	      <td scope="row">{{ entry[0] }}</td>
+	      <td>{{ entry[7] }}</td>
+	      <td>{{ entry[19] }}</td>
+	      <td><a href="/flow/{{ entry[9] }}/details/{{ entry[14] }}">Details</a></td>
+	    </tr>
+	  {% endif %}
+	{% endfor %}
+      </tbody>
+    </table>
+    </p>
+  </div>
 {% endblock %}

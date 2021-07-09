@@ -1,9 +1,19 @@
 {% extends "base1.template" %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Show nextflow log</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
-    <h4>Log</h4>
-    <p>{{ uuid }}</p>
-    <hr/>
-    <pre>
-{{ content }}
-    </pre>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Log</h2>
+    <p>Run ID: {{ uuid }}</p>
+    <p>
+<pre>{{ content }}</pre>
+    </p>
+  </div>
 {% endblock content %}

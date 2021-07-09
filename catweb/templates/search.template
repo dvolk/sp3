@@ -2,57 +2,64 @@
 
 {% block header %}
 
-  <header class="w3-container" style="padding-top:22px">
-    <h5><b><i class="fa fa-search fa-fw"></i> My Search</b></h5>
+  <header class="w3-container w3-green">
+    <h1>Search</h1>
   </header>
 
 {% endblock header %}
 
 {% block content %}
 
-  <h3>Search</h3>
-  <p>Find runs whose inputs have a file including the string:</p>
+  <div class="w3-container w3-panel w3-white">
+    <h3>Sample search</h3>
+    <p>Find runs whose inputs have a file including the string:</p>
 
-  <form action="/search" method="get">
-    <input class="w3-input" type="text" id="q" name="q" value="{{ sample_part }}" placeholder="query" minlength=3><br>
-    <input type="submit" value="Continue" class="w3-input w3-blue"/>
-  </form>
+    <p>
+    <form action="/search" method="get">
+      <input class="w3-input" type="text" id="q" name="q" value="{{ sample_part }}" placeholder="query" minlength=3><br>
+      <input type="submit" value="Continue" class="w3-input w3-blue"/>
+    </form>
+    </p>
 
-  {% if sample_part %}
-    <h3>Results for &quot;{{ sample_part }}&quot;</h3>
+    {% if sample_part %}
+      <h3>Results for &quot;{{ sample_part }}&quot;</h3>
 
-    {% if message %}
-    <div class='w3-card w3-panel w3-red'><p><strong>Query error: {{ message }}</strong><p></div>
-    {% endif %}
-    {% if runs %}
+      {% if message %}
+        <div class='w3-card w3-panel w3-red'><p><strong>Query error: {{ message }}</strong><p></div>
+      {% endif %}
+      {% if runs %}
 
-    <table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white tablesorter tablesorter-default">
-      <thead>
-	<th>#</th>
-	<th>Pipeline</th>
-	<th>Run name</th>
-	<th>Run date</th>
-      </thead>
-      <tbody>
-	{% for run in runs %}
-	  <tr>
-	    <td>{{ loop.index }}.</td>
-	    <td>{{ run["workflow"] }}</td>
-	    <td>
-	      <a href="/flow/{{ run['workflow'] }}/details/{{ run['run_uuid'] }}">
-		{{ run["output_name"] }}
-	      </a>
-	    </td>
-	    <td>{{ run["start_epochtime"]|epochtodate }}</td>
-	  </tr>
-	{% endfor %}
-      </tbody>
-    </table>
+        <p>
+        <table class="w3-table w3-bordered w3-hoverable w3-white tablesorter tablesorter-default">
+          <thead>
+            <th>#</th>
+            <th>Pipeline</th>
+            <th>Run name</th>
+            <th>Run date</th>
+          </thead>
+          <tbody>
+            {% for run in runs %}
+              <tr>
+                <td>{{ loop.index }}.</td>
+                <td>{{ run["workflow"] }}</td>
+                <td>
+                  <a href="/flow/{{ run['workflow'] }}/details/{{ run['run_uuid'] }}">
+                    {{ run["output_name"] }}
+                  </a>
+                </td>
+                <td>{{ run["start_epochtime"]|epochtodate }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </p>
 
 {% else %}
 
   <p>No runs found for that query.</p>
-  {% endif %}
-  {% endif %}
+{% endif %}
+{% endif %}
+
+  </div>
 
 {% endblock content %}

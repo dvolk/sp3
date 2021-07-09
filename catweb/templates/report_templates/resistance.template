@@ -1,100 +1,104 @@
-<p>Report generated on: <strong>{{ report['resistance']['finished_epochtime'] }}</strong></p>
-  {% if 'message' in report['resistance'] and 'config' in report['resistance']['message'] %}
-      <span>Gumpy object: {{ report['resistance']['message']['config']['genome_object'] }}</span><br>
-      <span>Catalogue file: {{ report['resistance']['message']['config']['catalogue_file'] }}</span><br>
-  {% endif %}
+<p>
+  Report generated on: <strong>{{ report['resistance']['finished_epochtime'] }}</strong>
+</p>
 
-<p><a href="/flow/{{ pipeline_run_uuid }}/{{ dataset_id }}/report/data/resistance">Show raw data</a></p>
+{% if 'message' in report['resistance'] and 'config' in report['resistance']['message'] %}
+  <span>Gumpy object: {{ report['resistance']['message']['config']['genome_object'] }}</span><br>
+  <span>Catalogue file: {{ report['resistance']['message']['config']['catalogue_file'] }}</span><br>
+{% endif %}
+
+<p>
+  <a href="/flow/{{ pipeline_run_uuid }}/{{ dataset_id }}/report/data/resistance">Show raw data</a>
+</p>
 
 {% if report['pick_reference']['data']['pick_taxid'] != "NC_000962.3" %}
-  <p>This sample was mapped to a reference that was not made to work with the resistance processing.</p>
-  <!-- <span style="filter: alpha(opacity=60); -moz-opacity: 0.6; opacity: 0.6;"> -->
-{% else %}
-  <!-- {{ report['resistance'] }} -->
-  <div class='row'>
-    <div class='col-md-12'>
-      <h5>Drugs</h5>
-      <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
-	<tr>
-	  <td colspan="4" width="50%"><strong>First Line Drugs</strong></td>
-	  <td colspan="4" width="50%"><strong>Second Line Drugs</strong></td>
-	</tr>
-	{% set pred_drug_names = ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM'] %}
 
-	<tr>{% for drug in pred_drug_names %}<td>{{ drug }}</td>{% endfor %}</tr>
-	<tr>
-	  {% set prediction_class_map = {
-	  'F': 'text-warning',
+  <p>
+    This sample was mapped to a reference that was not made to work with the resistance processing.
+  </p>
+
+{% else %}
+
+    <h4>Drugs</h4>
+    <p>
+      <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
+        <tr>
+          <td colspan="4" width="50%"><strong>First Line Drugs</strong></td>
+          <td colspan="4" width="50%"><strong>Second Line Drugs</strong></td>
+        </tr>
+        {% set pred_drug_names = ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM'] %}
+
+        <tr>{% for drug in pred_drug_names %}<td>{{ drug }}</td>{% endfor %}</tr>
+        <tr>
+          {% set prediction_class_map = {
+          'F': 'text-warning',
           'R': 'text-danger',
           'S': 'text-info',
           'U': 'text-info'
-	  } %}
+          } %}
 
-	  {% for drug in pred_drug_names %}
+          {% for drug in pred_drug_names %}
             {% set prediction = report['resistance']['data']['prediction_ex'][drug] %}
             <td style="width: 12.5%">
               <strong class='{{ prediction_class_map[prediction] }}'>{{ prediction }}</strong>
             </td>
-	  {% endfor %}
-	</tr>
-	{% if report['resistance']['data'][pred_drug_name] | length > 0 %}
-	<tr>
-	  {% for pred_drug_name in pred_drug_names %}
-	    <td>
-	      {% for item in report['resistance']['data'][pred_drug_name] %}
-		{% if (report['resistance']['data']['prediction_ex'][pred_drug_name] == 'F' and item['prediction'] == 'R') or item['mutation_name'][-1] not in ['z', 'Z'] and item['mutation_name'][0] != item['mutation_name'][-1] %}
-		  <!-- {{ item }} -->
-	      {% if item['source'] != 'phylosnp' %}
-  		{{ item['gene_name'] + '_' + item['mutation_name'] }} - <strong>{{ item['prediction'] }}</strong>
-	      {% endif %}
-	    {% endif %}
-	  {% endfor %}
-            </td>
           {% endfor %}
-	  <tr>
-      {% endif %} 
+        </tr>
+        {% if report['resistance']['data'][pred_drug_name] | length > 0 %}
+          <tr>
+            {% for pred_drug_name in pred_drug_names %}
+              <td>
+                {% for item in report['resistance']['data'][pred_drug_name] %}
+                  {% if (report['resistance']['data']['prediction_ex'][pred_drug_name] == 'F' and item['prediction'] == 'R') or item['mutation_name'][-1] not in ['z', 'Z'] and item['mutation_name'][0] != item['mutation_name'][-1] %}
+                    <!-- {{ item }} -->
+                {% if item['source'] != 'phylosnp' %}
+                  {{ item['gene_name'] + '_' + item['mutation_name'] }} - <strong>{{ item['prediction'] }}</strong>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+              </td>
+            {% endfor %}
+            <tr>
+          {% endif %}
       </table>
-    </div>
-  </div>
+    </p>
 
-  <div class='row'>
-    <div class='col-md-10'>
-      {% set pred_drug_names = ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM'] %}
+    {% set pred_drug_names = ['INH', 'RIF', 'PZA', 'EMB', 'AMI', 'KAN', 'LEV', 'STM'] %}
 
-      <h5>Mutations</h5>
+    <h4>Mutations</h4>
+    <p>
       <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
-	<tr>
+        <tr>
           <th>Gene Mutation</th>
           <th>Change</th>
           <th>GT conf</th>
-	  <th>Drug</th>
-	  <th>Support</th>
-	</tr>
-	{% for item in report['resistance']['data']['mutations'] %}
+          <th>Drug</th>
+          <th>Support</th>
+        </tr>
+        {% for item in report['resistance']['data']['mutations'] %}
 
           {% if item['mutation_name'][-1] not in ['z', 'Z'] and item['mutation_name'][0] != item['mutation_name'][-1] %}
             {% for d in report['resistance']['data']['res_rev_index'][item['gene_name'] + '_' + item['mutation_name']] %}
               {% if d['source'] != 'phylosnp' %}
-		{% if d['drug_name'] in pred_drug_names %}
+                {% if d['drug_name'] in pred_drug_names %}
                   <tr>
-            	    <!-- {{ item }} -->
+                    <!-- {{ item }} -->
                     <td>{{ item['gene_name'] }}_{{ item['mutation_name'] }}</td>
                     <td>{{ item['ref'] }} →  {{ item['alt'] }}</td>
-  	            {% if 'gt_conf' in item and item['gt_conf'] %}
+                    {% if 'gt_conf' in item and item['gt_conf'] %}
                       <td>{{ "%.2f"|format(item['gt_conf']) }}</td>
-	            {% else %}
+                    {% else %}
                       <td></td>
-	            {% endif %}
-	            <td>{{ d['drug_name'] }}</td>
-	            <td>{{ d['source'] }}</td>
+                    {% endif %}
+                    <td>{{ d['drug_name'] }}</td>
+                    <td>{{ d['source'] }}</td>
                   </tr>
-		{% endif %}
-	      {% endif %}
+                {% endif %}
+              {% endif %}
             {% endfor %}
           {% endif %}
-	{% endfor %}
+        {% endfor %}
       </table>
-    </div>
-  </div>
+    </p>
 
 {% endif %}

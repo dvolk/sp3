@@ -2,8 +2,8 @@
 
 {% block header %}
 
-  <header class="w3-container" style="padding-top:22px">
-    <h5><b><i class="fa fa-server fa-fw"></i> My Cluster</b></h5>
+  <header class="w3-container w3-green">
+    <h1>Compute</h1>
   </header>
 
 {% endblock header %}
@@ -14,67 +14,76 @@
 
 {% block content %}
 
-<h3>Cluster status</h3>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Cluster graph</h2>
+    <p>If you are not an administrator of this cluster, this page is only informational.</p>
+    <div id="catgrid_stats" style="width:100%;height:400px;"></div>
+  </div>
 
-<div id="catgrid_stats" style="width:100%;height:400px;"></div>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Disk use</h2>
 
-<h3>Disk use</h3>
+    {% for k,v in tbl_df.iterrows() %}
+      {% if v['Mounted'] != '/boot/efi' %}
+        {% set percent_used = v['Use%'][:-1]|int %}
+        {% if percent_used <= 60 %} {% set color_class = "w3-green" %} {% endif %}
+        {% if percent_used > 60 and percent_used <= 85 %} {% set color_class = "w3-yellow" %} {% endif %}
+        {% if percent_used > 85 %} {% set color_class = "w3-red" %} {% endif %}
 
-{% for k,v in tbl_df.iterrows() %}
-  {% if v['Mounted'] != '/boot/efi' %}
-    {% set percent_used = v['Use%'][:-1]|int %}
-    {% if percent_used <= 60 %} {% set color_class = "w3-green" %} {% endif %}
-    {% if percent_used > 60 and percent_used <= 85 %} {% set color_class = "w3-yellow" %} {% endif %}
-    {% if percent_used > 85 %} {% set color_class = "w3-red" %} {% endif %}
-
-    <strong>{{ v['Mounted'].strip() }} ({{ v['Used'] }} used out of {{ v['Size'] }} - {{ percent_used }}%)</strong>
-    <div class="w3-border">
-      <div class="{{ color_class }}" style="height:24px;width:{{ percent_used }}%">
-      </div>
-    </div>
-    <br/>
-  {% endif %}
-{% endfor %}
-
-<h3>Catgrid nodes</h3>
-
-<table style="margin-top: 10px" class="w3-table w3-bordered w3-border w3-hoverable w3-white table-sm" style="border: none">
-  <thead>
-    <tr>
-      <th style="padding-right: 50px" scope="col">Node</th>
-      <th scope="col">Process</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for node_name, node in cluster_info.items() %}
-    <tr {#{% if loop.index0 % 2 == 0 %}style="background-color: #e0e0e0"{% endif %}#}>
-      <td scope="row">
-	<span style="font-family: monospace; font-weight: bold">
-	  {{ node_name }}</span>
-      </td>
-      <td>
-    {% for job_dict in node['jobs'] %}
-      {% for job_uuid, job in job_dict.items() %}
-      {% if 'h' in job['duration'] %}
-        <span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm btn-warning">{{ job['name'] }} ({{ job['duration'] }}) {% if current_user.is_admin() %}<a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a>{% endif %}</span>
-      {% else %}
-	<span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm    btn-info">{{ job['name'] }} ({{ job['duration'] }}) {% if current_user.is_admin() %}<a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a>{% endif %}</span>
+        <strong>{{ v['Mounted'].strip() }} ({{ v['Used'] }} used out of {{ v['Size'] }} - {{ percent_used }}%)</strong>
+        <div class="w3-border">
+          <div class="{{ color_class }}" style="height:24px;width:{{ percent_used }}%">
+          </div>
+        </div>
+        <br/>
       {% endif %}
-      {% endfor %}
     {% endfor %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  </div>
 
-<script>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Catgrid nodes</h2>
+
+    <p>
+      <table style="margin-top: 10px" class="w3-table w3-bordered w3-border w3-hoverable w3-white table-sm" style="border: none">
+        <thead>
+          <tr>
+            <th style="padding-right: 50px" scope="col">Node</th>
+            <th scope="col">Process</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for node_name, node in cluster_info.items() %}
+            <tr {#{% if loop.index0 % 2 == 0 %}style="background-color: #e0e0e0"{% endif %}#}>
+              <td scope="row">
+                <span style="font-family: monospace; font-weight: bold">
+                  {{ node_name }}</span>
+              </td>
+              <td>
+                {% for job_dict in node['jobs'] %}
+                  {% for job_uuid, job in job_dict.items() %}
+                    {% if 'h' in job['duration'] %}
+                      <span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm btn-warning">{{ job['name'] }} ({{ job['duration'] }}) {% if current_user.is_admin() %}<a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a>{% endif %}</span>
+                    {% else %}
+                      <span style="display: inline-block; line-height: 20px; margin: 3px" class="btn-sm    btn-info">{{ job['name'] }} ({{ job['duration'] }}) {% if current_user.is_admin() %}<a href="/terminate_job/{{ job_uuid }}" style="padding-left: 3px; padding-right: 3px; color: black; background-color: #f9b">X</a>{% endif %}</span>
+                    {% endif %}
+                  {% endfor %}
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </p>
+  </div>
+
+
+  <script>
 
 catgrid_stats = document.getElementById('catgrid_stats');
 
 function getData(url) {
     return fetch(url)
-	.then((response) => { return response.json() });
+        .then((response) => { return response.json() });
 }
 
 getData('/get_cluster_stats').then((data) => {
@@ -82,81 +91,81 @@ getData('/get_cluster_stats').then((data) => {
     console.log(data);
 
     var trace1 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Nodes',
-	x: data[0],
-	y: data[1],
-	line: {color: '#17BECF'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Nodes',
+        x: data[0],
+        y: data[1],
+        line: {color: '#17BECF'}
     }
     var trace2 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Cores',
-	x: data[0],
-	y: data[2],
-	line: {color: '#7FFFD4'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Cores',
+        x: data[0],
+        y: data[2],
+        line: {color: '#7FFFD4'}
     }
     var trace3 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Memory',
-	x: data[0],
-	y: data[3],
-	line: {color: '#FFEBCD'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Memory',
+        x: data[0],
+        y: data[3],
+        line: {color: '#FFEBCD'}
     }
     var trace4 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Free memory',
-	x: data[0],
-	y: data[4],
-	line: {color: '#7FFF00'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Free memory',
+        x: data[0],
+        y: data[4],
+        line: {color: '#7FFF00'}
     }
     var trace5 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Running',
-	x: data[0],
-	y: data[5],
-	line: {color: '#FF7F50'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Running',
+        x: data[0],
+        y: data[5],
+        line: {color: '#FF7F50'}
     }
     var trace6 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Queued',
-	x: data[0],
-	y: data[6],
-	line: {color: '#FF1493'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Queued',
+        x: data[0],
+        y: data[6],
+        line: {color: '#FF1493'}
     }
     var trace7 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Used% /',
-	x: data[0],
-	y: data[7],
-	line: {color: '#8B008B'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Used% /',
+        x: data[0],
+        y: data[7],
+        line: {color: '#8B008B'}
     }
     var trace8 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Used% /data',
-	x: data[0],
-	y: data[8],
-	line: {color: '#2F4F4F'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Used% /data',
+        x: data[0],
+        y: data[8],
+        line: {color: '#2F4F4F'}
     }
     var trace9 = {
-	type: "scatter",
-	mode: "lines",
-	name: 'Used% /work',
-	x: data[0],
-	y: data[9],
-	line: {color: '#7B68EE'}
+        type: "scatter",
+        mode: "lines",
+        name: 'Used% /work',
+        x: data[0],
+        y: data[9],
+        line: {color: '#7B68EE'}
     }
 
     Plotly.newPlot(catgrid_stats,
-		   [trace1, trace2, trace3, trace4, trace5, trace6, trace7, trace8, trace9],
-		   { margin: { t: 10, b: 40, l: 40 } } );
+                   [trace1, trace2, trace3, trace4, trace5, trace6, trace7, trace8, trace9],
+                   { margin: { t: 10, b: 40, l: 40 } } );
 });
 
 </script>

@@ -1,38 +1,70 @@
 {% extends 'base1.template' %}
 
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>View tree</h1>
+  </header>
+
+{% endblock header %}
+
 {% block head %}
   <style>
     #phylocanvas {
-        width: 100%;
-        height: 45em;
-        background-color: ghostwhite;
+    width: 100%;
+    height: 45em;
+    background-color: ghostwhite;
     }
 
     .phylocanvas-history{
-       display: none;
+    display: none;
     }
   </style>
 {% endblock %}
 
 {% block content %}
-<h4>Tree "{{ data['queue_row'][1] }}"</h4>
-<p>Generated with: {{ data2['data']['program_filepath'] }}</p>
-<h4>Tree view</h4>
-<p>Presented via <a href='http://phylocanvas.org/'>phylocanvas</a>, right click tree image for options of exporting etc.(Javascript required in browser)</p>
-<input type='text' id='search_node' placeholder="Search sample (e.g. ERR133831) or run name (e.g. oxforduni-Clockwork)" class="form-input" size="100">
-<br/>
-<br/>
-<input type="submit" class="btn-sm btn-primary" id='search_btn' value="Highlight">
-<input type="submit" class="btn-sm btn-info" id='reset_btn' value="Clear highlighting">
-<br/>
-<br/>
-<div id="phylocanvas"></div>
-  <hr />
-  <h4>Newick string</h4>
-  <p>You can copy this into a third party tool to display the tree</p>
-  <textarea rows="10" style="width: 100%;">{{ tree_nwk }}</textarea>
-  <h4>Program output</h4>
-  <textarea rows="20" style="width: 100%;">{{ data2['data']['program_output'] }}</textarea>
+
+  <div class="w3-container w3-panel w3-white">
+    <h2>Tree "{{ data['queue_row'][1] }}"</h2>
+    <p>
+      Generated with: {{ data2['data']['program_filepath'] }}
+    </p>
+  </div>
+  <div class="w3-container w3-panel w3-white">
+    <h3>Tree view</h3>
+    <p>
+      Presented via <a href='http://phylocanvas.org/'>phylocanvas</a>, right click tree image for options of exporting etc (Javascript is required).
+    </p>
+    <p>
+      <input class="w3-input" type='text' id='search_node' placeholder="Search sample (e.g. ERR133831) or run name (e.g. oxforduni-Clockwork)" size="100">
+    </p>
+    <p>
+      <input type="submit" class="w3-btn w3-blue" id='search_btn' value="Highlight">
+      <input type="submit" class="w3-btn w3-green" id='reset_btn' value="Clear highlighting">
+    </p>
+
+    <p>
+      <div id="phylocanvas"></div>
+    </p>
+  </div>
+
+  <div class="w3-container w3-panel w3-white">
+    <h3>Newick string</h3>
+    <p>
+      You can copy this into a third party tool to display the tree
+    </p>
+    <p>
+      <textarea rows="10" style="width: 100%;">{{ tree_nwk }}</textarea>
+      </p>
+  </div>
+
+  <div class="w3-container w3-panel w3-white">
+    <h3>Program output</h3>
+    <p>
+      <textarea rows="20" style="width: 100%;">{{ data2['data']['program_output'] }}</textarea>
+    </p>
+  </div>
+
   <script type="application/javascript" src="/static/scripts/phylocanvas-2.8.1.min.js"></script>
   <script type="application/javascript">
     (function (Phylocanvas) {

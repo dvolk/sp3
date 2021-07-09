@@ -1,12 +1,3 @@
-import sqlite3, json, uuid, time, re, os, html, pathlib, uuid, subprocess, shlex
-from logging import warning as logging_warning
-
-from flask import *
-import flask_login
-from werkzeug.urls import url_parse
-import markdown2, argh, requests
-
-
 import ast
 import base64
 import collections
@@ -15,6 +6,7 @@ import csv
 import datetime
 import glob
 import hashlib
+import html
 import io
 import json
 import logging
@@ -23,24 +15,23 @@ import pathlib
 import re
 import shlex
 import signal
+import sqlite3
 import subprocess
 import sys
 import threading
 import time
 import uuid
 from io import StringIO
+from logging import warning as logging_warning
 
 import argh
-import config
-import db
 import flask_login
-import in_fileformat_helper
-import nflib
+import markdown2
 import pandas
 import requests
-import service_check
-import utils
+import sentry_sdk
 import waitress
+from flask import *
 from flask import (
     Flask,
     abort,
@@ -56,10 +47,16 @@ from flask import (
 )
 from flask_login import current_user
 from passlib.hash import bcrypt
+from sentry_sdk.integrations.flask import FlaskIntegration
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
-import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
+
+import config
+import db
+import in_fileformat_helper
+import nflib
+import service_check
+import utils
 
 
 def setup_logging():
@@ -140,13 +137,17 @@ template_nav_links = [
     ["Compute", "fa fa-server fa-fw", "/cluster"],
     ["Documentation", "fa fa-bell fa-fw", "https://sp3docs.mmmoxford.uk/"],
     ["Forum", "fa fa-bank fa-fw", "/forum"],
-    [
-        "Report Issue",
-        "fa fa-history fa-fw",
-        "/forum/post/new?post_template=issue",
-    ],
+    ["Report Issue", "fa fa-history fa-fw", "/forum/post/new?post_template=issue",],
+    ["About", "fa fa-hospital-o fa-fw", "/about"],
     ["Admin", "fa fa-cog fa-fw", "/admin"],
 ]
+
+
+@app.route("/about")
+@flask_login.login_required
+def about():
+    return render_template("about.template", sel="About")
+
 
 # really could just be one function
 def api_get_request(api, api_request):
@@ -274,12 +275,33 @@ def user_loader(username):
     return User(username)
 
 
+def or_404(arg):
+    if not arg:
+        return abort(404)
+    return arg
+
+
+def icon(name):
+    return f'<i class="fa fa-{name} fa-fw"></i>'
+
+
+def timefmt(epochtime):
+    return time.strftime("%Y-%m-%d %H:%M", time.localtime(epochtime))
+
+
+def datefmt(epochtime):
+    return time.strftime("%Y-%m-%d", time.localtime(epochtime))
+
+
 @app.context_processor
 def inject_globals():
     return {
         "catweb_version": cfg.get("catweb_version"),
         "port": port,
         "nav_links": template_nav_links,
+        "icon": icon,
+        "timefmt": timefmt,
+        "datefmt": datefmt,
     }
 
 
@@ -291,7 +313,9 @@ def register_sp3_user():
         return render_template("register.template")
     if request.method == "POST":
         try:
-            r = requests.get("http://localhost:13666/add_user", params=request.form).text
+            r = requests.get(
+                "http://localhost:13666/add_user", params=request.form
+            ).text
         except:
             return render_template("register.template", error="internal-error")
         if r == "OK":
@@ -331,7 +355,7 @@ def login():
             "not_active": "User account has not been activated. Please contact the administrators after 1 day.",
             "no_org": "User is not in any organisation. Please contact the administrators.",
             "wrong_org": "User belongs to organisation with invalid configuration. Please contact the administrators.",
-            "thanks": "Thank you for registering on this SP3 instance. You will be emailed when your account is activated."
+            "thanks": "Thank you for registering on this SP3 instance. You will be emailed when your account is activated.",
         }
 
         return render_template(
@@ -854,8 +878,10 @@ def map_samples():
 @app.route("/flow/<pipeline_name>")
 @flask_login.login_required
 def list_runs(pipeline_name):
+    flow_cfg = flows.get(pipeline_name)
+    if not flow_cfg:
+        abort(404)
     pipeline_runs = db.get_pipeline_runs(pipeline_name)
-    flow_cfg = flows.get(pipeline_name)  # api !!
 
     has_dagpng = False
     if pathlib.Path(f"/data/pipelines/dags/{pipeline_name}.png").is_file():
@@ -1478,7 +1504,7 @@ def cluster():
         r = requests.get("http://127.0.0.1:6000/status").json()
         cluster_info = r["nodes"]
     except Exception as e:
-        about(500, description=e)
+        abort(500, description=e)
 
     for node_name, node in cluster_info.items():
         for j in node["jobs"]:
@@ -1976,7 +2002,7 @@ def submit_tree():
     run_ids_sample_names = request.form.get("run_ids_sample_names")
     my_tree_name = request.form.get("my_tree_name")
     u = current_user
-    logger.warning("run ids sample names: ", run_ids_sample_names)
+    logger.warning(f"run ids sample names: {run_ids_sample_names}")
     requests.post(
         "https://persistence.mmmoxford.uk/api_submit_tree",
         json={
@@ -2180,6 +2206,11 @@ def get_users_on_post(post_id):
 
 
 def forum_email_new_reply_notification(reply_id):
+    if not cfg.get("my_url"):
+        logging.error(
+            "config key my_url is not present. Can't set forum reply notifications. Add the key and set is to the base url of the site you're using if you want to send forum and run notifications"
+        )
+        return
     reply_username, parent_id = con.execute(
         "select username, parent_id from post where id = ?", (reply_id,)
     ).fetchall()[0]
@@ -2200,7 +2231,7 @@ def forum_email_new_reply_notification(reply_id):
 
 User { reply_username } posted a reply on a topic that you replied to:
 
-https://sp3forum.mmmoxford.uk/post/{ parent_id }
+{ cfg.get('my_url') }/post/{ parent_id }
 
 If you'd rather not receive forum reply notifications, please email denis.volk@ndm.ox.ac.uk stating this.
 """
@@ -2219,32 +2250,23 @@ def load_post_templates():
 load_post_templates()
 
 
-def timefmt(epochtime):
-    return time.strftime("%Y-%m-%d %H:%M", time.localtime(epochtime))
-
-
-def datefmt(epochtime):
-    return time.strftime("%Y-%m-%d", time.localtime(epochtime))
-
-
-pattern = (
-    r"((([A-Za-z]{3,9}:(?:\/\/)?)"  # scheme
-    r"(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+(:\[0-9]+)?"  # user@hostname:port
-    r"|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)"  # www.|user@hostname
-    r"((?:\/[\+~%\/\.\w\-_]*)?"  # path
-    r"\??(?:[\-\+=&;%@\.\w_]*)"  # query parameters
-    r"#?(?:[\.\!\/\\\w]*))?)"  # fragment
-    r"(?![^<]*?(?:<\/\w+>|\/?>))"  # ignore anchor HTML tags
-    r"(?![^\(]*?\))"  # ignore links in brackets (Markdown links and images)
-)
-link_patterns = [
-    (re.compile(pattern), r"\1"),
-    (re.compile("post\s+(\d+)(#\d+)", re.I), r"/post/\1\2"),
-    (re.compile("post\s+(\d+)", re.I), r"/post/\1"),
-]
-
-
 def text_to_html(text):
+    pattern = (
+        r"((([A-Za-z]{3,9}:(?:\/\/)?)"  # scheme
+        r"(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+(:\[0-9]+)?"  # user@hostname:port
+        r"|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)"  # www.|user@hostname
+        r"((?:\/[\+~%\/\.\w\-_]*)?"  # path
+        r"\??(?:[\-\+=&;%@\.\w_]*)"  # query parameters
+        r"#?(?:[\.\!\/\\\w]*))?)"  # fragment
+        r"(?![^<]*?(?:<\/\w+>|\/?>))"  # ignore anchor HTML tags
+        r"(?![^\(]*?\))"  # ignore links in brackets (Markdown links and images)
+    )
+    link_patterns = [
+        (re.compile(pattern), r"\1"),
+        (re.compile("post\s+(\d+)(#\d+)", re.I), r"/post/\1\2"),
+        (re.compile("post\s+(\d+)", re.I), r"/post/\1"),
+    ]
+
     return markdown2.markdown(
         html.escape(text),
         extras=[
@@ -2306,14 +2328,8 @@ def post_edit(edit_id):
     if flask_login.current_user.id != post["username"]:
         return redirect("/forum")
 
-    post_uuid = request.args.get("post_uuid")
-    if post_uuid:
-        c = post_cache.get(post_uuid)
-        if c:
-            title, content = c["title"], c["content"]
-    else:
-        title = post["title"]
-        content = post["content"]
+    post_uuid = request.args.get("post_uuid", "")
+    title, content = db.forum_get_post_cache(post_uuid)
 
     return render_template(
         "forum/make_new_post.template",
@@ -2326,29 +2342,17 @@ def post_edit(edit_id):
     )
 
 
-# post cache stores post previews, so you that when you go back to editing,
-# it reloads your text
-# previously the back button just used javascript to go back in history, but
-# this didn't work with the post template feature added later
-post_cache = dict()
-
-
 @app.route("/forum/post/new")
 @flask_login.login_required
 def post_new():
-    title, content = "", ""
+    post_uuid = request.args.get("post_uuid", "")
+    title, content = db.forum_get_post_cache(post_uuid)
 
     post_template_name = request.args.get("post_template")
     if post_template_name:
         content = post_templates.get(post_template_name)
         if content:
             title = post_template_name.capitalize() + ": "
-
-    post_uuid = request.args.get("post_uuid")
-    if post_uuid:
-        c = post_cache.get(post_uuid)
-        if c:
-            title, content = c["title"], c["content"]
 
     return render_template(
         "forum/make_new_post.template",
@@ -2391,12 +2395,8 @@ def post(post_id):
         "select * from post where parent_id = ?", (post_id,)
     ).fetchall()
 
-    title, content = "", ""
-    post_uuid = request.args.get("post_uuid")
-    if post_uuid:
-        c = post_cache.get(post_uuid)
-        if c:
-            title, content = c["title"], c["content"]
+    post_uuid = request.args.get("post_uuid", "")
+    title, content = db.forum_get_post_cache(post_uuid)
 
     return render_template(
         "forum/post.template",
@@ -2424,8 +2424,7 @@ def new_post():
         content = request.form.get("content", "no text")
 
         if request.form.get("preview"):
-            post_uuid = str(uuid.uuid4())
-            post_cache[post_uuid] = {"title": title, "content": content}
+            post_uuid = db.forum_set_post_cache(title, content)
             return render_template(
                 "forum/preview_post.template",
                 parent_id=parent_id,
@@ -2461,10 +2460,7 @@ def new_post():
                 else:
                     con.execute(
                         "update post set replied = ?, replies_count = replies_count + 1 where id = ?",
-                        (
-                            now,
-                            parent_id,
-                        ),
+                        (now, parent_id,),
                     )
 
         # save the post to posts/

@@ -1,47 +1,74 @@
 {% extends 'base1.template' %}
 
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>User info</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
+  <div class="w3-container w3-panel w3-white">
 
-  <h4>Actions</h4>
+    <h2>Actions</h2>
 
-  <a href="/password"><button type="button" class="w3-btn w3-red">Change Password</button></a>
+    <p>
+      <a href="/password"><button type="button" class="w3-btn w3-blue">{{ icon('arrow-right') }} Change Password</button></a>
+    </p>
 
-  <h4>Account Info</h4>
+  </div>
 
-  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
-    <thead>
-    </thead>
-    <tbody>
-      {% for k,v in current_user.u.items() %}
-	<tr>
-	  <td>{{ k.replace("_", " ")|capitalize }}</td>
-	  <td>{{ v }}</td>
-	</tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Account Info</h2>
 
-  <h4>Organisation</h4>
+    <p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white">
+        <thead>
+        </thead>
+        <tbody>
+          {% for k,v in current_user.u.items() if v %}
+            <tr>
+              <td>{{ k.replace("_", " ")|capitalize }}</td>
+              <td>
+                {% if k == "date_added" %}
+                  {{ datefmt(v|int) }}
+                {% else %}
+                  {{ v }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </p>
+  </div>
 
-  <table class="w3-table w3-bordered w3-border w3-hoverable w3-white">
-    <thead>
-    </thead>
-    <tbody>
-      {% for k, v in current_user.g.items() %}
-	<tr>
-	  <td>{{ k.replace("_", " ")|capitalize }}</td>
-	  <td>
-	    {% if v is iterable and (v is not string and v is not mapping) %}
-	      {% for vv in v %}
-		{{ vv }}<br/>
-	      {% endfor %}
-	    {% else %}
-	      {{ v }}
-	    {% endif %}
-	  </td>
-	</tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="w3-container w3-panel w3-white">
+    <h4>Organisation</h4>
+
+    <p>
+      <table class="w3-table w3-bordered w3-hoverable w3-white">
+        <thead>
+        </thead>
+        <tbody>
+          {% for k, v in current_user.g.items() if v %}
+            <tr>
+              <td>{{ k.replace("_", " ")|capitalize }}</td>
+              <td>
+                {% if v is iterable and (v is not string and v is not mapping) %}
+                  {% for vv in v %}
+                    {{ vv }}<br/>
+                  {% endfor %}
+                {% else %}
+                  {{ v }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </p>
+  </div>
 
 {% endblock %}

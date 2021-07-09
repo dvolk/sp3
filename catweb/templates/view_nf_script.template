@@ -1,6 +1,19 @@
 {% extends "base1.template" %}
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Pipeline script</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
 
-<h2>Nextflow script</h2>
-  <textarea style="font-family: monospace; width: 100%;" rows=30 name="config">{{ config_yaml }}</textarea>
+  <div class="w3-container w3-panel w3-white">
+    <h2>Nextflow script contents</h2>
+    <p>
+      <textarea class="w3-input" style="font-family: monospace;" rows=30 name="config">{{ config_yaml }}</textarea>
+    </p>
+  </div>
+
 {% endblock content %}

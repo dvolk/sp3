@@ -2,28 +2,29 @@
 
 {% block header %}
 
-  <header class="w3-container" style="padding-top:22px">
-    <h5><b><i class="fa fa-file fa-fw"></i> My Runs</b></h5>
+  <header class="w3-container w3-green">
+    <h1>Pipeline runs</h1>
   </header>
 
 {% endblock header %}
 
 {% block content %}
-  <div class="w3-container">
-    <h4>Flows</h4>
-    <div class="w3-row w3-border">
+  <div class="w3-container w3-panel w3-white">
+    <p>
+    <div class="w3-row">
       {% set colors = ["#fff", "#eee", "#eee", "#fff"] %}
       {% for flow in flows %}
 	{% if flow['show'] and flow['name'] in user_pipeline_list  %}
 	  {% set color = colors[(loop.index-1) % (colors|length)] %}
 	  <div class="w3-container w3-half" style="background-color: {{ color }}">
 	    <h3><a href="/flow/{{ flow['name'] }}">{% if 'display_name' in flow %}{{ flow['display_name'] }}{% else %}{{ flow['name'] }}{% endif %}</a></h3>  
-	    <p>Version: {{ flow['git_version'] }}</p>
+	    <p>Version: {{ flow['git_version'] }}<br/>
 	    <p>Last updated: {{ flow['last_commit_pretty'] }}</p>
 	  </div>
 	  
 	{% endif %}
       {% endfor %}
     </div>
+    </p>
   </div>
 {% endblock content %}

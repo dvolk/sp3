@@ -1,26 +1,28 @@
 {% extends 'base1.template' %}
-{% block content %}
 
+{% block header %}
   {% if edit_id and edit_id != '-1' %}
-    <header class="w3-panel w3-green">
-      <h2>Edit Post</h2>
+    <header class="w3-container w3-green">
+      <h1>Edit post</h1>
     </header>
   {% else %}
-    <header class="w3-panel w3-green">
-      <h2>New Discussion</h2>
+    <header class="w3-container w3-green">
+      <h1>About</h1>
     </header>
+  {% endif %}
+{% endblock header %}
 
-    <div class="w3-container w3-pale-yellow">
-      {% if template_names %}
-	<p>
-	  {% for template_name in template_names %}
-	    <a href="/forum/post/new?post_template={{ template_name }}"><button class="w3-btn w3-blue">Template: {{ template_name.capitalize() }}</button></a>
-	  {% endfor %}
-	</p>
-      {% endif %}
+{% block content %}
+
+  <div class="w3-container w3-panel w3-pale-yellow">
+    {% if template_names %}
+      <p>
+        {% for template_name in template_names %}
+          <a href="/forum/post/new?post_template={{ template_name }}"><button class="w3-btn w3-blue">Template: {{ template_name.capitalize() }}</button></a>
+        {% endfor %}
+      </p>
     {% endif %}
-
     {% include 'forum/new_post.template' %}
-    </div>
+  </div>
 
 {% endblock content %}

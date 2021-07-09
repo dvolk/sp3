@@ -1,15 +1,28 @@
 {% extends "base1.template" %}
+
+{% block header %}
+
+  <header class="w3-container w3-green">
+    <h1>Edit user</h1>
+  </header>
+
+{% endblock header %}
+
 {% block content %}
+<div class="w3-container w3-panel w3-white">
 
+<h2>Edit "{{ username|e }}"</h2>
 
-<h2>Edit User</h2>
-
-<form action='/admin_edit_user?username={{ username }}' method='POST'>
-<textarea style="width: 100%; font-family: monospace;" rows=20 class="form-control" name="user_data" id="user_data">
+<form action='/admin_edit_user?username={{ username|e }}' method='POST'>
+  <p>
+    <textarea style="width: 100%; font-family: monospace;" rows=20 class="w3-input" name="user_data" id="user_data">
 {{ user_data }}
 </textarea>
+  </p>
 
-  <button style="margin-top: 5px;" id="submitButton" type="submit"
-	  class="btn btn-primary">Submit</button>
+<p>
+  <button id="submitButton" type="submit" class="w3-btn w3-blue">Save data</button>
+</p>
 </form>
+</div>
 {% endblock %}
