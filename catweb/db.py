@@ -16,8 +16,6 @@ nftraces_db = mydb["traces"]
 reference_cache_db = mydb["reference_cache"]
 forum_post_cache = mydb["forum_post_cache"]
 
-logger = logging.getLogger("api")
-
 
 def add_to_reference_cache(ref_uuid, reference_json):
     reference_cache_db.insert({"uuid": ref_uuid, "reference_json": reference_json})

@@ -42,25 +42,6 @@ cfg = config.Config()
 cfg.load("config.yaml")
 
 
-def setup_logging():
-    logger = logging.getLogger("go")
-    logger.setLevel(logging.DEBUG)
-    c_handler = logging.StreamHandler()
-    f_handler = logging.FileHandler("api.log")
-    c_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    )
-    f_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    )
-    logger.addHandler(f_handler)
-    logger.addHandler(c_handler)
-    return logger
-
-
-logger = setup_logging()
-logger.debug("Logging initialized")
-
 # Seconds since 1/1/1970
 # https://en.wikipedia.org/wiki/Unix_time
 start_epochtime = str(int(time.time()))
@@ -111,7 +92,7 @@ head_node_ip = cfg.get("head_node_ip")
 run_context_dict = dict()
 for c in flow_cfg["contexts"]:
     run_context_dict[c["name"]] = c
-logger.debug(f"run_context_dict: {run_context_dict}")
+logging.debug(f"run_context_dict: {run_context_dict}")
 arguments = run_context_dict[context]["arguments"]
 
 sample_group = "asdf"
@@ -123,7 +104,7 @@ output_dir = pathlib.Path(contexts[context]["output_dirs"]) / run_uuid
 def count_files(indir, readpat):
     # try to find the number of input files based on the existence of
     # parameters indir and readpat
-    logger.debug("indir: {0} readpat: {1}".format(indir, readpat))
+    logging.debug("indir: {0} readpat: {1}".format(indir, readpat))
     if indir:
         if readpat:
             # directory + regex
@@ -139,14 +120,14 @@ def count_files(indir, readpat):
         # One sample would have two files, one is out.vcf, the other is pileup
         # here we extact just the first one ('out')
         m = re.search("(\{.*),.*\}", pat)
-        logger.debug("regex group {0}".format(m))
+        logging.debug("regex group {0}".format(m))
         if m:
             # replace e.g. *_alignment.{out,pileup}.vcf with *_alignment.out.vcf
             # so we count only one file per nextflow file set (i.e. one sample)
-            logger.debug("regex group first elem {0}".format(m.group(1)))
+            logging.debug("regex group first elem {0}".format(m.group(1)))
             pat = re.sub(r"(\{.*),*\}", m.group(1), pat)
             pat = re.sub(r"\{", "", pat)
-        logger.debug("pat: {0}".format(pat))
+        logging.debug("pat: {0}".format(pat))
 
         files = glob.glob(pat)
         files_count = len(files)
@@ -162,14 +143,14 @@ def count_files(indir, readpat):
 
 pat, files, files_count = count_files(indir, readpat)
 
-logger.debug(f"File pattern: {pat}")
-logger.debug(f"Files counted: {files_count}")
+logging.debug(f"File pattern: {pat}")
+logging.debug(f"Files counted: {files_count}")
 
 db.insert_files_table(run_uuid, files_count, json.dumps(files))
 
 # Create the run dir
 run_dir = root_dir / "runs" / run_uuid
-logger.info(f"run_dir: {run_dir}")
+logging.info(f"run_dir: {run_dir}")
 
 os.makedirs(run_dir, exist_ok=True)
 os.makedirs(output_dir.parent, exist_ok=True)
@@ -200,7 +181,7 @@ def exit_nicely():
     )
     s = hist + other
     db.insert_run(s, run_uuid)
-    logger.warning("exit_nicely(): exiting prematurely but nicely")
+    logging.warning("exit_nicely(): exiting prematurely but nicely")
     exit(-126)
 
 
@@ -229,7 +210,7 @@ def run_nextflow(queue):
     user_param_str += f" --run_uuid {shlex.quote(run_uuid)} "
     user_param_str += f" --head_node_ip {shlex.quote(head_node_ip)} "
 
-    logger.debug(f"user_param_str: {user_param_str}")
+    logging.debug(f"user_param_str: {user_param_str}")
 
     nextflow_file = str(prog_dir / nf_filename.name)
     cmd = f"nextflow -q run {shlex.quote(nextflow_file)} -with-trace -with-report -with-timeline -with-dag dag.png {arguments} {user_param_str} {output_arg} {shlex.quote(str(output_dir))}"
@@ -237,28 +218,28 @@ def run_nextflow(queue):
     # hyperflow_pipeline = str(prog_dir / nf_filename)
     # cmd = f'{python_exe} {hyperflow_exe} {shlex.quote(hyperflow_pipeline)} -image_dir {image_dir} {user_param_str} {output_arg} {shlex.quote(str(output_dir))}'
 
-    logger.info(f"nextflow cmdline: {cmd}")
+    logging.info(f"nextflow cmdline: {cmd}")
     P = subprocess.Popen(shlex.split(cmd))
     ppid = os.getpid()
-    logger.info(f"python process pid: {ppid}")
+    logging.info(f"python process pid: {ppid}")
     proc = psutil.Process(ppid)
 
     # wait until nextflow starts
     while not proc.children():
-        logger.debug("waiting for nextflow to start...")
+        logging.debug("waiting for nextflow to start...")
         time.sleep(0.1)
 
     procchild = proc.children()[0]
-    logger.info(f"found child process: {procchild.name()}")
+    logging.info(f"found child process: {procchild.name()}")
 
     pid = procchild.pid
     queue.put(cmd)
     queue.put(pid)
     queue.put(ppid)
-    logger.info(f"nextflow process pid: {pid}")
-    logger.info("thread waiting for nextflow")
+    logging.info(f"nextflow process pid: {pid}")
+    logging.info("thread waiting for nextflow")
     ret = P.wait()
-    logger.info(f"nextflow process terminated with code {ret}")
+    logging.info(f"nextflow process terminated with code {ret}")
     queue.put(ret)
 
 
@@ -393,7 +374,7 @@ other = (
 s = hist + other
 db.insert_run(s, run_uuid)
 
-logger.info("running nextflow clean -k -f")
+logging.info("running nextflow clean -k -f")
 
 os.chdir(run_dir)
 os.system("nextflow clean -k -f")
@@ -406,7 +387,7 @@ for nf_file in ["report.html", "timeline.html"]:
 
 for report_script in pathlib.Path("/home/ubuntu/sp3/catweb/scripts/").glob("*.py"):
     cmd = f"{str(report_script)} {shlex.quote(json.dumps(data))}"
-    logger.warning(f"running report script {cmd}")
+    logging.warning(f"running report script {cmd}")
     os.system(cmd)
 
 cmd = f"/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/run-notification.py {shlex.quote(user_name)} {shlex.quote(run_name)} {shlex.quote('')}"
@@ -420,4 +401,4 @@ T2.join()
 with open(run_dir / "trace.txt") as c:
     db.save_nextflow_trace(run_uuid, c.read())
 
-logger.info("go.py: done")
+logging.info("go.py: done")

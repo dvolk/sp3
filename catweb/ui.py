@@ -22,7 +22,6 @@ import threading
 import time
 import uuid
 from io import StringIO
-from logging import warning as logging_warning
 
 import argh
 import flask_login
@@ -31,7 +30,6 @@ import pandas
 import requests
 import sentry_sdk
 import waitress
-from flask import *
 from flask import (
     Flask,
     abort,
@@ -57,26 +55,6 @@ import in_fileformat_helper
 import nflib
 import service_check
 import utils
-
-
-def setup_logging():
-    logger = logging.getLogger("ui")
-    logger.setLevel(logging.DEBUG)
-    c_handler = logging.StreamHandler()
-    f_handler = logging.FileHandler("ui.log")
-    c_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    )
-    f_handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    )
-    logger.addHandler(f_handler)
-    logger.addHandler(c_handler)
-    return logger
-
-
-logger = setup_logging()
-logger.debug("Logging initialized")
 
 app = Flask(__name__)
 
@@ -156,21 +134,21 @@ def api_get_request(api, api_request):
 
     host, port = cfg.get(api)["host"], cfg.get(api)["port"]
     url = f"http://{host}:{port}{api_request}"
-    logger.debug(f"api_get_request() => {url}")
+    logging.debug(f"api_get_request() => {url}")
 
     try:
         r = requests.get(url)
     except requests.exceptions.ConnectionError as e:
-        logger.error("Failed to contact API. Is it running?")
-        logger.error(e)
+        logging.error("Failed to contact API. Is it running?")
+        logging.error(e)
         abort(500, description=f"Failed to contact API: {e}")
 
-    logger.debug(f"api_get_request() <= {r.text[:80]}")
+    logging.debug(f"api_get_request() <= {r.text[:80]}")
     try:
         resp = r.json()
     except json.decoder.JSONDecodeError as e:
-        logger.error("API returned data that could not be parsed as JSON")
-        logger.error(e)
+        logging.error("API returned data that could not be parsed as JSON")
+        logging.error(e)
         abort(500, description="Could not parse API response as JSON")
     return resp.get("data")
 
@@ -181,20 +159,20 @@ def api_post_request(api, api_request, data_json):
     host, port = cfg.get(api)["host"], cfg.get(api)["port"]
     url = f"http://{host}:{port}{api_request}"
 
-    logger.debug(f"api_post_request() => {url}")
+    logging.debug(f"api_post_request() => {url}")
     try:
         r = requests.post(url, json=data_json)
     except requests.exceptions.ConnectionError as e:
-        logger.error("Failed to contact API. Is it running?")
-        logger.error(e)
+        logging.error("Failed to contact API. Is it running?")
+        logging.error(e)
         abort(500, description=f"Failed to contact API: {e}")
 
-    logger.debug(f"api_post_request() <= {r.text[:80]}")
+    logging.debug(f"api_post_request() <= {r.text[:80]}")
     try:
         resp = r.json()
     except json.decoder.JSONDecodeError as e:
-        logger.error("API returned data that could not be parsed as JSON")
-        logger.error(e)
+        logging.error("API returned data that could not be parsed as JSON")
+        logging.error(e)
         abort(500, description="Could not parse API response as JSON")
     return resp["data"]
 
@@ -376,9 +354,9 @@ def login():
         token = check_authentication(form_username, form_password)
 
         if token:
-            logger.warning(f"user {form_username} verified")
+            logging.warning(f"user {form_username} verified")
         else:
-            logger.warning(f"invalid credentials for user {form_username}")
+            logging.warning(f"invalid credentials for user {form_username}")
             return redirect(url_for("login", m="wrong_login"))
 
         # --- credentials OK ---
@@ -411,7 +389,7 @@ def login():
             return "OK"
 
         next = request.form.get("next")
-        logger.warning(f"next url: {next}")
+        logging.warning(f"next url: {next}")
 
         if (
             not next
@@ -430,10 +408,10 @@ def login():
 @flask_login.fresh_login_required
 def change_pw():
     username = current_user.id
-    logger.debug(f"username: {username}")
+    logging.debug(f"username: {username}")
 
     if request.method == "GET":
-        logger.debug(f"username: {username}")
+        logging.debug(f"username: {username}")
         return render_template("password.template", username=username)
     else:
         form_password1 = request.form["password1"]
@@ -445,7 +423,7 @@ def change_pw():
                 f"http://localhost:13666/change_password/{token}",
                 params={"token": token, "new_password": form_password1},
             )
-            logger.debug(f"Call catdap changing password for {username}: {res}")
+            logging.debug(f"Call catdap changing password for {username}: {res}")
             if res.text == "OK":
                 return redirect("/")
             else:
@@ -667,12 +645,12 @@ def get_user_params_dict(flow_name, run_uuid):
 def start_run(data):
     db.insert_dummy_run(data)
     cmd = f"systemd-run -p WorkingDirectory=/home/ubuntu/sp3/catweb --user /home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/go.py {shlex.quote(json.dumps(data))}"
-    logger.debug(cmd)
+    logging.debug(cmd)
     os.system(cmd)
 
 
 def new_run1(flow_name, flow_cfg, form):
-    logger.debug(f"flow_cfg: {flow_cfg}")
+    logging.debug(f"flow_cfg: {flow_cfg}")
 
     run_uuid = str(uuid.uuid4())
 
@@ -687,14 +665,14 @@ def new_run1(flow_name, flow_cfg, form):
             json.dumps({"fetch_uuid": fetch_uuid, "pipeline_run_uuid": run_uuid}),
         )
     except Exception as e:
-        logger.error(f"catpile failed linking fetch and run: {str(e)}")
+        logging.error(f"catpile failed linking fetch and run: {str(e)}")
 
     reference_map = "{}"
     if "ref_uuid" in form and form["ref_uuid"] and "refmap" in flow_cfg:
-        logger.debug(f'ref_uuid: \'{form["ref_uuid"]}\'')
+        logging.debug(f'ref_uuid: \'{form["ref_uuid"]}\'')
         r = db.get_reference_cache(ref_uuid)
         reference_map = r.get("reference_json")
-        logger.debug(f"reference_map: {reference_map}")
+        logging.debug(f"reference_map: {reference_map}")
 
     # user parameters, grabbed from run from
     user_param_dict = dict()
@@ -802,8 +780,8 @@ def begin_run(flow_name: str):
         if request.args.get("ref_uuid"):
             ref_uuid = request.args.get("ref_uuid")
 
-        logger.debug(sample_names)
-        logger.debug(references)
+        logging.debug(sample_names)
+        logging.debug(references)
         return render_template(
             "start_run.template",
             sel="Runs/Outputs",
@@ -820,7 +798,7 @@ def begin_run(flow_name: str):
         )
 
     elif request.method == "POST":
-        logger.debug(f"form: {request.form}")
+        logging.debug(f"form: {request.form}")
         run_uuid = new_run1(flow_name, flow_cfg, request.form)
         if request.form.get("api"):
             return json.dumps({"run_uuid": run_uuid})
@@ -849,10 +827,10 @@ def map_samples():
     else:
         # save results in database and redirect to new run
         reference_map = dict()
-        logger.warning(str(request.form))
+        logging.warning(str(request.form))
         for k, v in request.form.items():
             if k[0:5] == "_ref_":
-                logger.debug(f"{k}={v}")
+                logging.debug(f"{k}={v}")
                 sample_name = k[5:]
                 reference = v
                 reference_map[sample_name] = reference
@@ -863,7 +841,7 @@ def map_samples():
         else:
             fetch_uuid = ""
 
-        logger.debug(f"form data: {data}")
+        logging.debug(f"form data: {data}")
         if "cancel" in request.form:
             return redirect(
                 f'/flow/{ request.form["flow_name"] }/new?given_input={ request.form["fetch_given_input_b"] }&fetch_uuid={ fetch_uuid }'
@@ -960,7 +938,7 @@ def task_details(run_uuid, task_id):
     if not work_dir.is_dir():
         return None
 
-    logger.debug(work_dir)
+    logging.debug(work_dir)
 
     truncated_task_subdir = task_id.replace("-", "/")
     full_task_subdir = list(work_dir.glob(truncated_task_subdir + "*"))
@@ -1174,9 +1152,9 @@ def run_details(flow_name, run_uuid):
             expected_tasks = (
                 input_files_count * flows[flow_name]["count_tasks_per_sample"]
             )
-            logger.debug(f"expected tasks: {expected_tasks}")
+            logging.debug(f"expected tasks: {expected_tasks}")
 
-    logger.debug(f"samples: {len(trace_nice)} task count: {task_count}")
+    logging.debug(f"samples: {len(trace_nice)} task count: {task_count}")
 
     fetch_dir = output_dir
 
@@ -1251,7 +1229,7 @@ def get_output_files(flow_name, run_uuid):
     du_cmd = ["du", "-sh", output_dir]
     tree_cmd = ["tree", output_dir]
 
-    logger.debug(f"du command: {du_cmd}")
+    logging.debug(f"du command: {du_cmd}")
     try:
         du_p = subprocess.check_output(
             du_cmd, stderr=subprocess.PIPE, universal_newlines=True
@@ -1259,7 +1237,7 @@ def get_output_files(flow_name, run_uuid):
     except subprocess.CalledProcessError:
         return make_api_response("failure", details={"command_failed": "du"})
 
-    logger.debug(f"tree command: {tree_cmd}")
+    logging.debug(f"tree command: {tree_cmd}")
     try:
         result = dict()
 
@@ -1311,7 +1289,7 @@ def once_cmd_async(cmd):
     run a system command in a thread, but only once
     """
     if cmd not in cmds:
-        logger.warning(f"once_cmd_async: {cmd}")
+        logging.warning(f"once_cmd_async: {cmd}")
 
         def f(cmd):
             os.system(cmd)
@@ -1327,7 +1305,7 @@ def do_delete_output_files(run_uuid):
         uuid.UUID(run_uuid)
         once_cmd_async(f"rm -rf /work/output/{run_uuid}")
     except Exception as e:
-        logger.error(e)
+        logging.error(e)
 
 
 def do_delete_run(run_uuid):
@@ -1337,7 +1315,7 @@ def do_delete_run(run_uuid):
         once_cmd_async(f"rm -rf /work/runs/{run_uuid}")
         once_cmd_async(f"rm -rf /work/output/{run_uuid}")
     except Exception as e:
-        logger.error(e)
+        logging.error(e)
 
 
 @app.route("/flow/<flow_name>/delete_output_files/<run_uuid>")
@@ -1421,7 +1399,7 @@ def stop_run(run_uuid):
         except ProcessLookupError:
             logging.error(f"stop_run(): process doesn't exist")
     else:
-        logger.error(f"pid filename {pid_filename} doesnt exist")
+        logging.error(f"pid filename {pid_filename} doesnt exist")
 
 
 @app.route("/flow/<flow_name>/stop/<run_uuid>")
@@ -1542,11 +1520,11 @@ def upload_data2(subfolder):
     if file.filename[-9:] == ".fastq.gz" or file.filename[-4:] == ".bam":
         rootpath = pathlib.Path(f"/data/inputs/users/{ current_user.id }")
         newpath = str(rootpath / subfolder)
-        logger.warning(newpath)
+        logging.warning(newpath)
         if not (os.path.isdir(newpath)):
             os.mkdir(newpath)
         save_path = os.path.join(newpath, secure_filename(file.filename))
-        logger.warning(save_path)
+        logging.warning(save_path)
         with open(save_path, "ab") as f:
             f.seek(int(request.form["dzchunkbyteoffset"]))
             f.write(file.stream.read())
@@ -1739,7 +1717,7 @@ def select_flow(guid):
     if ret1:
         print(ret1)
         accession = ret1["name"]
-        logger.debug(ret1)
+        logging.debug(ret1)
         fetch_range = json.loads(ret1["data"])["fetch_range"]
         status = ret1["status"]
         progress = ret1["progress"]
@@ -1817,7 +1795,7 @@ def fetch_details(guid):
     fetch_samples = []
     if ret1:
         accession = ret1["name"]
-        logger.debug(ret1)
+        logging.debug(ret1)
         fetch_range = json.loads(ret1["data"])["fetch_range"]
         fetch_sampels = []
         if "fetch_samples" in ret1["data"]:
@@ -1843,7 +1821,7 @@ def fetch_details(guid):
     ena_table = ""
     sp3data = None
     if "ena" in ret2 and ret2["ena"]:
-        logger.debug(ret2["ena"][:80])
+        logging.debug(ret2["ena"][:80])
         pandas.set_option("display.max_colwidth", -1)
         ena_table = (
             pandas.read_json(ret2["ena"]).stack().sort_index().to_frame().to_html()
@@ -1964,7 +1942,7 @@ def get_report_raw_data(run_uuid, dataset_id, report_type):
 def make_a_tree():
     run_ids_sample_names = json.dumps(list(request.form.keys()))
     run_names_sample_names = list(request.form.values())
-    logger.warning(f"tree requests: {request.form}")
+    logging.warning(f"tree requests: {request.form}")
     return render_template(
         "make_a_tree.template",
         sel="Trees",
@@ -2002,7 +1980,7 @@ def submit_tree():
     run_ids_sample_names = request.form.get("run_ids_sample_names")
     my_tree_name = request.form.get("my_tree_name")
     u = current_user
-    logger.warning(f"run ids sample names: {run_ids_sample_names}")
+    logging.warning(f"run ids sample names: {run_ids_sample_names}")
     requests.post(
         "https://persistence.mmmoxford.uk/api_submit_tree",
         json={
@@ -2022,7 +2000,7 @@ def view_tree(guid):
     data = requests.get(
         f"https://persistence.mmmoxford.uk/api_get_tree/{ guid }"
     ).json()
-    logger.warning(data)
+    logging.warning(data)
     try:
         runs_names_map = requests.get(
             f"https://persistence.mmmoxford.uk/api_get_runs_name_map"
@@ -2066,7 +2044,7 @@ def cw_query():
 
     run_id = request.args.get("run_id")
     sample_name = request.args.get("sample_name")
-    logger.debug(f"cw_query begin: sample_name: {sample_name}")
+    logging.debug(f"cw_query begin: sample_name: {sample_name}")
     distance = request.args.get("distance")
     neighbours_ok = False
 
@@ -2087,7 +2065,7 @@ def cw_query():
                 f"https://persistence.mmmoxford.uk/api_cw_get_neighbours/{combine_name}/{distance}"
             ).text
         message = res
-        logger.debug(f"catwalk returned: {res}")
+        logging.debug(f"catwalk returned: {res}")
         unique_samples = set()
         unique_neighbours = list()
         try:
@@ -2104,7 +2082,7 @@ def cw_query():
             message = ""
         except:
             pass
-        logger.debug(f"cw_query end: sample_name: {sample_name}")
+        logging.debug(f"cw_query end: sample_name: {sample_name}")
         return render_template(
             "cw_query.template",
             sel="Trees",
@@ -2175,7 +2153,7 @@ con.commit()
 
 
 def send_email(recipients, subject, body):
-    logging_warning(f"{recipients}, {subject}, {body}")
+    logging.warning(f"{recipients}, {subject}, {body}")
     if type(recipients) != list:
         recipients = [recipients]
     recipients = shlex.quote(",".join(recipients))
