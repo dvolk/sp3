@@ -26,6 +26,12 @@ ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-nanopore.yaml
 ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-analysis.yaml
 cd /data/pipelines/
 sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
+cd /data/pipelines/ncov2019-artic-nf
+NCOV_ARTIC_ENV=$(git tag -l --sort=-refname "sp3env-v*" | head -n 1)
+if [ "${NCOV_ARTIC_ENV}" != "" ]
+then
+    sudo git checkout ${NCOV_ARTIC_ENV}
+fi
 
 ###### catdap
 cd /home/ubuntu/sp3/catdap/
