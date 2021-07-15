@@ -32,7 +32,7 @@ cd /home/ubuntu/sp3/catdap/
 cp config.yaml-oracle config.yaml
 source /home/ubuntu/env/bin/activate
 python3 convert.py
-python3 make_password.py reset-pw admin > admin-pw-delete-me
+python3 catdap-cli.py reset-pw admin > admin-pw-delete-me
 deactivate
 
 ###### catpile
