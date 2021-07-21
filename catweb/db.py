@@ -113,7 +113,7 @@ def get_pipeline_runs(flow_name):
 
 
 def delete_run(run_uuid):
-    nfruns_db.delete({"run_uuid": run_uuid})
+    nfruns_db.delete_one({"run_uuid": run_uuid})
 
 
 def get_run(run_uuid):
