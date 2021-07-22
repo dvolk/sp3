@@ -46,7 +46,7 @@ class TestCatweb(unittest.TestCase):
         #     '--outdir', self.outputDir
         # ])
         command = 'python3 catsgo.py run-covid-illumina-objstore oxforduni-ncov2019-artic-nf-illumina /data/pipelines/ncov2019-artic-nf/objStoreExample.csv'
-        completed_process = subprocess.run(command, cwd='~/catsgo', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True)
+        completed_process = subprocess.run(command, cwd='/home/ubuntu/catsgo', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True)
         if completed_process.returncode != 0:
             print('Error running this command:', command, file=sys.stderr)
             print('Return code:', completed_process.returncode, file=sys.stderr)
@@ -59,7 +59,7 @@ class TestCatweb(unittest.TestCase):
         complete = False
         checkCommand = f"python3 catsgo.py check-run oxforduni-ncov2019-artic-nf-illumina {run_uuid}"
         while not complete:
-            completed_check = subprocess.run(command, cwd='~/catsgo', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True)
+            completed_check = subprocess.run(command, cwd='/home/ubuntu/catsgo', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True)
             if completed_process.returncode != 0:
                 print('Error running this command:', command, file=sys.stderr)
                 print('Return code:', completed_process.returncode, file=sys.stderr)
