@@ -73,7 +73,6 @@ class TestCatweb(unittest.TestCase):
         self.assertTrue(True)
 
     def test_ncov_illumina_viridian_output_has_output_folder(self):
-        time.sleep(5)
         print(f"testing {globals()['output_dir']}")
         self.assertTrue(os.path.exists(globals()['output_dir']))
 
