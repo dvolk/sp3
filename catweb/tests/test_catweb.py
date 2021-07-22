@@ -12,14 +12,14 @@ import yaml
 import time
 from operator import itemgetter
 
-global run_uuid
-global output_dir
 class TestCatweb(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         # May need to change profile depending on deployment environment
         cls.sampleNames = ("aa627688-96ac-11eb-ac3f-0200170119d8","3b3ed8e6-96ac-11eb-ac3f-0200170119d8")
+        globals()['run_uuid'] = ""
+        globals()['output_dir'] = ""
 
     # @classmethod
     # def tearDownClass(cls):
@@ -49,20 +49,20 @@ class TestCatweb(unittest.TestCase):
             raise utils.Error('Error in system call. Cannot continue')
         
         print(f"ran command {command}")
-        run_uuid = yaml.load(completed_process.stdout, Loader=yaml.SafeLoader)['run_uuid']
-        output_dir = f"/work/output/{run_uuid}"
-        print(f"run uuid {run_uuid}")
-        print(f"output_dir {output_dir}")
+        globals()['run_uuid'] = yaml.load(completed_process.stdout, Loader=yaml.SafeLoader)['run_uuid']
+        globals()['output_dir'] = f"/work/output/{run_uuid}"
+        print(f"run uuid {globals()['run_uuid']}")
+        print(f"output_dir {globals()['output_dir']}")
         self.assertTrue(True)
 
     def test_ncov_illumina_viridian_output_has_output_folder(self):
         time.sleep(5)
-        print(f"testing {output_dir}")
-        self.assertTrue(os.path.exists(output_dir))
+        print(f"testing {globals()['output_dir']}")
+        self.assertTrue(os.path.exists(globals()['output_dir']))
 
     def test_ncov_illumina_viridian_output_has_consensus_folder(self):
         complete = False
-        checkCommand = f"python3 catsgo.py check-run oxforduni-ncov2019-artic-nf-illumina {run_uuid}"
+        checkCommand = f"python3 catsgo.py check-run oxforduni-ncov2019-artic-nf-illumina {globals()['run_uuid']}"
         while not complete:
             completed_check = subprocess.run(checkCommand, cwd='/home/ubuntu/catsgo', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True)
             if completed_check.returncode != 0:
@@ -77,19 +77,19 @@ class TestCatweb(unittest.TestCase):
                 print('Unexpected Run Status')
                 print('Output from stdout and stderr:', completed_check.stdout, sep='\n', file=sys.stderr)
                 raise utils.Error('Error in catsgo run. Cannot continue')
-        cons_dir = os.path.join(output_dir, 'consensus_seqs')
+        cons_dir = os.path.join(globals()['output_dir'], 'consensus_seqs')
         print(f"testing {cons_dir}")
         self.assertTrue(os.path.exists(cons_dir))
     
     def test_ncov_illumina_viridian_output_has_analysis_folder(self):
-        ana_dir = os.path.join(output_dir, 'analysis')
+        ana_dir = os.path.join(globals()['output_dir'], 'analysis')
         print(f"testing {ana_dir}")
         self.assertTrue(os.path.exists(ana_dir))      
 
     def test_ncov_illumina_viridian_output_classification_has_human_read_list_file(self):
         for sample in self.sampleNames:
             filepath = os.path.join('consensus_seqs', sample + '.fasta')
-            outputFile = os.path.join(output_dir, filepath)
+            outputFile = os.path.join(globals()['output_dir'], filepath)
             self.assertTrue(os.path.exists(outputFile))
             expectedFile = os.path.join("tests/expectedOutput/", filepath)
             expected_md5 = utils.md5(expectedFile)
