@@ -10,3 +10,4 @@ sp3doc/bloggenng/*/*.html
 sp3doc/bloggenng/*/main.py.txt
 catcloud/logins/*
 *.log
+*venv*
