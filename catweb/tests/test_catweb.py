@@ -51,7 +51,7 @@ class TestCatweb(unittest.TestCase):
             print('Error running this command:', command, file=sys.stderr)
             print('Return code:', completed_process.returncode, file=sys.stderr)
             print('Output from stdout and stderr:', completed_process.stdout, sep='\n', file=sys.stderr)
-            raise Error('Error in system call. Cannot continue')
+            raise utils.Error('Error in system call. Cannot continue')
         
         print(f"ran command {command}")
         run_uuid = yaml.load(completed_process.stdout, Loader=yaml.SafeLoader)['run_uuid']
@@ -64,7 +64,7 @@ class TestCatweb(unittest.TestCase):
                 print('Error running this command:', command, file=sys.stderr)
                 print('Return code:', completed_process.returncode, file=sys.stderr)
                 print('Output from stdout and stderr:', completed_process.stdout, sep='\n', file=sys.stderr)
-                raise Error('Error in system call. Cannot continue')
+                raise utils.Error('Error in system call. Cannot continue')
             print(f"ran command {command}")
             print(f"output: {completed_process.stdout}")
 
@@ -72,7 +72,7 @@ class TestCatweb(unittest.TestCase):
                 complete = True
             elif not (completed_process.stdout == "Running"):
                 print('Unexpected Run Status')
-                raise Error('Error in catsgo run. Cannot continue')
+                raise utils.Error('Error in catsgo run. Cannot continue')
                 
         self.assertTrue(True)
 
