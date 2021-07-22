@@ -70,7 +70,7 @@ class TestCatweb(unittest.TestCase):
 
             if (completed_check.stdout.strip() == "OK"):
                 complete = True
-            elif not (completed_check.stdout.strip() == "Running"):
+            elif not (completed_check.stdout.strip() == "Running" or completed_check.stdout.strip() == "STARTING"):
                 print('Unexpected Run Status')
                 print('Output from stdout and stderr:', completed_check.stdout, sep='\n', file=sys.stderr)
                 raise utils.Error('Error in catsgo run. Cannot continue')
