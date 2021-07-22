@@ -60,19 +60,19 @@ class TestCatweb(unittest.TestCase):
         checkCommand = f"python3 catsgo.py check-run oxforduni-ncov2019-artic-nf-illumina {run_uuid}"
         while not complete:
             completed_check = subprocess.run(checkCommand, cwd='/home/ubuntu/catsgo', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True)
-            if completed_process.returncode != 0:
+            if completed_check.returncode != 0:
                 print('Error running this command:', command, file=sys.stderr)
-                print('Return code:', completed_process.returncode, file=sys.stderr)
-                print('Output from stdout and stderr:', completed_process.stdout, sep='\n', file=sys.stderr)
+                print('Return code:', completed_check.returncode, file=sys.stderr)
+                print('Output from stdout and stderr:', completed_check.stdout, sep='\n', file=sys.stderr)
                 raise utils.Error('Error in system call. Cannot continue')
             print(f"ran command {checkCommand}")
-            print(f"output: {completed_process.stdout}")
+            print(f"output: {completed_check.stdout}")
 
-            if (completed_process.stdout.strip() == "OK"):
+            if (completed_check.stdout.strip() == "OK"):
                 complete = True
-            elif not (completed_process.stdout.strip() == "Running"):
+            elif not (completed_check.stdout.strip() == "Running"):
                 print('Unexpected Run Status')
-                print('Output from stdout and stderr:', completed_process.stdout, sep='\n', file=sys.stderr)
+                print('Output from stdout and stderr:', completed_check.stdout, sep='\n', file=sys.stderr)
                 raise utils.Error('Error in catsgo run. Cannot continue')
                 
         self.assertTrue(True)
