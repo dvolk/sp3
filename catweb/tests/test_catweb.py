@@ -7,6 +7,8 @@ import shutil
 import os
 import utils
 import uuid
+import subprocess
+import yaml
 from operator import itemgetter
 
 class TestCatweb(unittest.TestCase):
@@ -29,25 +31,49 @@ class TestCatweb(unittest.TestCase):
     #     utils.syscall('rm -rf ' + cls.outputDir + '/*')
   
     def test_ncov_illumina_viridian(self):
+        # e.g. cd ~/catsgo; python3 catsgo.py run-covid-illumina-objstore oxforduni-ncov2019-artic-nf-illumina /data/pipelines/ncov2019-artic-nf/objStoreExample.csv
+        # command = ' '.join([
+        #     'nextflow -q run', self.nextflowFile, self.profile,
+        #     '-with-trace -with-report -with-timeline -with-dag dag.png',
+        #     '--pipeline_name oxforduni-ncov2019-artic-nf-illumina', '--run_uuid', str(uuid.uuid4()) , '--head_node_ip 10.0.1.2',
+        #     '--readpat', self.readPattern,
+        #     '--illumina',
+        #     '--prefix', 'illumina',
+        #     '-process.executor', 'slurm',
+        #     '--objstore', self.obj_path,
+        #     '--varCaller', 'viridian',
+        #     '--refmap', "'\"{}\"'",
+        #     '--outdir', self.outputDir
+        # ])
+        command = 'python3 catsgo.py run-covid-illumina-objstore oxforduni-ncov2019-artic-nf-illumina /data/pipelines/ncov2019-artic-nf/objStoreExample.csv'
+        completed_process = subprocess.run(command, cwd='~/catsgo', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True)
+        if completed_process.returncode != 0:
+            print('Error running this command:', command, file=sys.stderr)
+            print('Return code:', completed_process.returncode, file=sys.stderr)
+            print('Output from stdout and stderr:', completed_process.stdout, sep='\n', file=sys.stderr)
+            raise Error('Error in system call. Cannot continue')
+        
+        print(f"ran command {command}")
+        run_uuid = yaml.load(completed_process.stdout, Loader=yaml.SafeLoader)['run_uuid']
+        print(f"run uuid {run_uuid}")
+        complete = False
+        checkCommand = f"python3 catsgo.py check-run oxforduni-ncov2019-artic-nf-illumina {run_uuid}"
+        while not complete:
+            completed_check = subprocess.run(command, cwd='~/catsgo', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True)
+            if completed_process.returncode != 0:
+                print('Error running this command:', command, file=sys.stderr)
+                print('Return code:', completed_process.returncode, file=sys.stderr)
+                print('Output from stdout and stderr:', completed_process.stdout, sep='\n', file=sys.stderr)
+                raise Error('Error in system call. Cannot continue')
+            print(f"ran command {command}")
+            print(f"output: {completed_process.stdout}")
 
-        # Should do through catsgo
-        # e.g. cd catsgo; python3 catsgo.py run-covid-illumina-objstore oxforduni-ncov2019-artic-nf-illumina /data/pipelines/ncov2019-artic-nf/objStoreExample.csv
-        #
-        # Left out --pipeline_name oxforduni-ncov2019-artic-nf-illumina --run_uuid cc8ee708-942e-4214-8fb8-5ace52b8914e --head_node_ip 10.0.1.2
-        command = ' '.join([
-            'nextflow -q run', self.nextflowFile, self.profile,
-            '-with-trace -with-report -with-timeline -with-dag dag.png',
-            '--pipeline_name oxforduni-ncov2019-artic-nf-illumina', '--run_uuid', str(uuid.uuid4()) , '--head_node_ip 10.0.1.2',
-            '--readpat', self.readPattern,
-            '--illumina',
-            '--prefix', 'illumina',
-            '-process.executor', 'slurm',
-            '--objstore', self.obj_path,
-            '--varCaller', 'viridian',
-            '--refmap', "'\"{}\"'",
-            '--outdir', self.outputDir
-        ])
-        utils.syscall(command)
+            if (completed_process.stdout == "OK"):
+                complete = True
+            elif not (completed_process.stdout == "Running"):
+                print('Unexpected Run Status')
+                raise Error('Error in catsgo run. Cannot continue')
+                
         self.assertTrue(True)
 
     def test_ncov_illumina_viridian_output_has_output_folder(self):
