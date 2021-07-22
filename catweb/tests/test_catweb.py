@@ -53,14 +53,6 @@ class TestCatweb(unittest.TestCase):
         globals()['output_dir'] = f"/work/output/{run_uuid}"
         print(f"run uuid {globals()['run_uuid']}")
         print(f"output_dir {globals()['output_dir']}")
-        self.assertTrue(True)
-
-    def test_ncov_illumina_viridian_output_has_output_folder(self):
-        time.sleep(5)
-        print(f"testing {globals()['output_dir']}")
-        self.assertTrue(os.path.exists(globals()['output_dir']))
-
-    def test_ncov_illumina_viridian_output_has_consensus_folder(self):
         complete = False
         checkCommand = f"python3 catsgo.py check-run oxforduni-ncov2019-artic-nf-illumina {globals()['run_uuid']}"
         while not complete:
@@ -77,6 +69,15 @@ class TestCatweb(unittest.TestCase):
                 print('Unexpected Run Status')
                 print('Output from stdout and stderr:', completed_check.stdout, sep='\n', file=sys.stderr)
                 raise utils.Error('Error in catsgo run. Cannot continue')
+
+        self.assertTrue(True)
+
+    def test_ncov_illumina_viridian_output_has_output_folder(self):
+        time.sleep(5)
+        print(f"testing {globals()['output_dir']}")
+        self.assertTrue(os.path.exists(globals()['output_dir']))
+
+    def test_ncov_illumina_viridian_output_has_consensus_folder(self):
         cons_dir = os.path.join(globals()['output_dir'], 'consensus_seqs')
         print(f"testing {cons_dir}")
         self.assertTrue(os.path.exists(cons_dir))
@@ -86,7 +87,7 @@ class TestCatweb(unittest.TestCase):
         print(f"testing {ana_dir}")
         self.assertTrue(os.path.exists(ana_dir))      
 
-    def test_ncov_illumina_viridian_output_classification_has_human_read_list_file(self):
+    def test_ncov_illumina_viridian_output_classification_has_fastas(self):
         for sample in self.sampleNames:
             filepath = os.path.join('consensus_seqs', sample + '.fasta')
             outputFile = os.path.join(globals()['output_dir'], filepath)
