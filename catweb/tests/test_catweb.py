@@ -50,7 +50,7 @@ class TestCatweb(unittest.TestCase):
         
         print(f"ran command {command}")
         globals()['run_uuid'] = yaml.load(completed_process.stdout, Loader=yaml.SafeLoader)['run_uuid']
-        globals()['output_dir'] = f"/work/output/{run_uuid}"
+        globals()['output_dir'] = f"/work/output/{globals()['run_uuid']}"
         print(f"run uuid {globals()['run_uuid']}")
         print(f"output_dir {globals()['output_dir']}")
         complete = False
