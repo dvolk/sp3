@@ -853,6 +853,12 @@ def map_samples():
             )
 
 
+@app.route("/api/flow/run_and_status/<pipeline_name>")
+@flask_login.login_required
+def run_and_status(pipeline_name):
+    return json.dumps(db.get_run_and_status(pipeline_name), indent=4)
+
+
 @app.route("/flow/<pipeline_name>")
 @flask_login.login_required
 def list_runs(pipeline_name):
@@ -866,7 +872,13 @@ def list_runs(pipeline_name):
         has_dagpng = True
 
     if request.args.get("api"):
-        return json.dumps(data)
+        if request.args.get("api") == "v1":
+            return json.dumps(pipeline_runs)
+        if request.args.get("api") == "v2":
+            return json.dumps([run["run_uuid"] for run in pipeline_runs])
+        if request.args.get("api") == "v3":
+            return json.dumps(db.get_run_and_status(pipeline_name))
+
 
     if "no_sample_count" in flow_cfg.keys():
         pipeline_cfg = {
