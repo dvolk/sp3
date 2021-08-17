@@ -38,3 +38,11 @@ class OneByOneScaler:
                     self.node_controller.destroy(idle_node_ip)
                     logging.warning(f"destroyed node: {idle_node_ip}")
                     continue
+
+    def stop(self):
+        r = requests.get("http://127.0.0.1:6000/status").json()
+        nodes_running = r["nodes"]
+        for node_name, node in nodes_running.items():
+            self.scheduler.remove_node(node_name)
+            self.node_controller.destroy(node_name)
+            logging.warning(f"destroyed node: {node_name}")
