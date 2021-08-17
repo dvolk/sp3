@@ -2,6 +2,7 @@ import logging
 import threading
 import time
 
+import requests
 
 class MultiScaler:
     # creates nodes in groups of size max_creating_nodes
@@ -69,6 +70,13 @@ class MultiScaler:
                     logging.warning(f"destroyed node: {idle_node_ip}")
                     continue
 
+    def stop(self):
+        r = requests.get("http://127.0.0.1:6000/status").json()
+        nodes_running = r["nodes"]
+        for node_name, node in nodes_running.items():
+            self.scheduler.remove_node(node_name)
+            self.node_controller.destroy(node_name)
+            logging.warning(f"destroyed node: {node_name}")
 
 class FastMultiScaler:
     # creates nodes in groups of size max_creating_nodes
