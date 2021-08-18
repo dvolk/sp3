@@ -25,7 +25,6 @@ node_controller interface:
   * destroy(server_ip)
 """
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", required=True)
