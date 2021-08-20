@@ -4,6 +4,7 @@ import logging
 import sqlite3
 import time
 import uuid
+import collections
 
 import gridfs
 import pymongo
@@ -138,6 +139,17 @@ def get_input_files_count(run_uuid):
     r = nfruns_db.find_one({"run_uuid": run_uuid}, {"input_files_count": 1})
 
     return r.get("input_files_count", -1), -1
+
+
+def get_run_and_status(pipeline_name):
+    r = list(nfruns_db.find({"workflow": pipeline_name}, {"run_uuid": 1, "status": 1}))
+    status_to_run_uuid = collections.defaultdict(list)
+    run_uuid_to_status = dict()
+    for x in r:
+        status_to_run_uuid[x["status"]].append(x["run_uuid"])
+        run_uuid_to_status[x["run_uuid"]] = x["status"]
+    return { "status_to_run_uuid": status_to_run_uuid,
+             "run_uuid_to_status": run_uuid_to_status }
 
 
 def insert_dummy_run(data):
