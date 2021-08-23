@@ -125,6 +125,7 @@ class OpenstackEBINodeController:
         self.vol_size = vol_size
         self.vol_image = vol_image
         self.setup_script = setup_script
+        self.support_destroy_all = False
 
     def create(self):
         server_ip = os_make_node(
