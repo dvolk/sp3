@@ -60,7 +60,7 @@ class AWSNodeController:
         self.security_group_id = security_group_id
         self.subnet_id = subnet_id
         self.setup_script = setup_script
-        self.support_destroy_all = True
+        self.support_destroy_all = False
 
     def create(self):
         return aws_create_node(
