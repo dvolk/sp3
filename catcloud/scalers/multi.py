@@ -94,6 +94,7 @@ class MultiScaler:
         logging.warning(f"Caught exit signal. Stopping scaler")
         self.run_scaler = False
         self.stop()
+        exit()
 
 class FastMultiScaler:
     # creates nodes in groups of size max_creating_nodes
@@ -184,3 +185,4 @@ class FastMultiScaler:
         logging.warning(f"Caught exit signal. Stopping scaler")
         self.run_scaler = False
         self.stop()
+        exit()

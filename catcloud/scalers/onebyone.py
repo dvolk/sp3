@@ -63,3 +63,4 @@ class OneByOneScaler:
         logging.warning(f"Caught exit signal. Stopping scaler")
         self.run_scaler = False
         self.stop()
+        exit()
