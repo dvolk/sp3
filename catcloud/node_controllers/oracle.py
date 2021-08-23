@@ -96,7 +96,7 @@ def oracle_destroy_all(compartment_id):
     vms = run(f"oci compute instance list -c { compartment_id }")
     for vm in json.loads(vms)["data"]:
         if re.search(r"[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}", vm["display-name"])\
-            and vm["lifecycle-state"] == "RUNNING":
+            and vm["lifecycle-state"] != "TERMINATED":
             instances.append(vm["id"])
 
     for instance in instances:
