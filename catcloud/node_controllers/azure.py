@@ -55,6 +55,7 @@ class AzureNodeController:
         self.resource_group = resource_group
         self.vm_image = vm_image
         self.setup_script = setup_script
+        self.support_destroy_all = True
 
     def create(self):
         return az_create_node(

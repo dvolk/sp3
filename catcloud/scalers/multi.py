@@ -76,10 +76,19 @@ class MultiScaler:
     def stop(self):
         r = requests.get("http://127.0.0.1:6000/status").json()
         nodes_running = r["nodes"]
-        for node_name, node in nodes_running.items():
-            self.scheduler.remove_node(node_name)
-            self.node_controller.destroy(node_name)
-            logging.warning(f"destroyed node: {node_name}")
+        if self.node_controller.support_destroy_all:
+            node_names = []
+            for node_name, node in nodes_running.items():
+                node_names.append(node_name)
+                self.scheduler.remove_node(node_name)
+            logging.warning(f"removed nodes f{node_names}")
+            destroyed_nodes = self.node_controller.destroy_all()
+            logging.warning(f"destroyed all nodes: { destroyed_nodes }")
+        else:
+            for node_name, node in nodes_running.items():
+                self.scheduler.remove_node(node_name)
+                self.node_controller.destroy(node_name)
+                logging.warning(f"destroyed node: {node_name}")
 
     def stop_scaler(self, signum, frame):
         logging.warning(f"Caught exit signal. Stopping scaler")
@@ -157,10 +166,19 @@ class FastMultiScaler:
     def stop(self):
         r = requests.get("http://127.0.0.1:6000/status").json()
         nodes_running = r["nodes"]
-        for node_name, node in nodes_running.items():
-            self.scheduler.remove_node(node_name)
-            self.node_controller.destroy(node_name)
-            logging.warning(f"destroyed node: {node_name}")
+        if self.node_controller.support_destroy_all:
+            node_names = []
+            for node_name, node in nodes_running.items():
+                node_names.append(node_name)
+                self.scheduler.remove_node(node_name)
+            logging.warning(f"removed nodes f{node_names}")
+            destroyed_nodes = self.node_controller.destroy_all()
+            logging.warning(f"destroyed all nodes: { destroyed_nodes }")
+        else:
+            for node_name, node in nodes_running.items():
+                self.scheduler.remove_node(node_name)
+                self.node_controller.destroy(node_name)
+                logging.warning(f"destroyed node: {node_name}")
 
     def stop_scaler(self, signum, frame):
         logging.warning(f"Caught exit signal. Stopping scaler")

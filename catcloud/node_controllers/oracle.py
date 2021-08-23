@@ -2,6 +2,7 @@ import json
 import logging
 import time
 import uuid
+import re
 
 from utils import *
 
@@ -18,7 +19,6 @@ def oracle_get_instance_id_from_name(display_name, compartment_id):
     for vm in json.loads(vms)["data"]:
         if vm["display-name"] == display_name:
             return vm["id"]
-
 
 def oracle_create_vm(
     name,
@@ -91,6 +91,18 @@ def oracle_destroy_node(server_ip, subnet_id, compartment_id):
         f"oci compute instance terminate --force --instance-id { instance_id } --preserve-boot-volume false"
     )
 
+def oracle_destroy_all(compartment_id):
+    instances = []
+    vms = run(f"oci compute instance list -c { compartment_id }")
+    for vm in json.loads(vms)["data"]:
+        if re.search(r"[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}", vm["display-name"]):
+            instances.append(vm["id"])
+
+    for instance in instances:
+        run(
+            f"oci compute instance terminate --force --instance-id { instance } --preserve-boot-volume false"
+        )
+    return instances
 
 class OracleNodeController:
     def __init__(
@@ -110,6 +122,7 @@ class OracleNodeController:
         self.subnet_id = subnet_id
         self.boot_volume_size_in_gbs = boot_volume_size_in_gbs
         self.setup_script = setup_script
+        self.support_destroy_all = True
 
     def create(self):
         return oracle_create_node(
@@ -124,3 +137,6 @@ class OracleNodeController:
 
     def destroy(self, server_ip):
         return oracle_destroy_node(server_ip, self.subnet_id, self.compartment_id)
+
+    def destroy_all(self):
+        return oracle_destroy_all(self.compartment_id)
