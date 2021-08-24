@@ -8,7 +8,6 @@ import time
 import uuid
 
 import config
-import requests
 import utils
 
 """

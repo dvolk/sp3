@@ -1,13 +1,13 @@
 import logging
 import time
 import signal
+import requests
 
 
 class OneByOneScaler:
     def __init__(self, min_nodes, max_nodes):
         self.min_nodes, self.max_nodes = min_nodes, max_nodes
         self.run_scaler = True
-        signal.signal(signal.SIGTERM, self.stop_scaler)
 
     def init(self, scheduler, node_controller):
         self.node_controller = node_controller
@@ -43,8 +43,10 @@ class OneByOneScaler:
                     continue
 
     def stop(self):
+        self.run_scaler = False
         r = requests.get("http://127.0.0.1:6000/status").json()
         nodes_running = r["nodes"]
+
         if self.node_controller.support_destroy_all:
             node_names = []
             for node_name, node in nodes_running.items():
@@ -58,9 +60,3 @@ class OneByOneScaler:
                 self.scheduler.remove_node(node_name)
                 self.node_controller.destroy(node_name)
                 logging.warning(f"destroyed node: {node_name}")
-    
-    def stop_scaler(self, signum, frame):
-        logging.warning(f"Caught exit signal. Stopping scaler")
-        self.run_scaler = False
-        self.stop()
-        exit()
