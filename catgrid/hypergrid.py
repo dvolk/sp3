@@ -25,7 +25,14 @@ def run_ssh_cmd(host, cmd):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     my_username = pwd.getpwuid(os.getuid())[0]
-    client.connect(host, port=22, username=my_username)
+    client.connect(
+        host,
+        port=22,
+        username=my_username,
+        banner_timeout=600,
+        auth_timeout=600,
+        timeout=600,
+    )
     stdin, stdout, stderr = client.exec_command(cmd)
     stdout_str, stderr_str = stdout.read(), stderr.read()
     retcode = stdout.channel.recv_exit_status()
