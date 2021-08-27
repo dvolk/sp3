@@ -3,6 +3,7 @@ import threading
 import time
 
 import requests
+import signal
 
 class MultiScaler:
     # creates nodes in groups of size max_creating_nodes
@@ -11,6 +12,7 @@ class MultiScaler:
         self.min_nodes, self.max_nodes = min_nodes, max_nodes
         self.cpus_per_node = cpus_per_node
         self.max_creating_nodes = max_creating_nodes
+        self.run_scaler = True
 
     def init(self, scheduler, node_controller):
         self.node_controller = node_controller
@@ -33,7 +35,7 @@ class MultiScaler:
         last_nodes_len = 0
         last_queue_len = 0
 
-        while True:
+        while self.run_scaler:
             time.sleep(10)
             nodes_len, queue_len, idle_nodes = self.scheduler.get_info()
 
@@ -71,12 +73,23 @@ class MultiScaler:
                     continue
 
     def stop(self):
+        self.run_scaler = False
         r = requests.get("http://127.0.0.1:6000/status").json()
         nodes_running = r["nodes"]
-        for node_name, node in nodes_running.items():
-            self.scheduler.remove_node(node_name)
-            self.node_controller.destroy(node_name)
-            logging.warning(f"destroyed node: {node_name}")
+
+        if self.node_controller.support_destroy_all:
+            node_names = []
+            for node_name, node in nodes_running.items():
+                node_names.append(node_name)
+                self.scheduler.remove_node(node_name)
+            logging.warning(f"removed nodes f{node_names}")
+            destroyed_nodes = self.node_controller.destroy_all()
+            logging.warning(f"destroyed all nodes: { destroyed_nodes }")
+        else:
+            for node_name, node in nodes_running.items():
+                self.scheduler.remove_node(node_name)
+                self.node_controller.destroy(node_name)
+                logging.warning(f"destroyed node: {node_name}")
 
 class FastMultiScaler:
     # creates nodes in groups of size max_creating_nodes
@@ -85,6 +98,7 @@ class FastMultiScaler:
         self.min_nodes, self.max_nodes = min_nodes, max_nodes
         self.cpus_per_node = cpus_per_node
         self.creating_nodes_count = 0
+        self.run_scaler = True
 
     def init(self, scheduler, node_controller):
         self.node_controller = node_controller
@@ -107,7 +121,7 @@ class FastMultiScaler:
         last_nodes_len = 0
         last_queue_len = 0
 
-        while True:
+        while self.run_scaler:
             time.sleep(10)
             nodes_len, queue_len, idle_nodes = self.scheduler.get_info()
 
@@ -145,9 +159,20 @@ class FastMultiScaler:
                     continue
 
     def stop(self):
+        self.run_scaler = False
         r = requests.get("http://127.0.0.1:6000/status").json()
         nodes_running = r["nodes"]
-        for node_name, node in nodes_running.items():
-            self.scheduler.remove_node(node_name)
-            self.node_controller.destroy(node_name)
-            logging.warning(f"destroyed node: {node_name}")
+
+        if self.node_controller.support_destroy_all:
+            node_names = []
+            for node_name, node in nodes_running.items():
+                node_names.append(node_name)
+                self.scheduler.remove_node(node_name)
+            logging.warning(f"removed nodes f{node_names}")
+            destroyed_nodes = self.node_controller.destroy_all()
+            logging.warning(f"destroyed all nodes: { destroyed_nodes }")
+        else:
+            for node_name, node in nodes_running.items():
+                self.scheduler.remove_node(node_name)
+                self.node_controller.destroy(node_name)
+                logging.warning(f"destroyed node: {node_name}")

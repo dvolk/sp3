@@ -62,6 +62,7 @@ class GCPNodeController:
         self.machine_type = machine_type
         self.boot_disk_size = boot_disk_size
         self.setup_script = setup_script
+        self.support_destroy_all = False
 
     def create(self):
         return gcp_create_node(

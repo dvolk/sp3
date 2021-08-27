@@ -90,6 +90,11 @@ sleep 5
 cd /home/ubuntu
 git clone https://github.com/oxfordmmm/catsgo
 cd catsgo
+CATSGO_VERSION=$(git tag -l --sort=-refname "v*" | head -n 1)
+if [ "${CATSGO_VERSION}" != "" ]
+then
+    git checkout ${CATSGO_VERSION}
+fi
 cp config.json-covid config.json
 sed -i 's/test_user/admin/g' config.json
 ADMIN_PWD=$(cat /home/ubuntu/sp3/catdap/admin-pw-delete-me)
