@@ -9,6 +9,7 @@ import sys
 import threading
 import time
 import uuid
+import random
 
 import argh
 import flask
@@ -25,14 +26,31 @@ def run_ssh_cmd(host, cmd):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     my_username = pwd.getpwuid(os.getuid())[0]
-    client.connect(
-        host,
-        port=22,
-        username=my_username,
-        banner_timeout=600,
-        auth_timeout=600,
-        timeout=600,
-    )
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            client.connect(
+                host,
+                port=22,
+                username=my_username,
+                banner_timeout=600,
+                auth_timeout=600,
+                timeout=600,
+            )
+            break
+        except Exception as e:
+            logging.warning(str(e))
+            if attempt > 10:
+                logging.error(f"Couldn't connect to {host} after {attempt} attempts.")
+                raise
+            else:
+                sleepy_time = int(2 ** attempt * (random.random() + 0.5))
+                logging.warning(
+                    f"Couldn't connect to {host} -attempt {attempt}- sleeping for {sleepy_time}"
+                )
+                time.sleep(sleepy_time)
+
     stdin, stdout, stderr = client.exec_command(cmd)
     stdout_str, stderr_str = stdout.read(), stderr.read()
     retcode = stdout.channel.recv_exit_status()
