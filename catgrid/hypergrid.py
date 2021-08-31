@@ -359,8 +359,9 @@ def submit():
 @app.route("/status")
 def status():
     ret = dict()
-    for node in nodes.values():
-        ret.update(node.display())
+    with scheduling_lock:
+        for node in nodes.values():
+            ret.update(node.display())
     return json.dumps({"nodes": ret, "queue": [j.display() for j in jq.queue]})
 
 
