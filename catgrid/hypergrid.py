@@ -331,7 +331,13 @@ def terminate(job_name_to_kill):
     for node_host, node in nodes.items():
         for job_name, job in node.jobs.items():
             if str(job_name) == job_name_to_kill:
-                threading.Thread(target=terminate_, args=(node_host, job,)).start()
+                threading.Thread(
+                    target=terminate_,
+                    args=(
+                        node_host,
+                        job,
+                    ),
+                ).start()
                 return "terminating"
 
     return "job not found"
