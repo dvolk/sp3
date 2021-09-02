@@ -117,6 +117,7 @@ class OracleNodeController:
         self.subnet_id = subnet_id
         self.boot_volume_size_in_gbs = boot_volume_size_in_gbs
         self.setup_script = setup_script
+        self.support_destroy_all = False
 
     def create(self):
         return oracle_create_node(

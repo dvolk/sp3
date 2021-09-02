@@ -8,22 +8,12 @@ import time
 import uuid
 
 import config
-import requests
 import utils
 
 """
-scaler interface:
-  * run()
-
-scheduler interface:
-  * get_info() -> number of nodes, length of queue, list of idle nodes
-  * add_node(server_ip)
-  * remove_node(server_ip)
-
-node_controller interface:
-  * create() -> server_ip
-  * destroy(server_ip)
+Program to kill all nodes in the current OCI stack
 """
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -42,8 +32,7 @@ def main():
 
     scaler.init(scheduler=scheduler, node_controller=node_controller)
 
-    scaler.run()
-
+    scaler.stop()
 
 if __name__ == "__main__":
     main()

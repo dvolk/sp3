@@ -26,13 +26,19 @@ ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-nanopore.yaml
 ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-analysis.yaml
 cd /data/pipelines/
 sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
+cd /data/pipelines/ncov2019-artic-nf
+NCOV_ARTIC_ENV=$(git tag -l --sort=-refname "sp3env-v*" | head -n 1)
+if [ "${NCOV_ARTIC_ENV}" != "" ]
+then
+    sudo git checkout ${NCOV_ARTIC_ENV}
+fi
 
 ###### catdap
 cd /home/ubuntu/sp3/catdap/
 cp config.yaml-oracle config.yaml
 source /home/ubuntu/env/bin/activate
 python3 convert.py
-python3 make_password.py reset-pw admin > admin-pw-delete-me
+python3 catdap-cli.py reset-pw admin > admin-pw-delete-me
 deactivate
 
 ###### catpile
@@ -84,9 +90,14 @@ sleep 5
 cd /home/ubuntu
 git clone https://github.com/oxfordmmm/catsgo
 cd catsgo
+CATSGO_VERSION=$(git tag -l --sort=-refname "v*" | head -n 1)
+if [ "${CATSGO_VERSION}" != "" ]
+then
+    git checkout ${CATSGO_VERSION}
+fi
 cp config.json-covid config.json
 sed -i 's/test_user/admin/g' config.json
-ADMIN_PWD=$(/home/ubuntu/bin/oci secrets secret-bundle get --raw-output --auth instance_principal --secret-id ocid1.vaultsecret.oc1.uk-london-1.amaaaaaahe4ejdiandythftui7kosof3uwo47apelclopz6aj7hj4rxx47na --query "data.\"secret-bundle-content\".content" | base64 --decode)
+ADMIN_PWD=$(cat /home/ubuntu/sp3/catdap/admin-pw-delete-me)
 sed -i 's/test_password/'$ADMIN_PWD'/g' config.json
 SP3_URL=$(jq -r '.sp3_url' /home/ubuntu/stack_info.json)
 sed -i 's#sp3_covid_site#'$SP3_URL'#g' config.json
