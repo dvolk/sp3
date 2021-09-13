@@ -48,6 +48,8 @@ cd sp3
 #
 # sp3 packages
 #
+# N.B Installing setuptools<58 sp PyVCF can install correctly
+pip3 install setuptools<58
 pip3 install -r requirements.txt
 pip3 install waitress pymongo newick argh markdown2 sentry-sdk sentry-sdk[flask]
 
