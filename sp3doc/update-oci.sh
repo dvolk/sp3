@@ -16,7 +16,7 @@ systemctl --user stop catweb
 echo "checking SP3 version"
 pushd /home/ubuntu/sp3
 CURRENT_SP3_VERSION=$(git describe --tags)
-GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' git fetch --all
+GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' git fetch --all --tags
 LATEST_SP3_VERSION=$(git tag -l --sort=-refname "v*" | head -n 1)
 if [ "${CURRENT_SP3_VERSION}" != "${LATEST_ENV_VERSION}" ]
 then
@@ -54,7 +54,7 @@ fi
 echo "Checking COVID pipeline version"
 pushd /data/pipelines/ncov2019-artic-nf
 CURRENT_COVID_ENV=$(git describe --tags)
-GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' sudo git fetch --all
+GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' sudo git fetch --all --tags
 LATEST_COVID_ENV=$(git tag -l --sort=-refname "sp3env-v*" | head -n 1)
 if [ "${CURRENT_COVID_ENV}" != "${LATEST_COVID_ENV}" ]
 then
@@ -71,7 +71,7 @@ LATEST_CATSGO_VERSION=$(curl -s -L -I -o /dev/null -w '%{url_effective}' https:/
 if [ "${CURRENT_CATSGO_VERSION}" != "${LATEST_CATSGO_VERSION}" ]
 then
     echo "updating CATSGO to $LATEST_CATSGO_VERSION"
-    GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' git fetch --all
+    GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' git fetch --all  --tags
     git checkout ${LATEST_CATSGO_VERSION}
     # Restart/ redeploy dir_watchers ????
 fi
