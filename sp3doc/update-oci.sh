@@ -17,7 +17,7 @@ echo "checking SP3 version"
 pushd /home/ubuntu/sp3
 CURRENT_SP3_VERSION=$(git describe --tags)
 GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' git fetch --all --tags
-LATEST_SP3_VERSION=$(git tag -l --sort=-refname "v*" | head -n 1)
+LATEST_SP3_VERSION=$(git tag -l --sort=-v:refname "v*" | head -n 1)
 if [ "${CURRENT_SP3_VERSION}" != "${LATEST_ENV_VERSION}" ]
 then
     echo "updating sp3 to $LATEST_SP3_VERSION"
@@ -55,7 +55,7 @@ echo "Checking COVID pipeline version"
 pushd /data/pipelines/ncov2019-artic-nf
 CURRENT_COVID_ENV=$(git describe --tags)
 GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' sudo git fetch --all --tags
-LATEST_COVID_ENV=$(git tag -l --sort=-refname "sp3env-v*" | head -n 1)
+LATEST_COVID_ENV=$(git tag -l --sort=-v:refname "sp3env-v*" | head -n 1)
 if [ "${CURRENT_COVID_ENV}" != "${LATEST_COVID_ENV}" ]
 then
     echo "updating pipeline to $LATEST_COVID_ENV"
