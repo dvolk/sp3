@@ -2,6 +2,18 @@
 
 # Stop services, daemon reload and restart
 echo "stopping services"
+if [ -f "/home/ubuntu/catsgo/buckets.txt" ]
+then
+    # Stopping watchers
+    cat /home/ubuntu/catsgo/buckets.txt | while read line
+    do
+        systemctl --user stop dir_watcher@${line//,}.service
+    done
+fi
+systemctl --user stop run_watcher@oxforduni-ncov2019-artic-nf-illumina.service
+systemctl --user stop run_watcher@oxforduni-ncov2019-artic-nf-nanopore.service
+
+# Stopping sp3 services
 systemctl --user stop catcloud-oracle
 systemctl --user stop catdap
 systemctl --user stop catdownload
@@ -73,10 +85,10 @@ then
     echo "updating CATSGO to $LATEST_CATSGO_VERSION"
     GIT_SSH_COMMAND='ssh -i /home/ubuntu/.ssh/gitlab_key -o StrictHostKeyChecking=no' git fetch --all  --tags
     git checkout ${LATEST_CATSGO_VERSION}
-    # Restart/ redeploy dir_watchers ????
 fi
 popd
 
+# Restart sp3 services
 systemctl --user restart catdap
 systemctl --user restart catdownload
 systemctl --user restart catfetch
@@ -86,3 +98,14 @@ systemctl --user restart cattag
 systemctl --user restart catpile
 systemctl --user restart catweb
 systemctl --user restart catcloud-oracle
+
+# Restart watchers
+systemctl --user restart run_watcher@oxforduni-ncov2019-artic-nf-illumina.service
+systemctl --user restart run_watcher@oxforduni-ncov2019-artic-nf-nanopore.service
+if [ -f "/home/ubuntu/catsgo/buckets.txt" ]
+then
+    cat /home/ubuntu/catsgo/buckets.txt | while read line
+    do
+        systemctl --user restart dir_watcher@${line//,}.service
+    done
+fi
