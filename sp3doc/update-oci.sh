@@ -89,6 +89,7 @@ fi
 popd
 
 # Restart sp3 services
+systemctl --user daemon-reload
 systemctl --user restart catdap
 systemctl --user restart catdownload
 systemctl --user restart catfetch
