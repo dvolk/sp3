@@ -27,7 +27,7 @@ ln -s /home/ubuntu/sp3/catweb/config.yaml.d/all/ncov2019-artic-analysis.yaml
 cd /data/pipelines/
 sudo git clone https://github.com/oxfordmmm/ncov2019-artic-nf
 cd /data/pipelines/ncov2019-artic-nf
-NCOV_ARTIC_ENV=$(git tag -l --sort=-refname "sp3env-v*" | head -n 1)
+NCOV_ARTIC_ENV=$(git tag -l --sort=-v:refname "sp3env-v*"| head -n 1)
 if [ "${NCOV_ARTIC_ENV}" != "" ]
 then
     sudo git checkout ${NCOV_ARTIC_ENV}
@@ -90,7 +90,7 @@ sleep 5
 cd /home/ubuntu
 git clone https://github.com/oxfordmmm/catsgo
 cd catsgo
-CATSGO_VERSION=$(git tag -l --sort=-refname "v*" | head -n 1)
+CATSGO_VERSION=$(git tag -l --sort=-v:refname "v*" | head -n 1)
 if [ "${CATSGO_VERSION}" != "" ]
 then
     git checkout ${CATSGO_VERSION}
