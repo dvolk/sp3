@@ -4,3 +4,7 @@ Description=SP3 Catstat API
 [Service]
 WorkingDirectory=/home/ubuntu/sp3/catstat
 ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catstat/main.py
+RemainAfterExit=True
+
+[Install]
+WantedBy=default.target

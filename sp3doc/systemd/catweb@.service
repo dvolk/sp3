@@ -5,3 +5,7 @@ Description=SP3 Catweb UI port %i
 KillMode=process
 WorkingDirectory=/home/ubuntu/sp3/catweb
 ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catweb/ui.py --port %i
+RemainAfterExit=True
+
+[Install]
+WantedBy=default.target

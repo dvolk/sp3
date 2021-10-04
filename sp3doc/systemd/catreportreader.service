@@ -4,3 +4,7 @@ Description=SP3 Catreport report reader API
 [Service]
 WorkingDirectory=/home/ubuntu/sp3/catreport
 ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catreport/catreportreader.py
+RemainAfterExit=True
+
+[Install]
+WantedBy=default.target

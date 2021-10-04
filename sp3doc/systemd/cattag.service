@@ -4,3 +4,7 @@ Description=SP3 Cattag API
 [Service]
 WorkingDirectory=/home/ubuntu/sp3/cattag
 ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/cattag/cattag.py
+RemainAfterExit=True
+
+[Install]
+WantedBy=default.target

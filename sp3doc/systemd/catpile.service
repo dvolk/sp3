@@ -4,3 +4,7 @@ Description=SP3 Catpile API
 [Service]
 WorkingDirectory=/home/ubuntu/sp3/catpile
 ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/catpile/main.py bleh
+RemainAfterExit=True
+
+[Install]
+WantedBy=default.target

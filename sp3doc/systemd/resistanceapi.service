@@ -4,3 +4,7 @@ Description=SP3 resistance API
 [Service]
 WorkingDirectory=/home/ubuntu/sp3/resistance/resistanceapi
 ExecStart=/home/ubuntu/env/bin/python /home/ubuntu/sp3/resistance/resistanceapi/api.py
+RemainAfterExit=True
+
+[Install]
+WantedBy=default.target
