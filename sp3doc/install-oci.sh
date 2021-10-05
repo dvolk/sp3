@@ -73,6 +73,8 @@ systemctl --user restart cattag
 systemctl --user restart catpile
 systemctl --user restart catweb
 
+systemctl --user enable catdap catdownload catfetch catgrid catstat cattag catpile catweb
+
 sleep 60
 
 ###### catcloud
