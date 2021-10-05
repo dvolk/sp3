@@ -89,6 +89,8 @@ fi
 popd
 
 # Restart sp3 services
+cp /home/ubuntu/sp3/sp3doc/systemd/*.service /home/ubuntu/.config/systemd/user
+cp /home/ubuntu/catsgo/*.service /home/ubuntu/.config/systemd/user
 systemctl --user daemon-reload
 systemctl --user restart catdap
 systemctl --user restart catdownload
