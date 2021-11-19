@@ -2489,7 +2489,7 @@ def main(port_=7000):
         sentry_sdk.init(
             cfg.get("sentry_io_url"),
             integrations=[FlaskIntegration()],
-            traces_sample_rate=1.0,
+            traces_sample_rate=0.01,
         )
 
     waitress.serve(app, listen=f"127.0.0.1:{port}")
