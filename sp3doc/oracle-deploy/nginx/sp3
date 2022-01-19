@@ -7,10 +7,10 @@ server {
 
 server {
         listen 443 ssl;
-        server_name *.dev.gpas.world;
+        server_name *.dev.gpas.ox.ac.uk;
 
-        ssl_certificate /etc/letsencrypt/live/dev.gpas.world/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/dev.gpas.world/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/dev.gpas.ox.ac.uk/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/dev.gpas.ox.ac.uk/privkey.pem;
         include /etc/letsencrypt/options-ssl-nginx.conf;
         ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
