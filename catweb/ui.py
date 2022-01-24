@@ -115,7 +115,11 @@ template_nav_links = [
     ["Compute", "fa fa-server fa-fw", "/cluster"],
     ["Documentation", "fa fa-bell fa-fw", "https://sp3docs.mmmoxford.uk/"],
     ["Forum", "fa fa-bank fa-fw", "/forum"],
-    ["Report Issue", "fa fa-history fa-fw", "/forum/post/new?post_template=issue",],
+    [
+        "Report Issue",
+        "fa fa-history fa-fw",
+        "/forum/post/new?post_template=issue",
+    ],
     ["About", "fa fa-hospital-o fa-fw", "/about"],
     ["Admin", "fa fa-cog fa-fw", "/admin"],
 ]
@@ -878,7 +882,6 @@ def list_runs(pipeline_name):
             return json.dumps([run["run_uuid"] for run in pipeline_runs])
         if request.args.get("api") == "v3":
             return json.dumps(db.get_run_and_status(pipeline_name))
-
 
     if "no_sample_count" in flow_cfg.keys():
         pipeline_cfg = {
@@ -2450,7 +2453,10 @@ def new_post():
                 else:
                     con.execute(
                         "update post set replied = ?, replies_count = replies_count + 1 where id = ?",
-                        (now, parent_id,),
+                        (
+                            now,
+                            parent_id,
+                        ),
                     )
 
         # save the post to posts/
