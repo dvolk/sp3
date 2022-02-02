@@ -21,7 +21,7 @@ USERNAME=$(whoami)
 #
 sudo apt update
 sudo apt install etckeeper -y
-sudo apt install build-essential python3-virtualenv python3-pip virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig sqlite3 elpa-magit elpa-jinja2-mode iotop bmon sl pwgen -y
+sudo apt install build-essential python3-virtualenv python3-pip virtualenv openjdk-8-jre-headless openvpn libpython3-all-dev libmysqlclient-dev nginx tree emacs-nox tig sqlite3 elpa-magit elpa-jinja2-mode iotop bmon sl pwgen s3fs -y
 sudo apt-get install mongodb-server=1:3.6.3-0ubuntu1.4 -y
 
 #
